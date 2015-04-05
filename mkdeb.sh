@@ -33,7 +33,6 @@ install -c -m 0755 src/firejail/firejail $INSTALL_DIR/bin/.
 chmod u+s $INSTALL_DIR/bin/firejail
 
 
-
 cd ..
 echo "*****************************************"
 SIZE=`du -s debian/usr`
@@ -63,6 +62,11 @@ cp etc/thunderbird.profile debian/etc/firejail/.
 cp etc/transmission-gtk.profile debian/etc/firejail/.
 cp etc/transmission-qt.profile debian/etc/firejail/.
 cp etc/vlc.profile debian/etc/firejail/.
+cp etc/audacious.profile debian/etc/firejail/.
+cp etc/clementine.profile debian/etc/firejail/.
+cp etc/gnome-mplayer.profile debian/etc/firejail/.
+cp etc/rhythmbox.profile debian/etc/firejail/.
+cp etc/totem.profile debian/etc/firejail/.
 cp platform/debian/conffiles $DEBIAN_CTRL_DIR/.
 find ./debian -type d | xargs chmod 755
 dpkg-deb --build debian

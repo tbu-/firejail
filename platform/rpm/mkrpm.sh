@@ -48,6 +48,11 @@ install -m 644 /etc/firejail/opera.profile firejail-$VERSION/etc/firejail/opera.
 install -m 644 /etc/firejail/transmission-gtk.profile firejail-$VERSION/etc/firejail/transmission-gtk.profile
 install -m 644 /etc/firejail/transmission-qt.profile firejail-$VERSION/etc/firejail/transmission-qt.profile
 install -m 644 /etc/firejail/vlc.profile firejail-$VERSION/etc/firejail/vlc.profile
+install -m 644 /etc/firejail/audacious.profile firejail-$VERSION/etc/firejail/audacious.profile
+install -m 644 /etc/firejail/clementine.profile firejail-$VERSION/etc/firejail/clementine.profile
+install -m 644 /etc/firejail/gnome-mplayer.profile firejail-$VERSION/etc/firejail/gnome-mplayer.profile
+install -m 644 /etc/firejail/rhythmbox.profile firejail-$VERSION/etc/firejail/rhythmbox.profile
+install -m 644 /etc/firejail/totem.profile firejail-$VERSION/etc/firejail/totem.profile
 install -m 644 /etc/firejail/login.users firejail-$VERSION/etc/firejail/login.users
 
 mkdir -p firejail-$VERSION/usr/share/bash-completion/completions
@@ -114,6 +119,12 @@ rm -rf %{buildroot}
 %config(noreplace) %{_sysconfdir}/%{name}/transmission-gtk.profile
 %config(noreplace) %{_sysconfdir}/%{name}/transmission-qt.profile
 %config(noreplace) %{_sysconfdir}/%{name}/vlc.profile
+%config(noreplace) %{_sysconfdir}/%{name}/audacious.profile
+%config(noreplace) %{_sysconfdir}/%{name}/clementine.profile
+%config(noreplace) %{_sysconfdir}/%{name}/gnome-mplayer.profile
+%config(noreplace) %{_sysconfdir}/%{name}/rhythmbox.profile
+%config(noreplace) %{_sysconfdir}/%{name}/totem.profile
+
 /usr/bin/firejail
 /usr/bin/firemon
 /usr/lib/firejail/libtrace.so
@@ -130,6 +141,22 @@ rm -rf %{buildroot}
 chmod u+s /usr/bin/firejail
 
 %changelog
+* Sun Apr 5 2015  netblue30 <netblue30@yahoo.com> 0.9.24-1
+ - whitelist and blacklist seccomp filters
+ - doubledash option
+ - --shell=none support
+ - netfilter file support in profile files
+ - dns server support in profile files
+ - added --dns.print option
+ - added default profiles for Audoacious, Clementine, Rhythmbox and Totem.
+ - added --caps.drop=all in default profiles
+ - new syscalls in default seccomp filter: sysfs, sysctl, adjtimex, kcmp
+ -        clock_adjtime, lookup_dcookie, perf_event_open, fanotify_init
+ - Bugfix: using /proc/sys/kernel/pid_max for the max number of pids
+ - two build patches from Reiner Herman (tickets 11, 12)
+ - man page patch from Reiner Herman (ticket 13)
+ - output patch (ticket 15) from sshirokov
+
 * Mon Mar 9 2015  netblue30 <netblue30@yahoo.com> 0.9.22-1
  - Replaced --noip option with --ip=none
  - Container stdout logging and log rotation

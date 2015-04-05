@@ -8,7 +8,7 @@ firejail (0.9.24) baseline; urgency=low
   * added default profiles for Audoacious, Clementine, Rhythmbox and Totem.
   * added --caps.drop=all in default profiles
   * new syscalls in default seccomp filter: sysfs, sysctl, adjtimex, kcmp
-  *    clock_adjtime, lookup_dcookie, perf_event_open, fanotify_init
+  *         clock_adjtime, lookup_dcookie, perf_event_open, fanotify_init
   * Bugfix: using /proc/sys/kernel/pid_max for the max number of pids
   * two build patches from Reiner Herman (tickets 11, 12)
   * man page patch from Reiner Herman (ticket 13)
