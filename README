@@ -1,8 +1,8 @@
 Firejail  is  a  SUID sandbox program that reduces the risk of security
 breaches by restricting the running environment of  untrusted  applications
 using Linux namespaces and seccomp-bpf. It includes sandbox profiles for
-Iceweasel/Mozilla Firefox, Chromium, Midori, Opera, Evince, Transmission
-and VLC.
+Iceweasel/Mozilla Firefox, Chromium, Midori, Opera, Evince, Transmission,
+VLC, Audoacious, Clementine, Rhythmbox and Totem.
 
 Firejail also expands the restricted shell facility found  in  bash  by adding 
 Linux  namespace support. It supports sandboxing specific users upon login.
@@ -15,6 +15,9 @@ Documentation and support: http://firejail.sourceforge.net
 Authors:
 
 netblue30 (netblue30@yahoo.com)
-Reiner Herrmann
+Reiner Herrmann - a number of build patches, man page fixes (tickets 11, 12, 13)
+sshirokov (http://sourceforge.net/u/yshirokov/profile/) - Patch to output
+	"Reading profile" to stderr instead of stdout (ticket 15)
+
 
 Copyright (C) 2014, 2015 Firejail Authors

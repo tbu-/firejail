@@ -420,7 +420,7 @@ int seccomp_filter_drop(void) {
 		filter_add_blacklist(SYS_lookup_dcookie);
 		filter_add_blacklist(SYS_perf_event_open);
 		filter_add_blacklist(SYS_fanotify_init);
-#ifdef SYS_kcmp // todo: check it on newer distros; it is not in Debian 7	
+#ifdef SYS_kcmp
 		filter_add_blacklist(SYS_kcmp);
 #endif
 	}

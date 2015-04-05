@@ -203,7 +203,8 @@ Set the maximum number of pending signals for a process.
 \fB\-\-seccomp
 Enable seccomp filter and blacklist the syscalls in the default list. The default list is as follows:
 mount, umount2, ptrace, kexec_load, open_by_handle_at, init_module, finit_module, delete_module,
-iopl, ioperm, swapon, swapoff, mknode, syslog, process_vm_readv and process_vm_writev.
+iopl, ioperm, swapon, swapoff, mknode, syslog, process_vm_readv and process_vm_writev,
+sysfs,_sysctl, adjtimex, clock_adjtime, lookup_dcookie, perf_event_open, fanotify_init and kcmp.
 .TP
 \fB\-\-seccomp=syscall,syscall,syscall
 Enable seccomp filter, blacklist the default list and the syscalls specified by the command.
