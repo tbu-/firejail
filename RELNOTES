@@ -5,7 +5,7 @@ firejail (0.9.24) baseline; urgency=low
   * netfilter file support in profile files
   * dns server support in profile files
   * added --dns.print option
-  * added default profiles for Audoacious, Clementine, Rhythmbox and Totem.
+  * added default profiles for Audacious, Clementine, Gnome-MPlayer, Rhythmbox and Totem.
   * added --caps.drop=all in default profiles
   * new syscalls in default seccomp filter: sysfs, sysctl, adjtimex, kcmp
   *         clock_adjtime, lookup_dcookie, perf_event_open, fanotify_init
