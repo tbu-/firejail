@@ -1,3 +1,9 @@
+* dash test not working under CentOS
+
+* netfilter not working under CentOS
+runs test/net_netfilter.exp
+iptables-restore problem
+
 * gnome-keyring
 https://wiki.ubuntu.com/SecurityTeam/Specifications/ApplicationConfinement
 nice article on gnome keyring
