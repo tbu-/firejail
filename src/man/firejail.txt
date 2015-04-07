@@ -182,6 +182,9 @@ Mount new /root and /home/user directories.
 \fB\-\-private=directory
 Use directory as user home.
 .TP
+\fB\-\-private-dev
+Create a new /dev directory. Only null, full, zero, tty, random, urandom and shm devices are available.
+.TP
 \fB\-\-profile=filename
 Use a custom profile, see below.
 .TP

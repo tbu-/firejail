@@ -129,6 +129,8 @@ void usage(void) {
 	printf("\t\tto work)\n\n");    
 	printf("\t--private - mount new /root and /home/user directories.\n\n");
 	printf("\t--private=directory - use directory as user home.\n\n");
+	printf("\t--private-dev - create a new /dev directory. Only null, full, zero, tty,\n");
+	printf("\t\trandom, urandom and shm devices are available.\n\n");
 	printf("\t--profile=filename - use a custom profile.\n\n");
 	printf("\t--read-only=dirname_or_filename - set directory or file read-only.\n\n");
 	printf("\t--rlimit-fsize=number - set the maximum file size that can be created\n");
