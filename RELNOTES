@@ -1,3 +1,9 @@
+firejail (0.9.25) baseline; urgency=low
+  * ongoing development
+  * private dev directory - to do help and man pages
+ -- netblue30 <netblue30@yahoo.com>  Mon, 6 Apr 2015 08:00:00 -0500
+
+
 firejail (0.9.24) baseline; urgency=low
   * whitelist and blacklist seccomp filters
   * doubledash option

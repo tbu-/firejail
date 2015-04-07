@@ -70,6 +70,7 @@ int arg_netfilter;				// enable netfilter
 char *arg_netfilter_file = NULL;			// netfilter file
 int arg_doubledash = 0;			// double dash
 int arg_shell_none = 0;			// run the program directly without a shell
+int arg_private_dev = 0;			// private dev directory
 
 int fds[2];					// parent-child communication pipe
 char *fullargv[MAX_ARGS];			// expanded argv for restricted shell
@@ -552,6 +553,10 @@ int main(int argc, char **argv) {
 			check_private_dir();
 			arg_private = 1;
 		}
+		else if (strcmp(argv[i], "--private-dev") == 0) {
+			arg_private_dev = 1;
+		}
+			
 
 
 		//*************************************

@@ -528,7 +528,8 @@ void fs_basic_fs(void) {
 	fs_rdonly("/var");
 
 	// update /var directory in order to support multiple sandboxes running on the same root directory
-	fs_dev_shm();
+	if (!arg_private_dev)
+		fs_dev_shm();
 	fs_var_lock();
 	fs_var_tmp();
 	fs_var_log();
@@ -657,7 +658,8 @@ void fs_overlayfs(void) {
 	if (chroot(oroot) == -1)
 		errExit("chroot");
 	// update /var directory in order to support multiple sandboxes running on the same root directory
-	fs_dev_shm();
+	if (!arg_private_dev)
+		fs_dev_shm();
 	fs_var_lock();
 	fs_var_tmp();
 	fs_var_log();
@@ -779,7 +781,8 @@ void fs_chroot(const char *rootdir) {
 		errExit("chroot");
 		
 	// update /var directory in order to support multiple sandboxes running on the same root directory
-	fs_dev_shm();
+	if (!arg_private_dev)
+		fs_dev_shm();
 	fs_var_lock();
 	fs_var_tmp();
 	fs_var_log();

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "firetools.h"
 #include "applications.h"
 #include "../common/utils.h"
 #include <QDirIterator>
@@ -31,7 +32,8 @@ in the current theme.
 */
 QIcon Application::loadIcon(QString name) {
 	if (name.startsWith('/') || name.startsWith(":resources")) {
-		printf("icon %s: full path\n", name.toLocal8Bit().data());
+		if (arg_debug)
+			printf("icon %s: full path\n", name.toLocal8Bit().data());
 		return QIcon(name);
 	}
 	
@@ -39,19 +41,22 @@ QIcon Application::loadIcon(QString name) {
 	QString conf = QDir::homePath() + "/.config/firejail/" + name + ".png";
 	QFileInfo checkFile1(conf);
 	if (checkFile1.exists() && checkFile1.isFile()) {
-		printf("icon %s: local config dir\n", name.toLocal8Bit().data());
+		if (arg_debug)
+			printf("icon %s: local config dir\n", name.toLocal8Bit().data());
 		return QIcon(conf);
 	}
 	conf = QDir::homePath() + "/.config/firejail/" + name + ".jpg";
 	QFileInfo checkFile2(conf);
 	if (checkFile2.exists() && checkFile2.isFile()) {
-		printf("icon %s: local config dir\n", name.toLocal8Bit().data());
+		if (arg_debug)
+			printf("icon %s: local config dir\n", name.toLocal8Bit().data());
 		return QIcon(conf);
 	}
 	conf = QDir::homePath() + "/.config/firejail/" + name + ".svg";
 	QFileInfo checkFile3(conf);
 	if (checkFile3.exists() && checkFile3.isFile()) {
-		printf("icon %s: local config dir\n", name.toLocal8Bit().data());
+		if (arg_debug)
+			printf("icon %s: local config dir\n", name.toLocal8Bit().data());
 		return QIcon(conf);
 	}
 	
@@ -62,7 +67,8 @@ QIcon Application::loadIcon(QString name) {
 			it.next();
 			QFileInfo fi = it.fileInfo();
 			if (fi.isFile() && fi.baseName() == name) {
-				printf("icon %s: scalable\n", name.toLocal8Bit().data());
+				if (arg_debug)
+					printf("icon %s: scalable\n", name.toLocal8Bit().data());
 				return QIcon(fi.canonicalFilePath());
 			}
 		}
@@ -74,7 +80,8 @@ QIcon Application::loadIcon(QString name) {
 			it.next();
 			QFileInfo fi = it.fileInfo();
 			if (fi.isFile() && fi.baseName() == name) {
-				printf("icon %s: 64x64\n", name.toLocal8Bit().data());
+				if (arg_debug)
+					printf("icon %s: 64x64\n", name.toLocal8Bit().data());
 				return QIcon(fi.canonicalFilePath());
 			}
 		}
@@ -86,7 +93,8 @@ QIcon Application::loadIcon(QString name) {
 			it.next();
 			QFileInfo fi = it.fileInfo();
 			if (fi.isFile() && fi.baseName() == name) {
-				printf("icon %s: 128x128\n", name.toLocal8Bit().data());
+				if (arg_debug)
+					printf("icon %s: 128x128\n", name.toLocal8Bit().data());
 				return QIcon(fi.canonicalFilePath());
 			}
 		}
@@ -98,7 +106,8 @@ QIcon Application::loadIcon(QString name) {
 			it.next();
 			QFileInfo fi = it.fileInfo();
 			if (fi.isFile() && fi.baseName() == name) {
-				printf("icon %s: 256x256\n", name.toLocal8Bit().data());
+				if (arg_debug)
+					printf("icon %s: 256x256\n", name.toLocal8Bit().data());
 				return QIcon(fi.canonicalFilePath());
 			}
 		}
@@ -127,12 +136,14 @@ QIcon Application::loadIcon(QString name) {
 	}	
 	
 	if (QIcon::hasThemeIcon(name)) {
-		printf("icon %s: fromTheme\n", name.toLocal8Bit().data());
+		if (arg_debug)
+			printf("icon %s: fromTheme\n", name.toLocal8Bit().data());
 		return QIcon::fromTheme(name);
 	}
 	
 	// create a new icon
-	printf("icon %s: created\n", name.toLocal8Bit().data());
+	if (arg_debug)
+		printf("icon %s: created\n", name.toLocal8Bit().data());
 	QPixmap pix(64, 64);
 	pix.fill(Qt::red);
 	QPainter painter( &pix );

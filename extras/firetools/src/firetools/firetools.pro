@@ -1,5 +1,5 @@
  HEADERS       = mainwindow.h ../common/utils.h ../common/pid.h ../common/common.h applications.h \
-		  pid_thread.h db.h dbstorage.h dbpid.h stats_dialog.h graph.h
+		  pid_thread.h db.h dbstorage.h dbpid.h stats_dialog.h graph.h firetools.h
  SOURCES       = mainwindow.cpp \
                  main.cpp \
                  stats_dialog.cpp \

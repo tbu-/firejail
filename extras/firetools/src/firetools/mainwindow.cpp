@@ -72,7 +72,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event) {
 			hide();
 			stats_->hide();
 		}
-		dragPosition = event->globalPos() - frameGeometry().topLeft();
+		dragPosition_ = event->globalPos() - frameGeometry().topLeft();
 		event->accept();
 		active_index_ = -1;
 	}
@@ -93,7 +93,7 @@ void MainWindow::mousePressEvent(QMouseEvent *event) {
 
 void MainWindow::mouseMoveEvent(QMouseEvent *event) {
 	if (event->buttons() & Qt::LeftButton) {
-		move(event->globalPos() - dragPosition);
+		move(event->globalPos() - dragPosition_);
 		event->accept();
 	}
 }
@@ -136,12 +136,9 @@ void MainWindow::paintEvent(QPaintEvent *) {
 			
 		QIcon icon = applist[i].app_icon_;
 		int sz = 64 ;
-		if (active_index_ == i) {
-			int id = animation_id_;
-			if (id == AFRAMES)
-				id = AFRAMES / 2;
-			sz -= id * 3;
-		}
+		if (active_index_ == i)
+			sz -= animation_id_ * 3;
+			
 		QPixmap pixmap = icon.pixmap(QSize(sz, sz), QIcon::Normal, QIcon::On);
 		painter.drawPixmap(QPoint(MARGIN * 2 + (64 - sz) / 2 + (i / ROWS) * 64, MARGIN *2 + j * 64 + TOP + (64 - sz) / 2), pixmap);
 	}

@@ -40,7 +40,7 @@ private:
    	void createLocalActions();
 	
 private:
-	QPoint dragPosition;
+	QPoint dragPosition_;
 	QAction *qedit_;
 	QAction *qrun_;
 	int active_index_;

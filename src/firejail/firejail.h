@@ -133,6 +133,7 @@ extern int arg_netfilter;	// enable netfilter
 extern char *arg_netfilter_file;	// netfilter file
 extern int arg_doubledash;	// double dash
 extern int arg_shell_none;	// run the program directly without a shell
+extern int arg_private_dev;	// private dev directory
 extern int fds[2];
 
 #define MAX_ARGS 128		// maximum number of command arguments (argc)
@@ -254,6 +255,7 @@ void dbg_test_dir(const char *dir);
 
 // fs_dev.c
 void fs_dev_shm(void);
+void fs_private_dev(void);
 
 // fs_home.c
 // private mode: mount tmpfs over /home and /tmp
