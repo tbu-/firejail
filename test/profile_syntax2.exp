@@ -15,7 +15,8 @@ expect {
 }
 expect {
 	timeout {puts "TESTING ERROR 2\n";exit}
-	"Disable /bin/rmdir"
+	"Disable /bin/rmdir" {puts "Most Linux platforms\n"}
+        "Disable /usr/bin/rmdir" { puts "OpenSUSE platform\n"}
 }
 expect {
 	timeout {puts "TESTING ERROR 3\n";exit}
