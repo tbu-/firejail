@@ -5,6 +5,7 @@ It seems iptables is at /usr/sbin/iptables, not /sbin/iptables
 
 * --name not working on OpenSUSE; somehow the system
 does not read /etc/hosts
+fixed by changing enable-cache hosts no in /etc/nscd.conf
 
 running trace.exp, firejail --trace wget -q debian.org
 does not print "1:wget:fopen /etc/hosts"
