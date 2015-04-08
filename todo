@@ -16,6 +16,18 @@ does not print "1:wget:fopen /etc/hosts"
 runs test/net_netfilter.exp
 iptables-restore problem
 
+* netfilter does not work under Gentoo
+iptables-restore v1.4.21: iptables-restore: unable to initialize table 'filter'
+
+Error occurred at line: 1
+Try `iptables-restore -h' or 'iptables-restore --help' for more information.
+iptables v1.4.21: can't initialize iptables table `filter': Permission denied (you must be root)
+Perhaps iptables or your kernel needs to be upgraded.
+
+??? seems to be working fine if the sandbox was started as root
+
+
+
 * gnome-keyring
 https://wiki.ubuntu.com/SecurityTeam/Specifications/ApplicationConfinement
 nice article on gnome keyring
