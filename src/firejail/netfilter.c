@@ -82,22 +82,48 @@ void netfilter(const char *fname) {
 	fprintf(fp, "%s\n", filter);
 	fclose(fp);
 
+	// find iptables command
+	struct stat s;
+	char *iptables = NULL;
+	if (stat("/sbin/iptables", &s) == 0)
+		iptables = "/sbin/iptables";
+	else if (stat("/usr/sbin/iptables", &s) == 0)
+		iptables = "/usr/sbin/iptables";
+	else if (stat("/bin/iptables", &s) == 0)
+		iptables = "/bin/iptables";
+	else if (stat("/usr/bin/iptables", &s) == 0)
+		iptables = "/usr/bin/iptables";
+	if (iptables == NULL) {
+		fprintf(stderr, "Error: iptables command not found\n");
+		goto doexit;
+	}		
+
 	// push filter
 	int rv;
 	if (arg_debug)
 		printf("Installing network filter:\n%s\n", filter);
 
-	rv = system("/sbin/iptables-restore < /tmp/netfilter");
+	char *cmd;
+	if (asprintf(&cmd, "%s-restore < /tmp/netfilter", iptables) == -1)
+		errExit("asprintf");
+	rv = system(cmd);
 	if (rv == -1) {
 		fprintf(stderr, "Error: failed to configure network filter.\n");
 		exit(1);
 	}
-	if (arg_debug)
-		rv = system("/sbin/iptables -vL");
+	free(cmd);
 	
+	if (arg_debug) {
+		if (asprintf(&cmd, "%s -vL", iptables) == -1)
+			errExit("asprintf");
+		rv = system(cmd);
+		free(cmd);
+	}
+	
+doexit:	
 	// unmount /tmp
 	umount("/tmp");
-	
+
 	if (allocated)
 		free(filter);
 }
