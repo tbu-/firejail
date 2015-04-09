@@ -25,13 +25,20 @@
 #include <dirent.h>
 #include <fcntl.h>
 #include <pwd.h>
+#ifndef _BSD_SOURCE
+#define _BSD_SOURCE 
+#endif
+#include <sys/types.h>
 
-static void create_dev(const char *path, const char *cmd) {
-	int rv = system(cmd);
-	if (rv == -1)
+static void create_char_dev(const char *path, mode_t mode, int major, int minor) {
+	dev_t dev = makedev(major, minor);
+	int rv = mknod(path, S_IFCHR | mode, dev);
+
+	if (chmod(path, mode) < 0)
 		goto errexit;
 	if (chown(path, 0, 0) < 0)
 		goto errexit;
+
 	return;
 	
 errexit:
@@ -39,6 +46,7 @@ errexit:
 	exit(1);
 }
 
+#if 0
 static void create_link(const char *oldpath, const char *newpath) {
 	if (symlink(oldpath, newpath) == -1)
 		goto errexit;
@@ -50,6 +58,7 @@ errexit:
 	fprintf(stderr, "Error: cannot create %s device\n", newpath);
 	exit(1);
 }
+#endif
 
 void fs_private_dev(void){
 	// install a new /dev directory
@@ -68,12 +77,12 @@ void fs_private_dev(void){
 		errExit("chmod");
 
 	// create devices
-	create_dev("/dev/zero", "mknod -m 666 /dev/zero c 1 5");
-	create_dev("/dev/null", "mknod -m 666 /dev/null c 1 3");
-	create_dev("/dev/full", "mknod -m 666 /dev/full c 1 7");
-	create_dev("/dev/random", "mknod -m 666 /dev/random c 1 8");
-	create_dev("/dev/urandom", "mknod -m 666 /dev/urandom c 1 9");
-	create_dev("/dev/tty", "mknod -m 666 /dev/tty c 5 0");
+	create_char_dev("/dev/zero", 0666, 1, 5); // mknod -m 666 /dev/zero c 1 5
+	create_char_dev("/dev/null", 0666, 1, 3); // mknod -m 666 /dev/null c 1 3
+	create_char_dev("/dev/full", 0666, 1, 7); // mknod -m 666 /dev/full c 1 7
+	create_char_dev("/dev/random", 0666, 1, 8); // Mknod -m 666 /dev/random c 1 8
+	create_char_dev("/dev/urandom", 0666, 1, 9); // mknod -m 666 /dev/urandom c 1 9
+	create_char_dev("/dev/tty", 0666,  5, 0); // mknod -m 666 /dev/tty c 5 0
 #if 0
 	create_dev("/dev/tty0", "mknod -m 666 /dev/tty0 c 4 0");
 	create_dev("/dev/console", "mknod -m 622 /dev/console c 5 1");
