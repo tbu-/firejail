@@ -123,12 +123,15 @@ void netfilter(const char *fname) {
 
 	// debug
 	if (arg_debug) {
-		char *cmd;
-		if (asprintf(&cmd, "%s -vL", iptables) == -1)
-			errExit("asprintf");
-		int rv = system(cmd);
-		(void) rv;
-		free(cmd);
+	        child = fork();
+	        if (child < 0)
+        	        errExit("fork");
+	        if (child == 0) {
+			execl(iptables, iptables, "-vL", NULL);
+	                // it will never get here!!!
+        	}
+	        // wait for the child to finish
+        	waitpid(child, NULL, 0);
 	}
 	
 doexit:	

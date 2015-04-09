@@ -39,7 +39,15 @@ expect {
 }
 send -- "ls -al; pwd\r"
 expect {
-	timeout {puts "TESTING ERROR 0.3\n";exit}
+	timeout {
+		# OpenSUSE doesn't use .Xauthority from user home directory
+		send -- "env | grep XAUTHORITY\r"
+
+		expect {
+			timeout {puts "TESTING ERROR 0.3\n";exit}
+			"/run/lightdm/netblue/xauthority"
+		}
+	}
 	".Xauthority"
 }
 expect {
