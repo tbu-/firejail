@@ -20,6 +20,7 @@
 #include "firejail.h"
 #include <sys/mount.h>
 #include <sys/stat.h>
+#include <fcntl.h>
 
 static char *client_filter = 
 "*filter\n"
@@ -85,38 +86,48 @@ void netfilter(const char *fname) {
 	// find iptables command
 	struct stat s;
 	char *iptables = NULL;
-	if (stat("/sbin/iptables", &s) == 0)
+	char *iptables_restore = NULL;
+	if (stat("/sbin/iptables", &s) == 0) {
 		iptables = "/sbin/iptables";
-	else if (stat("/usr/sbin/iptables", &s) == 0)
+		iptables_restore = "/sbin/iptables-restore";
+	}
+	else if (stat("/usr/sbin/iptables", &s) == 0) {
 		iptables = "/usr/sbin/iptables";
-	else if (stat("/bin/iptables", &s) == 0)
-		iptables = "/bin/iptables";
-	else if (stat("/usr/bin/iptables", &s) == 0)
-		iptables = "/usr/bin/iptables";
-	if (iptables == NULL) {
+		iptables_restore = "/usr/sbin/iptables-restore";
+	}
+	if (iptables == NULL || iptables_restore == NULL) {
 		fprintf(stderr, "Error: iptables command not found\n");
 		goto doexit;
-	}		
-
-	// push filter
-	int rv;
-	if (arg_debug)
-		printf("Installing network filter:\n%s\n", filter);
-
-	char *cmd;
-	if (asprintf(&cmd, "%s-restore < /tmp/netfilter", iptables) == -1)
-		errExit("asprintf");
-	rv = system(cmd);
-	if (rv == -1) {
-		fprintf(stderr, "Error: failed to configure network filter.\n");
-		exit(1);
 	}
-	free(cmd);
 	
+	// push filter
+	pid_t child = fork();
+	if (child < 0)
+		errExit("fork");
+	if (child == 0) {
+		if (arg_debug)
+			printf("Installing network filter:\n%s\n", filter);
+		
+		int fd;
+		if((fd = open("/tmp/netfilter", O_RDONLY)) == -1) {
+			fprintf(stderr,"Error: cannot open /tmp/netfilter\n");
+			exit(1);
+		}
+		dup2(fd,STDIN_FILENO);
+		close(fd);
+		execl(iptables_restore, iptables_restore, NULL);
+		// it will never get here!!!
+	}
+	// wait for the child to finish
+	waitpid(child, NULL, 0);
+
+	// debug
 	if (arg_debug) {
+		char *cmd;
 		if (asprintf(&cmd, "%s -vL", iptables) == -1)
 			errExit("asprintf");
-		rv = system(cmd);
+		int rv = system(cmd);
+		(void) rv;
 		free(cmd);
 	}
 	
