@@ -211,6 +211,7 @@ void applications_init() {
 
 	if (which("clementine"))
 		applist.append(Application("Clementine", "firejail clementine", "application-x-clementine"));
+
 }
 
 
