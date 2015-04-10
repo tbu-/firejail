@@ -44,6 +44,9 @@ echo "TESTING: shutdown"
 echo "TESTING: join"
 ./option-join.exp
 
+echo "TESTING: firejail in firejail"
+./firejail-in-firejail.exp
+
 echo "TESTING: chroot overlay"
 ./option_chroot_overlay.exp
 

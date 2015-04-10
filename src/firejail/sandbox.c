@@ -68,6 +68,22 @@ static void sandbox_if_up(Bridge *br) {
 	}
 }
 
+static void chk_chroot(void) {
+		// if we are starting firejail inside some other container technology, we don't care about this
+	char *mycont = getenv("container");
+	if (mycont)
+		return;
+	
+	// check if this is a regular chroot
+	struct stat s;
+	if (stat("/", &s) == 0) {
+		if (s.st_ino != 2)
+			return;
+	}
+	
+	fprintf(stderr, "Error: cannot mount filesystem as slave\n");
+	exit(1);
+}
 
 int sandbox(void* sandbox_arg) {
 	if (arg_debug)
@@ -111,12 +127,7 @@ int sandbox(void* sandbox_arg) {
 	//****************************
 	// mount events are not forwarded between the host the sandbox
 	if (mount(NULL, "/", NULL, MS_SLAVE | MS_REC, NULL) < 0) {
-		// if we are starting firejail inside firejail, we don't care about this
-		char *mycont = getenv("container");
-		if (mycont == NULL)
-			errExit("mounting filesystem as slave");
-		if (strcmp(mycont, "firejail") != 0)
-			errExit("mounting filesystem as slave");
+		chk_chroot();
 	}
 	
 	//****************************
