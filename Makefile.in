@@ -87,6 +87,8 @@ install: all
 	install -c -m 0644 etc/thunderbird.profile $(DESTDIR)/etc/firejail/.
 	install -c -m 0644 etc/transmission-gtk.profile $(DESTDIR)/etc/firejail/.
 	install -c -m 0644 etc/transmission-qt.profile $(DESTDIR)/etc/firejail/.
+	install -c -m 0644 etc/deluge.profile $(DESTDIR)/etc/firejail/.
+	install -c -m 0644 etc/qbittorrent.profile $(DESTDIR)/etc/firejail/.
 	install -c -m 0644 etc/vlc.profile $(DESTDIR)/etc/firejail/.
 	bash -c "if [ ! -f /etc/firejail/login.users ]; then install -c -m 0644 etc/login.users $(DESTDIR)/etc/firejail/.; fi;"
 	# man pages

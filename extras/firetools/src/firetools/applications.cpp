@@ -184,9 +184,15 @@ void applications_init() {
 		applist.append(Application("Evince PDF viewer", "firejail evince", "evince"));
 
 	if (which("transmission-gtk"))
-		applist.append(Application("Transmission BitTorrent", "firejail transmission-gtk", "transmission"));
+		applist.append(Application("Transmission BitTorrent Client", "firejail transmission-gtk", "transmission"));
 	else if (which("transmission-qt"))
-		applist.append(Application("Transmission BitTorrent", "firejail transmission-qt", "transmission"));
+		applist.append(Application("Transmission BitTorrent Client", "firejail transmission-qt", "transmission"));
+
+	if (which("deluge"))
+		applist.append(Application("Deluge BitTorrent Client", "firejail deluge", "deluge"));
+
+	if (which("qbittorrent"))
+		applist.append(Application("qBittorrent Client", "firejail qbittorrent", "qbittorrent"));
 
 	if (which("vlc"))
 		applist.append(Application("VideoLAN Client", "firejail vlc", "vlc"));
