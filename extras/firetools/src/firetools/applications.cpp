@@ -157,8 +157,10 @@ QIcon Application::loadIcon(QString name) {
 
 
 void applications_init() {
+	// firetools
 	applist.append(Application("Firejail Tools and Statistics", "firestats", ":resources/firestats.png"));
 
+	// browsers
 	if (which("iceweasel"))
 		applist.append(Application("Debian Iceweasel", "firejail iceweasel", "iceweasel"));
 	else if (which("firefox"))
@@ -175,14 +177,17 @@ void applications_init() {
 	if (which("opera"))
 		applist.append(Application("Opera Web Browser", "firejail opera", "opera"));
 
+	// email
 	if (which("icedove"))
 		applist.append(Application("Debian Icedove", "firejail icedove", ":resources/icedove.png"));
 	else if (which("thunderbird"))
 		applist.append(Application("Thunderbird", "firejail thunderbird", ":resources/icedove.png"));
 
+	// pdf viewers
 	if (which("evince"))
 		applist.append(Application("Evince PDF viewer", "firejail evince", "evince"));
 
+	// bittorrent
 	if (which("transmission-gtk"))
 		applist.append(Application("Transmission BitTorrent Client", "firejail transmission-gtk", "transmission"));
 	else if (which("transmission-qt"))
@@ -194,6 +199,7 @@ void applications_init() {
 	if (which("qbittorrent"))
 		applist.append(Application("qBittorrent Client", "firejail qbittorrent", "qbittorrent"));
 
+	// multimedia
 	if (which("vlc"))
 		applist.append(Application("VideoLAN Client", "firejail vlc", "vlc"));
 
@@ -211,6 +217,10 @@ void applications_init() {
 
 	if (which("clementine"))
 		applist.append(Application("Clementine", "firejail clementine", "application-x-clementine"));
+
+	// terminal
+	if (which("xterm"))
+		applist.append(Application("xterm", "firejail --profile=/etc/firejail/generic.profile xterm", ":resources/gnome-terminal"));
 
 }
 

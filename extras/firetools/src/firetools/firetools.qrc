@@ -3,5 +3,6 @@
    <file>resources/firetools.png</file>
    <file>resources/firestats.png</file>
    <file>resources/icedove.png</file>
+   <file>resources/gnome-terminal.png</file>
 </qresource>
 </RCC>

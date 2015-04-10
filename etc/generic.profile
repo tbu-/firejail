@@ -29,7 +29,7 @@ blacklist ${HOME}/.adobe
 blacklist ${HOME}/.macromedia
 blacklist ${HOME}/.icedove
 blacklist ${HOME}/.thunderbird
-caps
+caps.drop all
 seccomp
 netfilter
 
