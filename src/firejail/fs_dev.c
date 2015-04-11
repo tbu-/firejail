@@ -46,7 +46,6 @@ errexit:
 	exit(1);
 }
 
-#if 0
 static void create_link(const char *oldpath, const char *newpath) {
 	if (symlink(oldpath, newpath) == -1)
 		goto errexit;
@@ -58,7 +57,6 @@ errexit:
 	fprintf(stderr, "Error: cannot create %s device\n", newpath);
 	exit(1);
 }
-#endif
 
 void fs_private_dev(void){
 	// install a new /dev directory
@@ -86,6 +84,7 @@ void fs_private_dev(void){
 #if 0
 	create_dev("/dev/tty0", "mknod -m 666 /dev/tty0 c 4 0");
 	create_dev("/dev/console", "mknod -m 622 /dev/console c 5 1");
+#endif
 
 	// pseudo-terminal
 	mkdir("/dev/pts", 0755);
@@ -93,10 +92,13 @@ void fs_private_dev(void){
 		errExit("chown");
 	if (chmod("/dev/pts", 0755) < 0)
 		errExit("chmod");
-	create_dev("/dev/pts/ptmx", "mknod -m 666 /dev/pts/ptmx c 5 2");
+	create_char_dev("/dev/pts/ptmx", 0666, 5, 2); //"mknod -m 666 /dev/pts/ptmx c 5 2");
 	create_link("/dev/pts/ptmx", "/dev/ptmx");
-//system("mount -vt devpts -o gid=4,mode=620 none /dev/pts");	
+	// mount -vt devpts -o newinstance -o ptmxmode=0666 devpts //dev/pts
+	if (mount("devpts", "/dev/pts", "devpts", MS_MGC_VAL,  "newinstance,ptmxmode=0666") < 0)
+		errExit("mounting /dev/pts");
 
+#if 0
 	// stdin, stdout, stderr
 	create_link("/proc/self/fd", "/dev/fd");
 	create_link("/proc/self/fd/0", "/dev/stdin");
