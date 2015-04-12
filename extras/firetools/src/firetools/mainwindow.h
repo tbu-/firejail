@@ -45,6 +45,7 @@ private:
 	QAction *qrun_;
 	int active_index_;
 	int animation_id_;
+	int edit_index_;
 	PidThread *thread_;
 	StatsDialog *stats_;
 	

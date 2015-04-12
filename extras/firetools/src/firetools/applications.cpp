@@ -6,8 +6,8 @@
 #include <QPainter>
 QList<Application> applist;
 
-Application::Application(const char *name, const char *exec, const char *icon):
-	name_(name), exec_(exec), icon_(icon) {
+Application::Application(const char *name, const char *description, const char *exec, const char *icon):
+	name_(name), description_(description), exec_(exec), icon_(icon) {
 	
 	exec_ += " &";
 	app_icon_ = loadIcon(icon_);
@@ -158,69 +158,69 @@ QIcon Application::loadIcon(QString name) {
 
 void applications_init() {
 	// firetools
-	applist.append(Application("Firejail Tools and Statistics", "firestats", ":resources/firestats.png"));
+	applist.append(Application("firestats", "Firejail Tools and Statistics", "firestats", ":resources/firestats.png"));
 
 	// browsers
 	if (which("iceweasel"))
-		applist.append(Application("Debian Iceweasel", "firejail iceweasel", "iceweasel"));
+		applist.append(Application("iceweasel", "Debian Iceweasel", "firejail iceweasel", "iceweasel"));
 	else if (which("firefox"))
-		applist.append(Application("Mozilla Firefox", "firejail firefox", "firefox"));
+		applist.append(Application("firefox", "Mozilla Firefox", "firejail firefox", "firefox"));
 
 	if (which("chromium"))
-		applist.append(Application("Chromium Web Browser", "firejail chromium", "chromium"));
+		applist.append(Application("chromium", "Chromium Web Browser", "firejail chromium", "chromium"));
 	else if (which("chromium-browser"))
-		applist.append(Application("Chromium Web Browser", "firejail chromium-browser", "chromium-browser"));
+		applist.append(Application("chromium", "Chromium Web Browser", "firejail chromium-browser", "chromium-browser"));
 	
 	if (which("midori"))
-		applist.append(Application("Midori Web Browser", "firejail midori", "midori"));
+		applist.append(Application("midori", "Midori Web Browser", "firejail midori", "midori"));
 
 	if (which("opera"))
-		applist.append(Application("Opera Web Browser", "firejail opera", "opera"));
+		applist.append(Application("opera", "Opera Web Browser", "firejail opera", "opera"));
 
 	// email
 	if (which("icedove"))
-		applist.append(Application("Debian Icedove", "firejail icedove", ":resources/icedove.png"));
+		applist.append(Application("icedove", "Debian Icedove", "firejail icedove", ":resources/icedove.png"));
 	else if (which("thunderbird"))
-		applist.append(Application("Thunderbird", "firejail thunderbird", ":resources/icedove.png"));
+		applist.append(Application("thunderbird", "Thunderbird", "firejail thunderbird", ":resources/icedove.png"));
 
 	// pdf viewers
 	if (which("evince"))
-		applist.append(Application("Evince PDF viewer", "firejail evince", "evince"));
+		applist.append(Application("evince", "Evince PDF viewer", "firejail evince", "evince"));
 
 	// bittorrent
 	if (which("transmission-gtk"))
-		applist.append(Application("Transmission BitTorrent Client", "firejail transmission-gtk", "transmission"));
+		applist.append(Application("transmission", "Transmission BitTorrent Client", "firejail transmission-gtk", "transmission"));
 	else if (which("transmission-qt"))
-		applist.append(Application("Transmission BitTorrent Client", "firejail transmission-qt", "transmission"));
+		applist.append(Application("transmission", "Transmission BitTorrent Client", "firejail transmission-qt", "transmission"));
 
 	if (which("deluge"))
-		applist.append(Application("Deluge BitTorrent Client", "firejail deluge", "deluge"));
+		applist.append(Application("deluge", "Deluge BitTorrent Client", "firejail deluge", "deluge"));
 
 	if (which("qbittorrent"))
-		applist.append(Application("qBittorrent Client", "firejail qbittorrent", "qbittorrent"));
+		applist.append(Application("qbittorrent", "qBittorrent Client", "firejail qbittorrent", "qbittorrent"));
 
 	// multimedia
 	if (which("vlc"))
-		applist.append(Application("VideoLAN Client", "firejail vlc", "vlc"));
+		applist.append(Application("vlc", "VideoLAN Client", "firejail vlc", "vlc"));
 
 	if (which("rhythmbox"))
-		applist.append(Application("Rhythmbox", "firejail rhythmbox", "rhythmbox"));
+		applist.append(Application("rhythmbox", "Rhythmbox", "firejail rhythmbox", "rhythmbox"));
 
 	if (which("totem"))
-		applist.append(Application("Totem", "firejail totem", "totem"));
+		applist.append(Application("totem", "Totem", "firejail totem", "totem"));
 
 	if (which("audacious"))
-		applist.append(Application("Audacious", "firejail audacious", "audacious"));
+		applist.append(Application("audacious", "Audacious", "firejail audacious", "audacious"));
 
 	if (which("gnome-mplayer"))
-		applist.append(Application("GNOME MPlayer", "firejail gnome-mplayer", "gnome-mplayer"));
+		applist.append(Application("gnome-mplayer", "GNOME MPlayer", "firejail gnome-mplayer", "gnome-mplayer"));
 
 	if (which("clementine"))
-		applist.append(Application("Clementine", "firejail clementine", "application-x-clementine"));
+		applist.append(Application("clementine", "Clementine", "firejail clementine", "application-x-clementine"));
 
 	// terminal
 	if (which("xterm"))
-		applist.append(Application("xterm", "firejail --profile=/etc/firejail/generic.profile xterm", ":resources/gnome-terminal"));
+		applist.append(Application("xterm", "xterm", "firejail --profile=/etc/firejail/generic.profile xterm", ":resources/gnome-terminal"));
 
 }
 
@@ -237,9 +237,26 @@ int applications_get_index(QPoint pos) {
 		int index_x = (pos.x() - 2 * MARGIN) / 64;
 		int index = index_y + index_x * ROWS;
 
-		if (index < nelem) {
+		if (index < nelem)
 			return index;
-		}
+	}
+	return -1;
+}
+
+int applications_get_position(QPoint pos) {
+	int nelem = applist.count();
+	int cols = nelem / ROWS + 1;
+
+	if (pos.y() < (MARGIN * 2 + TOP))
+		return -1;
+
+	if (pos.x() > (MARGIN * 2) && pos.x() < (MARGIN * 2 + cols * 64)) {
+		int index_y = (pos.y() - 2 * MARGIN - TOP) / 64;
+		int index_x = (pos.x() - 2 * MARGIN) / 64;
+		int index = index_y + index_x * ROWS;
+
+//		if (index < nelem)
+			return index;
 	}
 	return -1;
 }

@@ -5,9 +5,11 @@
 #include "applications.h"
 #include "pid_thread.h"
 #include "stats_dialog.h"
+#include "edit_dialog.h"
 
 MainWindow::MainWindow(QWidget *parent): QWidget(parent, Qt::FramelessWindowHint | Qt::WindowSystemMenuHint) {
 	active_index_ = -1;
+	edit_index_ = -1;
 	animation_id_ = 0;
 	stats_ = new StatsDialog();
 	connect(this, SIGNAL(cycleReadySignal()), stats_, SLOT(cycleReady()));
@@ -39,7 +41,36 @@ void MainWindow::cycleReady() {
 }
 
 void MainWindow::edit() {
-	printf("edit not impelemnted\n");
+
+#if 0
+	EditDialog *edit = new EditDialog();
+		
+	if (QDialog::Accepted == edit->exec()) {
+printf("accepted\n");		
+	}
+	else
+printf("not accepted\n");
+	delete edit;	
+#endif
+
+	if (edit_index_ != -1) {
+		if (edit_index_ == 0) {
+printf("here %d\n", __LINE__);			
+		}
+		else {
+			EditDialog *edit;
+			if (active_index_ == -1)
+				edit = new EditDialog("", "", "");
+			else
+				edit = new EditDialog(applist[active_index_].name_, applist[active_index_].description_, applist[active_index_].exec_);
+
+			if (QDialog::Accepted == edit->exec())
+printf("accepted\n");		
+			else
+printf("not accepted\n");
+			delete edit;	
+		}
+	}
 }
 
 
@@ -79,13 +110,23 @@ void MainWindow::mousePressEvent(QMouseEvent *event) {
 
 	else if (event->button() == Qt::RightButton) {
 		active_index_ = applications_get_index(event->pos());
+		edit_index_ = active_index_;
 		if (active_index_ == -1) {
-			qedit_->setDisabled(true);
 			qrun_->setDisabled(true);
+			edit_index_ = applications_get_position(event->pos());
+			if (edit_index_ == -1)
+				qedit_->setDisabled(true);
+			else
+				qedit_->setDisabled(false);
 		}
 		else {
-			qedit_->setDisabled(false);
 			qrun_->setDisabled(false);
+			if (active_index_ == 0) {
+				edit_index_ = -1;
+				qedit_->setDisabled(true);
+			}
+			else				
+				qedit_->setDisabled(false);
 		}
 	}
 }
@@ -220,7 +261,7 @@ bool MainWindow::event(QEvent *event) {
 				QToolTip::hideText();
 		}
 		else {
-			QToolTip::showText(helpEvent->globalPos(), applist[index].name_);
+			QToolTip::showText(helpEvent->globalPos(), applist[index].description_);
 			return true;
 		}
 	}
