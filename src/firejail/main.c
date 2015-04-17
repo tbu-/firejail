@@ -66,6 +66,7 @@ int arg_rlimit_sigpending = 0;			// rlimit fsize
 int arg_nox11 = 0;				// kill the program if x11 unix domain socket is accessed
 int arg_nodbus = 0;				// kill the program if D-Bus is accessed
 int arg_nogroups = 0;				// disable supplementary groups
+int arg_noroot = 0;				// create a new user namespace and disable root user
 int arg_netfilter;				// enable netfilter
 char *arg_netfilter_file = NULL;			// netfilter file
 int arg_doubledash = 0;			// double dash
@@ -571,6 +572,8 @@ int main(int argc, char **argv) {
 		}
 		else if (strcmp(argv[i], "--nogroups") == 0)
 			arg_nogroups = 1;
+		else if (strcmp(argv[i], "--noroot") == 0)
+			arg_noroot = 1;
 		
 		//*************************************
 		// network

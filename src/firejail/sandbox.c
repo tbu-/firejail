@@ -26,6 +26,11 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 
+#include <sched.h>
+#ifndef CLONE_NEWUSER
+#define CLONE_NEWUSER	0x10000000
+#endif
+
 #define BUFLEN 500 // generic read buffer
 
 
@@ -337,6 +342,10 @@ int sandbox(void* sandbox_arg) {
 	save_nogroups();
 	drop_privs(arg_nogroups);
 
+	// create new user namespace now that privileged child setup is complete
+if (arg_noroot) {
+	unshare(CLONE_NEWUSER);
+}
 
 	//****************************************
 	// start the program without using a shell

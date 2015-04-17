@@ -41,18 +41,6 @@ void MainWindow::cycleReady() {
 }
 
 void MainWindow::edit() {
-
-#if 0
-	EditDialog *edit = new EditDialog();
-		
-	if (QDialog::Accepted == edit->exec()) {
-printf("accepted\n");		
-	}
-	else
-printf("not accepted\n");
-	delete edit;	
-#endif
-
 	if (edit_index_ != -1) {
 		if (edit_index_ == 0) {
 printf("here %d\n", __LINE__);			
@@ -64,10 +52,9 @@ printf("here %d\n", __LINE__);
 			else
 				edit = new EditDialog(applist[active_index_].name_, applist[active_index_].description_, applist[active_index_].exec_);
 
-			if (QDialog::Accepted == edit->exec())
-printf("accepted\n");		
-			else
-printf("not accepted\n");
+			if (QDialog::Accepted == edit->exec()) {
+				
+			}
 			delete edit;	
 		}
 	}
