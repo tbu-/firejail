@@ -583,8 +583,10 @@ int main(int argc, char **argv) {
 			}
 			
 			// test user namespaces available in the kernel
-			struct stat s;
-			if (stat("/proc/self/uid_map", &s) == 0)
+			struct stat s1;
+			struct stat s2;
+			if (stat("/proc/self/ns/user", &s1) == 0 &&
+			    stat("/proc/self/uid_map", &s2) == 0)
 				arg_noroot = 1;
 			else {
 				fprintf(stderr, "Warning: user namespaces not available in the current kernel.\n");
