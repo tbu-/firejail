@@ -938,15 +938,28 @@ int main(int argc, char **argv) {
  	close(child_to_parent_fds[0]);
  
  	if (arg_noroot) {
-	 	char map_path[500];
 	 	// update the UID and GID maps in the new child user namespace
-	 	snprintf(map_path, 500, "/proc/%ld/uid_map",
-	 		(long) child);
-	 	update_map("1000 1000 1", map_path);
+		// uid
+	 	char *map_path;
+	 	if (asprintf(&map_path, "/proc/%d/uid_map", child) == -1)
+	 		errExit("asprintf");
+	 	char *map;
+	 	uid_t uid = getuid();
+	 	if (asprintf(&map, "%d %d 1", uid, uid) == -1)
+	 		errExit("asprintf");
+	 	update_map(map, map_path);
+	 	free(map);
+	 	free(map_path);
 	 
-	 	snprintf(map_path, 500, "/proc/%ld/gid_map",
-	 		(long) child);
-	 	update_map("1000 1000 1", map_path);
+	 	//gid
+	 	if (asprintf(&map_path, "/proc/%d/gid_map", child) == -1)
+	 		errExit("asprintf");
+	 	gid_t gid = getgid();
+	 	if (asprintf(&map, "%d %d 1", gid, gid) == -1)
+	 		errExit("asprintf");
+	 	update_map(map, map_path);
+	 	free(map);
+	 	free(map_path);
  	}
  	
  	// notify child that UID/GID mapping is complete

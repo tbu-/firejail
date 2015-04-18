@@ -167,6 +167,13 @@ Monitor network statistics for sandboxes creating a new network namespace.
 \fB\-\-nogroups
 Disable supplementary groups. Without this option, supplementary groups are enabled for the user starting the
 sandbox. For root user supplementary groups are always disabled.
+
+.TP
+\fB\-\-noroot
+Install a user namespace with a single user - the current user.
+root user does not exist in the new namespace. This option
+is not supported for \-\-chroot and \-\-overlay configurations.
+
 .TP
 \fB\-\-output=logfile
 stdout logging and log rotation. Copy stdout to logfile, and keep the size of the file under 500KB using log
