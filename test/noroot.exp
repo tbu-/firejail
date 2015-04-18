@@ -65,7 +65,7 @@ puts "\n"
 send -- "ping 0\r"
 expect {
 	timeout {puts "TESTING ERROR 4\n";exit}
-	"icmp open socket: Operation not permitted"
+	"Operation not permitted"
 }
 puts "\n"
 
