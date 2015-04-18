@@ -93,7 +93,8 @@ expect {
 send -- "sudo -s\r"
 expect {
 	timeout {puts "TESTING ERROR 8\n";exit}
-	"effective uid is not 0, is sudo installed setuid root?"
+	"effective uid is not 0, is sudo installed setuid root?" { puts "OK\n";}
+	"sudo must be owned by uid 0 and have the setuid bit set" { puts "OK\n";}
 }
 puts "\n"
 
