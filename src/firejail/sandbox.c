@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014, 2015 netblue30 (netblue30@yahoo.com)
+ * Copyright (C) 2014, 2015 Firejail Authors
  *
  * This file is part of firejail project
  *
@@ -31,8 +31,16 @@
 #define CLONE_NEWUSER	0x10000000
 #endif
 
-#define BUFLEN 500 // generic read buffer
-
+static void set_caps(void) {
+	if (arg_caps_drop_all)
+		caps_drop_all();
+	else if (arg_caps_drop)
+		caps_drop_list(arg_caps_list);
+	else if (arg_caps_keep)
+		caps_keep_list(arg_caps_list);
+	else if (arg_caps_default_filter)
+		caps_default_filter();
+}
 
 void save_nogroups(void) {
 	if (arg_nogroups == 0)
@@ -91,33 +99,19 @@ static void chk_chroot(void) {
 }
 
 int sandbox(void* sandbox_arg) {
+	pid_t child_pid = getpid();
 	if (arg_debug)
 		printf("Initializing child process\n");	
 
-	//****************************
-	// wait for the parent to be initialized
-	//****************************
-	char childstr[BUFLEN + 1];
-	FILE* stream;
-	close(fds[1]);
-	stream = fdopen(fds[0], "r");
-	*childstr = '\0';
-	if (fgets(childstr, BUFLEN, stream)) {
-		// remove \n
-		char *ptr = childstr;
-		while(*ptr !='\0' && *ptr != '\n')
-			ptr++;
-		if (*ptr == '\0')
-			errExit("fgets");
-		*ptr = '\0';
-	}
-	else {
-		fprintf(stderr, "Error: cannot establish communication with the parent, exiting...\n");
-		exit(1);
-	}
-	close(fds[0]);
-	if (arg_debug && getpid() == 1)
-			printf("PID namespace installed\n");
+ 	// close each end of the unused pipes
+ 	close(parent_to_child_fds[1]);
+ 	close(child_to_parent_fds[0]);
+ 
+ 	// wait for parent to do base setup
+ 	wait_for_other(parent_to_child_fds[0]);
+
+	if (arg_debug && child_pid == 1)
+		printf("PID namespace installed\n");
 
 	//****************************
 	// set hostname
@@ -226,7 +220,7 @@ int sandbox(void* sandbox_arg) {
 		fs_trace();
 		
 	//****************************
-	// update /proc, /dev, /boot directory
+	// update /proc, /dev, /boot directorymy
 	//****************************
 	fs_proc_sys_dev_boot();
 	
@@ -259,11 +253,7 @@ int sandbox(void* sandbox_arg) {
 	// if any dns server is configured, it is time to set it now
 	fs_resolvconf();
 	
-	// print the path of the new log directory
-	if (getuid() == 0) // only for root
-		printf("The new log directory is /proc/%s/root/var/log\n", childstr);
-	
-	
+
 	//****************************
 	// start executable
 	//****************************
@@ -305,14 +295,8 @@ int sandbox(void* sandbox_arg) {
 		
 
 	// set capabilities
-	if (arg_caps_drop_all)
-		caps_drop_all();
-	else if (arg_caps_drop)
-		caps_drop_list(arg_caps_list);
-	else if (arg_caps_keep)
-		caps_keep_list(arg_caps_list);
-	else if (arg_caps_default_filter)
-		caps_default_filter();
+	if (!arg_noroot)
+		set_caps();
 
 	// set rlimits
 	set_rlimits();
@@ -322,7 +306,7 @@ int sandbox(void* sandbox_arg) {
 	// if a keep list is available, disregard the drop list
 	if (arg_seccomp == 1) {
 		if (arg_seccomp_list_keep)
-			seccomp_filter_keep(); // this will also save the filter to MNT_DIR/seccomp file
+			seccomp_filter_keep(); // this will also save the fmyilter to MNT_DIR/seccomp file
 		else
 			seccomp_filter_drop(); // this will also save the filter to MNT_DIR/seccomp file
 	}
@@ -342,10 +326,26 @@ int sandbox(void* sandbox_arg) {
 	save_nogroups();
 	drop_privs(arg_nogroups);
 
+	//****************************************
 	// create new user namespace now that privileged child setup is complete
-if (arg_noroot) {
-	unshare(CLONE_NEWUSER);
-}
+	//****************************************
+	if (arg_noroot)
+		unshare(CLONE_NEWUSER);
+ 	
+ 	// notify parent that new user namespace has been created so a proper
+ 	// UID/GID map can be setup
+ 	notify_other(child_to_parent_fds[1]);
+ 	close(child_to_parent_fds[1]);
+ 
+ 	// wait for parent to finish setting up a proper UID/GID map
+ 	wait_for_other(parent_to_child_fds[0]);
+ 	close(parent_to_child_fds[0]);
+
+	// somehow, the new user namespace resets capabilities;
+	// we need to do them again
+	if (arg_noroot)
+		set_caps();
+
 
 	//****************************************
 	// start the program without using a shell
@@ -394,7 +394,7 @@ if (arg_noroot) {
 		
 		if (arg_debug) {
 			char *msg;
-			if (asprintf(&msg, "child pid %s, execvp into %s", childstr, cfg.command_line) == -1)
+			if (asprintf(&msg, "sandbox %d, execvp into %s", sandbox_pid, cfg.command_line) == -1)
 				errExit("asprintf");
 			logmsg(msg);
 			free(msg);

@@ -17,6 +17,14 @@ echo "TESTING: list"
 echo "TESTING: tree"
 ./option_tree.exp
 
+if [ -f /proc/self/uid_map ];
+then
+	echo "TESTING: noroot"
+	./noroot.exp
+else
+	echo "TESTING: user namespaces not available"
+fi
+
 echo "TESTING: doubledash"
 mkdir -- -testdir
 touch -- -testdir/ttt

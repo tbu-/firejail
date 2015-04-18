@@ -331,3 +331,11 @@ return (cur->user + cur->kernel + cur->nice);
                          comps='CAP_BLOCK_SUSPEND CAP_IPC_LOCK CAP_MAC_ADMIN CAP_MAC_OVERRIDE CAP_SYS_MODULE CAP_SYS_PACCT CAP_SYS_RAWIO
                                        CAP_SYS_TIME CAP_SYSLOG CAP_WAKE_ALARM CAP_NET_ADMIN'
      
+* LXC still has a SUID binary
+https://www.stgraber.org/2014/01/17/lxc-1-0-unprivileged-containers/
+
+Your user, while it can create new user namespaces in which it’ll be uid 0 and will have some of root’s 
+privileges against resources tied to that namespace will obviously not be granted any extra privilege on the host.
+
+One such thing is creating new network devices on the host or changing bridge configuration. To workaround that, 
+we wrote a tool called “lxc-user-nic” which is the only SETUID binary part of LXC 1.0 and which performs one simple task.

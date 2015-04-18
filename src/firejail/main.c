@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014, 2015 netblue30 (netblue30@yahoo.com)
+ * Copyright (C) 2014, 2015 Firejail Authors
  *
  * This file is part of firejail project
  *
@@ -73,10 +73,13 @@ int arg_doubledash = 0;			// double dash
 int arg_shell_none = 0;			// run the program directly without a shell
 int arg_private_dev = 0;			// private dev directory
 
-int fds[2];					// parent-child communication pipe
+int parent_to_child_fds[2];
+int child_to_parent_fds[2];
+
 char *fullargv[MAX_ARGS];			// expanded argv for restricted shell
 int fullargc = 0;
 static pid_t child = 0;
+pid_t sandbox_pid;
 
 static void myexit(int rv) {
 	logmsg("exiting...");
@@ -196,9 +199,9 @@ int main(int argc, char **argv) {
 	
 
 	// initialize random number generator
-	const pid_t mypid = getpid();
+	sandbox_pid = getpid();
 	time_t t = time(NULL);
-	srand(t ^ mypid);
+	srand(t ^ sandbox_pid);
 
 	// is this a login shell?
 	if (*argv[0] == '-') {
@@ -572,8 +575,22 @@ int main(int argc, char **argv) {
 		}
 		else if (strcmp(argv[i], "--nogroups") == 0)
 			arg_nogroups = 1;
-		else if (strcmp(argv[i], "--noroot") == 0)
-			arg_noroot = 1;
+		else if (strcmp(argv[i], "--noroot") == 0) {
+			// do not allow root to install a new user namespace
+			if (getuid() == 0) {
+				fprintf(stderr, "Error: --noroot option cannot be used when starting the sandbox as root.\n");
+				exit(1);
+			}
+			
+			// test user namespaces available in the kernel
+			struct stat s;
+			if (stat("/proc/self/uid_map", &s) == 0)
+				arg_noroot = 1;
+			else {
+				fprintf(stderr, "Warning: user namespaces not available in the current kernel.\n");
+				arg_noroot = 0;
+			}
+		}
 		
 		//*************************************
 		// network
@@ -748,6 +765,18 @@ int main(int argc, char **argv) {
 
 	// check network configuration options - it will exit if anything went wrong
 	net_check_cfg();
+	
+	// check user namespace (--noroot) options
+	if (arg_noroot) {
+		if (arg_overlay) {
+			fprintf(stderr, "Error: --overlay and --noroot are mutually exclusive.\n");
+			exit(1);
+		}
+		else if (cfg.chrootdir) {
+			fprintf(stderr, "Error: --chroot and --noroot are mutually exclusive.\n");
+			exit(1);
+		}
+	}
 
 	// log command
 	logargs(argc, argv);
@@ -828,8 +857,12 @@ int main(int argc, char **argv) {
 		net_configure_sandbox_ip(&cfg.bridge3);
 	}
 
-	// create the parrent-child communication pipe
-	if (pipe(fds) < 0)
+ 	// create the parent-child communication pipe
+ 	if (pipe(parent_to_child_fds) < 0)
+ 		errExit("pipe");
+ 
+ 	// create the parent-child communication pipe
+ 	if (pipe(child_to_parent_fds) < 0)
 		errExit("pipe");
 
 	// clone environment
@@ -853,8 +886,14 @@ int main(int argc, char **argv) {
 	if (child == -1)
 		errExit("clone");
 
-	if (!arg_command)
-		printf("Parent pid %u, child pid %u\n", mypid, child);
+	if (!arg_command) {
+		printf("Parent pid %u, child pid %u\n", sandbox_pid, child);
+		// print the path of the new log directory
+		if (getuid() == 0) // only for root
+			printf("The new log directory is /proc/%d/root/var/log\n", child);
+	}
+	
+	
 
 	// create veth pair or macvlan device
 	if (cfg.bridge0.configured && !arg_nonetwork) {
@@ -885,14 +924,33 @@ int main(int argc, char **argv) {
 			net_create_macvlan(cfg.bridge3.devsandbox, cfg.bridge3.dev, child);
 	}
 
-	// notify the child the initialization is done
-	FILE* stream;
-	close(fds[0]);
-	stream = fdopen(fds[1], "w");
-	fprintf(stream, "%u\n", child);
-	fflush(stream);
-	close(fds[1]);
-
+ 	// close each end of the unused pipes
+ 	close(parent_to_child_fds[0]);
+ 	close(child_to_parent_fds[1]);
+ 
+ 	// notify child that base setup is complete
+ 	notify_other(parent_to_child_fds[1]);
+ 
+ 	// wait for child to create new user namespace with CLONE_NEWUSER
+ 	wait_for_other(child_to_parent_fds[0]);
+ 	close(child_to_parent_fds[0]);
+ 
+ 	if (arg_noroot) {
+	 	char map_path[500];
+	 	// update the UID and GID maps in the new child user namespace
+	 	snprintf(map_path, 500, "/proc/%ld/uid_map",
+	 		(long) child);
+	 	update_map("1000 1000 1", map_path);
+	 
+	 	snprintf(map_path, 500, "/proc/%ld/gid_map",
+	 		(long) child);
+	 	update_map("1000 1000 1", map_path);
+ 	}
+ 	
+ 	// notify child that UID/GID mapping is complete
+ 	notify_other(parent_to_child_fds[1]);
+ 	close(parent_to_child_fds[1]);
+ 
 	if (lockfd != -1) {
 		net_bridge_wait_ip(&cfg.bridge0);
 		net_bridge_wait_ip(&cfg.bridge1);

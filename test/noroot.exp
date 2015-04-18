@@ -1,0 +1,99 @@
+#!/usr/bin/expect -f
+
+set timeout 10
+spawn $env(SHELL)
+match_max 100000
+
+send -- "firejail --debug --noroot --nogroups --caps.drop=all --seccomp --cpu=0,1 --name=noroot-sandbox\r"
+expect {
+	timeout {puts "TESTING ERROR 0\n";exit}
+	"no supplementary groups"
+}
+expect {
+	timeout {puts "TESTING ERROR 0.1\n";exit}
+	"Child process initialized"
+}
+sleep 1
+
+send -- "cat /proc/self/status\r"
+expect {
+	timeout {puts "TESTING ERROR 1\n";exit}
+	"CapBnd:"
+}
+expect {
+	timeout {puts "TESTING ERROR 1.1\n";exit}
+	"0000000000000000"
+}
+
+send -- "cat /proc/self/status\r"
+expect {
+	timeout {puts "TESTING ERROR 2\n";exit}
+	"Cpus_allowed:"
+}
+expect {
+	timeout {puts "TESTING ERROR 2.1\n";exit}
+	"3"
+}
+expect {
+	timeout {puts "TESTING ERROR 2.2\n";exit}
+	"Cpus_allowed_list:"
+}
+puts "\n"
+
+send -- "cat /proc/self/status\r"
+expect {
+	timeout {puts "TESTING ERROR 2\n";exit}
+	"Seccomp:"
+}
+expect {
+	timeout {puts "TESTING ERROR 2.1\n";exit}
+	"2"
+}
+expect {
+	timeout {puts "TESTING ERROR 2.2\n";exit}
+	"Cpus_allowed:"
+}
+puts "\n"
+
+send -- "cat /etc/hostname\r"
+expect {
+	timeout {puts "TESTING ERROR 3\n";exit}
+	"noroot-sandbox"
+}
+puts "\n"
+
+send -- "ping 0\r"
+expect {
+	timeout {puts "TESTING ERROR 4\n";exit}
+	"icmp open socket: Operation not permitted"
+}
+puts "\n"
+
+send -- "whoami\r"
+expect {
+	timeout {puts "TESTING ERROR 55\\n";exit}
+	"netblue"
+}
+puts "\n"
+send -- "exit\r"
+sleep 2
+
+
+send -- "firejail --noroot\r"
+expect {
+	timeout {puts "TESTING ERROR 6\n";exit}
+	"Child process initialized"
+}
+sleep 1
+send -- "whoami\r"
+expect {
+	timeout {puts "TESTING ERROR 7\n";exit}
+	"netblue"
+}
+send -- "sudo -s\r"
+expect {
+	timeout {puts "TESTING ERROR 8\n";exit}
+	"effective uid is not 0, is sudo installed setuid root?"
+}
+puts "\n"
+

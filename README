@@ -15,6 +15,8 @@ Documentation and support: http://firejail.sourceforge.net
 Authors:
 
 netblue30 (netblue30@yahoo.com)
+Patrick Toomey (http://sourceforge.net/u/ptoomey/profile/)
+	- user namespace implementation, ticket 10
 Reiner Herrmann - a number of build patches, man page fixes (tickets 11, 12, 13)
 sshirokov (http://sourceforge.net/u/yshirokov/profile/) - Patch to output
 	"Reading profile" to stderr instead of stdout (ticket 15)

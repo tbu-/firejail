@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014, 2015 netblue30 (netblue30@yahoo.com)
+ * Copyright (C) 2014, 2015 Firejail Authors
  *
  * This file is part of firejail project
  *
@@ -28,8 +28,6 @@
 #define MNT_DIR	"/tmp/firejail/mnt"
 #define OVERLAY_DIR	"/tmp/firejail/overlay"
 #define MAX_INCLUDE_LEVEL 6
-
-
 
 // main.c
 typedef struct bridge_t {
@@ -135,7 +133,12 @@ extern char *arg_netfilter_file;	// netfilter file
 extern int arg_doubledash;	// double dash
 extern int arg_shell_none;	// run the program directly without a shell
 extern int arg_private_dev;	// private dev directory
-extern int fds[2];
+
+extern int parent_to_child_fds[2];
+extern int child_to_parent_fds[2];
+extern pid_t sandbox_pid;
+
+
 
 #define MAX_ARGS 128		// maximum number of command arguments (argc)
 extern char *fullargv[MAX_ARGS];
@@ -243,6 +246,9 @@ char *split_comma(char *str);
 int not_unsigned(const char *str);
 int find_child(pid_t parent, pid_t *child);
 void check_private_dir(void);
+void update_map(char *mapping, char *map_file);
+void wait_for_other(int fd);
+void notify_other(int fd);
 
 // fs_var.c
 void fs_var_log(void);	// mounting /var/log

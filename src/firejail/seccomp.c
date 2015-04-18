@@ -470,10 +470,11 @@ int seccomp_filter_drop(void) {
 int seccomp_filter_keep(void) {
 	filter_init();
 
-	// these 3 syscalls are used by firejail after the seccomp filter is initialized
+	// these 4 syscalls are used by firejail after the seccomp filter is initialized
 	filter_add_whitelist(SYS_setuid);
 	filter_add_whitelist(SYS_setgid);
 	filter_add_whitelist(SYS_setgroups);
+	filter_add_whitelist(SYS_dup);
 	
 	// apply keep list
 	if (arg_seccomp_list_keep) {
