@@ -621,7 +621,7 @@ int main(int argc, char **argv) {
 			else if (cfg.bridge3.configured == 0)
 				br = &cfg.bridge3;
 			else {
-				fprintf(stderr, "Error: maximum 4 bridge devices allowed\n");
+				fprintf(stderr, "Error: maximum 4 network devices allowed\n");
 				return 1;
 			}
 			net_configure_bridge(br, argv[i] + 6);
@@ -629,7 +629,7 @@ int main(int argc, char **argv) {
 		else if (strncmp(argv[i], "--ip=", 5) == 0) {
 			Bridge *br = last_bridge_configured();
 			if (br == NULL) {
-				fprintf(stderr, "Error: no bridge device configured\n");
+				fprintf(stderr, "Error: no network device configured\n");
 				return 1;
 			}
 			if (br->arg_ip_none || br->ipsandbox) {

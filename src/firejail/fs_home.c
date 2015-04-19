@@ -102,7 +102,7 @@ static void skel(const char *homedir, uid_t u, gid_t g) {
 	}
 }
 
-int fs_store_xauthority(void) {
+static int store_xauthority(void) {
 	// put a copy of .Xauthority in MNT_DIR
 	fs_build_mnt_dir();
 
@@ -126,7 +126,7 @@ int fs_store_xauthority(void) {
 	return 0;
 }
 
-void fs_copy_xauthority(void) {
+static void copy_xauthority(void) {
 	// put a copy of .Xauthority in MNT_DIR
 	fs_build_mnt_dir();
 
@@ -150,23 +150,6 @@ void fs_copy_xauthority(void) {
 	unlink(src);
 }
 
-void fs_mount_xauthority(void) {
-	// put a copy of .Xauthority in MNT_DIR
-	fs_build_mnt_dir();
-
-	char *src;
-	char *dest;
-	if (asprintf(&dest, "%s/.Xauthority", cfg.homedir) == -1)
-		errExit("asprintf");
-	if (asprintf(&src, "%s/.Xauthority", MNT_DIR) == -1)
-		errExit("asprintf");
-		
-	// bind-mount the file on top of /etc/hostname
-	if (mount(src, "dest", NULL, MS_BIND|MS_REC, NULL) < 0)
-		errExit("mount bind ~/.Xauthority");
-}
-
-
 // private mode: mount tmpfs over /home and /tmp
 void fs_private_home(void) {
 	char *homedir = cfg.homedir;
@@ -174,7 +157,7 @@ void fs_private_home(void) {
 	assert(homedir);
 	assert(private_homedir);
 	
-	int xflag = fs_store_xauthority();
+	int xflag = store_xauthority();
 	
 	uid_t u = getuid();
 	gid_t g = getgid();
@@ -220,7 +203,7 @@ void fs_private_home(void) {
 
 	skel(homedir, u, g);
 	if (xflag)
-		fs_copy_xauthority();
+		copy_xauthority();
 }
 
 
@@ -235,7 +218,7 @@ void fs_private(void) {
 	uid_t u = getuid();
 	gid_t g = getgid();
 
-	int xflag = fs_store_xauthority();
+	int xflag = store_xauthority();
 
 	// mask /home
 	if (arg_debug)
@@ -267,5 +250,5 @@ void fs_private(void) {
 	
 	skel(homedir, u, g);
 	if (xflag)
-		fs_copy_xauthority();
+		copy_xauthority();
 }

@@ -1,5 +1,5 @@
-* netfilter not working under OpenSUSE
-It seems iptables is at /usr/sbin/iptables, not /sbin/iptables
+* on Debian, the mail is stored in .icedove directory - to fix profiles
+
 
 * .Xauthority not copied in $HOME on OpenSUSE when running --private
 
