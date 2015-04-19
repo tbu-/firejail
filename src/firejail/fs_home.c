@@ -150,8 +150,13 @@ static void copy_xauthority(void) {
 	unlink(src);
 }
 
-// private mode: mount tmpfs over /home and /tmp
-void fs_private_home(void) {
+// private mode (--private=homedir):
+// 	mount homedir on top of /home/user,
+// 	tmpfs on top of  /root in nonroot mode,
+// 	tmpfs on top of /tmp in root mode,
+// 	set skel files,
+// 	restore .Xauthority
+void fs_private_homedir(void) {
 	char *homedir = cfg.homedir;
 	char *private_homedir = cfg.home_private;
 	assert(homedir);
@@ -206,12 +211,12 @@ void fs_private_home(void) {
 		copy_xauthority();
 }
 
-
-
-
-
-
-// private mode: mount tmpfs over /home
+// private mode (--private):
+//	mount tmpfs over /home/user,
+// 	tmpfs on top of  /root in nonroot mode,
+// 	tmpfs on top of /tmp in root mode
+// 	set skel files,
+// 	restore .Xauthority
 void fs_private(void) {
 	char *homedir = cfg.homedir;
 	assert(homedir);

@@ -265,9 +265,10 @@ void fs_dev_shm(void);
 void fs_private_dev(void);
 
 // fs_home.c
-// private mode: mount tmpfs over /home and /tmp
+// private mode (--private): mount tmpfs over /home/user, tmpfs on top of /tmp in nonroot mode
 void fs_private(void);
-void fs_private_home(void);
+// private mode (--private=homedir): mount homedir on top of /home/user, tmpfs on top of /tmp in nonroot mode
+void fs_private_homedir(void);
 
 // seccomp.c
 int seccomp_filter_drop(void);
