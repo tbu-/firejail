@@ -538,7 +538,7 @@ int main(int argc, char **argv) {
 			struct stat s;
 			int rv = stat(cfg.chrootdir, &s);
 			if (rv < 0) {
-				fprintf(stderr, "Error: cannot find %s directory, aborting\n", cfg.chrootdir);
+				fprintf(stderr, "Error: cannot find %s directory, aborting...\n", cfg.chrootdir);
 				return 1;
 			}
 			
@@ -552,9 +552,25 @@ int main(int argc, char **argv) {
 		else if (strcmp(argv[i], "--private") == 0)
 			arg_private = 1;
 		else if (strncmp(argv[i], "--private=", 10) == 0) {
+			if (cfg.home_private_keep) {
+				fprintf(stderr, "Error: a private list of files was already defined with --private.keep option.\n");
+				exit(1);
+			}
+			
 			// extract private home dirname
 			cfg.home_private = argv[i] + 10;
-			check_private_dir();
+			fs_check_private_dir();
+			arg_private = 1;
+		}
+		else if (strncmp(argv[i], "--private.keep=", 15) == 0) {
+			if (cfg.home_private) {
+				fprintf(stderr, "Error: a private home directory was already defined with --private option.\n");
+				exit(1);
+			}
+			
+			// extract private home dirname
+			cfg.home_private_keep = argv[i] + 15;
+			fs_check_home_list();
 			arg_private = 1;
 		}
 		else if (strcmp(argv[i], "--private-dev") == 0) {
@@ -641,20 +657,20 @@ int main(int argc, char **argv) {
 			if (strcmp(argv[i] + 5, "none") == 0)
 				br->arg_ip_none = 1;
 			else if (atoip(argv[i] + 5, &br->ipsandbox)) {
-				fprintf(stderr, "Error: invalid IP address, aborting\n");
+				fprintf(stderr, "Error: invalid IP address, aborting...\n");
 				return 1;
 			}
 		}
 		else if (strncmp(argv[i], "--defaultgw=", 12) == 0) {
 			if (atoip(argv[i] + 12, &cfg.defaultgw)) {
-				fprintf(stderr, "Error: invalid IP address, aborting\n");
+				fprintf(stderr, "Error: invalid IP address, aborting...\n");
 				return 1;
 			}
 		}
 		else if (strncmp(argv[i], "--dns=", 6) == 0) {
 			uint32_t dns;
 			if (atoip(argv[i] + 6, &dns)) {
-				fprintf(stderr, "Error: invalid DNS server IP address, aborting\n");
+				fprintf(stderr, "Error: invalid DNS server IP address, aborting...\n");
 				return 1;
 			}
 			

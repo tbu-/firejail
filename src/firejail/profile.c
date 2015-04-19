@@ -189,7 +189,7 @@ int profile_check_line(char *ptr, int lineno) {
 	if (strncmp(ptr, "dns ", 4) == 0) {
 		uint32_t dns;
 		if (atoip(ptr + 4, &dns)) {
-			fprintf(stderr, "Error: invalid DNS server IP address, aborting\n");
+			fprintf(stderr, "Error: invalid DNS server IP address, aborting...\n");
 			return 1;
 		}
 		
@@ -221,7 +221,15 @@ int profile_check_line(char *ptr, int lineno) {
 	// private directory
 	if (strncmp(ptr, "private ", 8) == 0) {
 		cfg.home_private = ptr + 8;
-		check_private_dir();
+		fs_check_private_dir();
+		arg_private = 1;
+		return 0;
+	}
+
+	// private list of files and directories
+	if (strncmp(ptr, "private.keep ", 13) == 0) {
+		cfg.home_private_keep = ptr + 13;
+		fs_check_home_list();
 		arg_private = 1;
 		return 0;
 	}

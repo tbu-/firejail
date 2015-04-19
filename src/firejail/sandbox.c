@@ -204,9 +204,11 @@ int sandbox(void* sandbox_arg) {
 	// private mode
 	//****************************
 	if (arg_private) {
-		if (cfg.home_private)	// a new home directory specified by user
+		if (cfg.home_private)	// --private=
 			fs_private_homedir();
-		else // tmpfs on top of home directory
+		else if (cfg.home_private_keep) // --private.keep=
+			fs_private_home_list();
+		else // --private
 			fs_private();
 	}
 	

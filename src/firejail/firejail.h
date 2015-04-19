@@ -27,6 +27,7 @@
 #define RO_FILE	"/tmp/firejail/firejail.ro.file"
 #define MNT_DIR	"/tmp/firejail/mnt"
 #define OVERLAY_DIR	"/tmp/firejail/overlay"
+#define HOME_DIR	"/tmp/firejail/mnt/home"
 #define MAX_INCLUDE_LEVEL 6
 
 // main.c
@@ -60,6 +61,7 @@ typedef struct config_t {
 	ProfileEntry *profile;
 	char *chrootdir;	// chroot directory
 	char *home_private;	// private home directory
+	char *home_private_keep;	// keep list for private home directory
 	char *cwd;		// current working directory
 
 	// networking
@@ -265,10 +267,17 @@ void fs_dev_shm(void);
 void fs_private_dev(void);
 
 // fs_home.c
-// private mode (--private): mount tmpfs over /home/user, tmpfs on top of /tmp in nonroot mode
+// private mode (--private)
 void fs_private(void);
-// private mode (--private=homedir): mount homedir on top of /home/user, tmpfs on top of /tmp in nonroot mode
+// private mode (--private=homedir)
 void fs_private_homedir(void);
+// private mode (--private.keep=list)
+void fs_private_home_list(void);
+// check directory linst specified by user (--private.keep option) - exit if it fails
+void fs_check_home_list(void);
+// check new private home directory (--private= option) - exit if it fails
+void fs_check_private_dir(void);
+
 
 // seccomp.c
 int seccomp_filter_drop(void);

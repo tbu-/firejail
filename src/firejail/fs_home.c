@@ -168,7 +168,7 @@ void fs_private_homedir(void) {
 	gid_t g = getgid();
 	struct stat s;
 	if (stat(homedir, &s) == -1) {
-		fprintf(stderr, "Error: cannot find user home directory, aborting\n");
+		fprintf(stderr, "Error: cannot find user home directory, aborting...\n");
 		exit(1);
 	}
 	
@@ -257,3 +257,185 @@ void fs_private(void) {
 	if (xflag)
 		copy_xauthority();
 }
+
+static void check_dir(const char *name) {
+	assert(name);
+	struct stat s;
+	char *fname;
+	if (asprintf(&fname, "%s/%s", cfg.homedir, name) == -1)
+		errExit("asprintf");
+	if (arg_debug)
+		printf("***************Checking %s\n", fname);		
+	if (stat(fname, &s) == -1) {
+		fprintf(stderr, "Error: file %s not found.\n", fname);
+		exit(1);
+	}
+	
+	// check uid
+	uid_t uid = getuid();
+	gid_t gid = getgid();
+	if (uid != 0 || gid != 0) {
+		if (s.st_uid != uid || s.st_gid != gid) {
+			fprintf(stderr, "Error: only files or directories created by the current user are allowed.\n");
+			exit(1);
+		}
+	}
+
+	// check symbolic link
+	struct stat sl;
+	if (lstat(fname, &sl) == -1) {
+		fprintf(stderr, "Error: invalid file type, %s.\n", fname);
+		exit(1);
+	}		
+	if (S_ISLNK(sl.st_mode)) {
+		fprintf(stderr, "Error: symbolic links are not allowed, %s.\n", fname);
+		exit(1);
+	}
+	
+	// dir or regular file
+	if (S_ISDIR(s.st_mode) || S_ISREG(s.st_mode)) {
+		free(fname);
+		return;
+	}
+	
+	fprintf(stderr, "Error: invalid file type, %s.\n", fname);
+	exit(1);
+}
+
+// check directory linst specified by user (--private.keep option) - exit if it fails
+void fs_check_home_list(void) {
+	char *dlist = strdup(cfg.home_private_keep);
+	if (!dlist)
+		errExit("strdup");
+
+	char *ptr = strtok(dlist, ",");
+	check_dir(ptr);
+	while ((ptr = strtok(NULL, ",")) != NULL)
+		check_dir(ptr);
+	
+	free(dlist);
+}
+
+// check new private home directory (--private= option) - exit if it fails
+void fs_check_private_dir(void) {
+	// if the directory starts with ~, expand the home directory
+	if (*cfg.home_private == '~') {
+		char *tmp;
+		if (asprintf(&tmp, "%s%s", cfg.homedir, cfg.home_private + 1) == -1)
+			errExit("asprintf");
+		cfg.home_private = tmp;
+	}
+	// check chroot dirname exists
+	struct stat s2;
+	int rv = stat(cfg.home_private, &s2);
+	if (rv < 0) {
+		fprintf(stderr, "Error: cannot find %s directory, aborting...\n", cfg.home_private);
+		exit(1);
+	}
+
+	// check home directory and chroot home directory have the same owner
+	struct stat s1;
+	rv = stat(cfg.homedir, &s1);
+	if (rv < 0) {
+		fprintf(stderr, "Error: cannot find %s directory, full path name required, aborting...\n", cfg.homedir);
+		exit(1);
+	}
+	if (s1.st_uid != s2.st_uid || s1.st_gid != s2.st_gid) {
+		printf("Error: the two home directories must have the same owner, aborting...\n");
+		exit(1);
+	}
+}
+
+// private mode (--private.keep=list):
+// 	mount homedir on top of /home/user,
+// 	tmpfs on top of  /root in nonroot mode,
+// 	tmpfs on top of /tmp in root mode,
+// 	set skel files,
+// 	restore .Xauthority
+void fs_private_home_list(void) {
+	char *homedir = cfg.homedir;
+	char *private_list = cfg.home_private_keep;
+	assert(homedir);
+	assert(private_list);
+	
+	int xflag = store_xauthority();
+	
+	uid_t u = getuid();
+	gid_t g = getgid();
+	struct stat s;
+	if (stat(homedir, &s) == -1) {
+		fprintf(stderr, "Error: cannot find user home directory, aborting...\n");
+		exit(1);
+	}
+
+	// create /tmp/firejail/mnt/home directory
+	fs_build_mnt_dir();
+	mkdir(HOME_DIR, S_IRWXU | S_IRWXG | S_IRWXO);
+	if (chown(HOME_DIR, u, g) < 0)
+		errExit("chown");
+	if (chmod(HOME_DIR, 0755) < 0)
+		errExit("chmod");
+	
+	// copy the list of files in the new home directory
+	char *dlist = strdup(cfg.home_private_keep);
+	if (!dlist)
+		errExit("strdup");
+
+	char *ptr = strtok(dlist, ",");
+	char *cmd;
+	if (asprintf(&cmd, "cp -a %s/%s %s/%s", cfg.homedir, ptr, HOME_DIR, ptr) == -1)
+		errExit("asprintf");
+	if (arg_debug)
+		printf("%s\n", cmd);
+	if (system(cmd))
+		errExit("cp -a");
+	free(cmd);
+
+	while ((ptr = strtok(NULL, ",")) != NULL) {
+		if (asprintf(&cmd, "cp -a %s/%s %s/%s", cfg.homedir, ptr, HOME_DIR, ptr) == -1)
+			errExit("asprintf");
+		if (arg_debug)
+			printf("%s\n", cmd);
+		if (system(cmd))
+			errExit("cp -a");
+		free(cmd);
+	}
+	free(dlist);	
+	
+	// mount bind private_homedir on top of homedir
+	if (arg_debug)
+		printf("Mount-bind %s on top of %s\n", HOME_DIR, homedir);
+	if (mount(HOME_DIR, homedir, NULL, MS_BIND|MS_REC, NULL) < 0)
+		errExit("mount bind");
+// preserve mode and ownership
+//	if (chown(homedir, s.st_uid, s.st_gid) == -1)
+//		errExit("mount-bind chown");
+//	if (chmod(homedir, s.st_mode) == -1)
+//		errExit("mount-bind chmod");
+
+	if (u != 0) {
+		// mask /root
+		if (arg_debug)
+			printf("Mounting a new /root directory\n");
+		if (mount("tmpfs", "/root", "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=700,gid=0") < 0)
+			errExit("mounting home directory");
+	}
+	else {
+		// mask /home
+		if (arg_debug)
+			printf("Mounting a new /home directory\n");
+		if (mount("tmpfs", "/home", "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=755,gid=0") < 0)
+			errExit("mounting home directory");
+
+		// mask /tmp only in root mode; KDE keeps all kind of sockets in /tmp!
+		if (arg_debug)
+			printf("Mounting a new /tmp directory\n");
+		if (mount("tmpfs", "/tmp", "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  "mode=777,gid=0") < 0)
+			errExit("mounting tmp directory");
+	}
+
+	skel(homedir, u, g);
+	if (xflag)
+		copy_xauthority();
+}
+
