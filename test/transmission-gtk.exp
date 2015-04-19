@@ -6,10 +6,6 @@ match_max 100000
 
 send -- "firejail transmission-gtk\r"
 expect {
-	timeout {puts "TESTING ERROR 0\n";exit}
-	"Reading profile /etc/firejail/transmission-gtk.profile"
-}
-expect {
 	timeout {puts "TESTING ERROR 1\n";exit}
 	"Child process initialized"
 }

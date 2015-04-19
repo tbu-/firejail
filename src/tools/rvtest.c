@@ -28,7 +28,7 @@
 #include <signal.h>
 
 #define MAXBUF 1024	// line buffer
-#define TIMEOUT 10	// timeout time in seconds
+#define TIMEOUT 30	// timeout time in seconds
 
 static pid_t pid;
 static void catch_alarm(int sig) {
@@ -125,7 +125,7 @@ int main(int argc, char **argv) {
 		else {
 			int exit_status;
 			
-			alarm(10);
+			alarm(TIMEOUT);
 			pid = waitpid(pid, &exit_status, 0);
 			if (pid == -1) {
 				perror("waitpid");
