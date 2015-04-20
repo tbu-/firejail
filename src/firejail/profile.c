@@ -104,6 +104,10 @@ int profile_check_line(char *ptr, int lineno) {
 		arg_private = 1;
 		return 0;
 	}
+	else if (strcmp(ptr, "private-dev") == 0) {
+		arg_private_dev = 1;
+		return 0;
+	}
 	else if (strcmp(ptr, "nogroups") == 0) {
 		arg_nogroups = 1;
 		return 0;

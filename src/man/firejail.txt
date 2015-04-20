@@ -184,13 +184,21 @@ Mount a filesystem overlay on top of the current filesystem. OverlayFS support i
 for this option to work.
 .TP
 \fB\-\-private
-Mount new /root and /home/user directories.
+Mount new /root and /home/user directories in temporary
+filesystems. All modifications are discarded when the sandbox is
+closed.
 .TP
 \fB\-\-private=directory
 Use directory as user home.
 .TP
+\fB\-\-private.keep=file,directory
+Build a new user home in a temporary
+filesystem, and copy the files and directories in the list in the
+new home. All modifications are discarded when the sandbox is
+closed.
+.TP
 \fB\-\-private-dev
-Create a new /dev directory. Only null, full, zero, tty, random, urandom and shm devices are available.
+Create a new /dev directory. Only null, full, zero, tty, pts, ptmx, random, urandom and shm devices are available.
 .TP
 \fB\-\-profile=filename
 Use a custom profile, see below.

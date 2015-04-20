@@ -131,11 +131,19 @@ void usage(void) {
 	printf("\t\trotation.\n\n");
 	printf("\t--overlay - mount a filesystem overlay on top of the current filesystem.\n");
 	printf("\t\t(OverlayFS support is required in Linux kernel for this option\n");
-	printf("\t\tto work)\n\n");    
-	printf("\t--private - mount new /root and /home/user directories.\n\n");
+	printf("\t\tto work)\n\n");   
+	 
+	printf("\t--private - mount new /root and /home/user directories in temporary\n");
+	printf("\t\tfielsystems. All modifications are discarded when the sandbox is\n");
+	printf("\t\tclosed.\n\n");
 	printf("\t--private=directory - use directory as user home.\n\n");
+	printf("\t--private.keep=file,directory - build a new user home in a temporary\n");
+	printf("\t\tfilesystem, and copy the files and directories in the list in the\n");
+	printf("\t\tnew home. All modifications are discarded when the sandbox is\n");
+	printf("\t\tclosed.\n\n");
 	printf("\t--private-dev - create a new /dev directory. Only null, full, zero, tty,\n");
-	printf("\t\trandom, urandom and shm devices are available.\n\n");
+	printf("\t\tpst, ptms, random, urandom and shm devices are available.\n\n");
+	
 	printf("\t--profile=filename - use a custom profile.\n\n");
 	printf("\t--read-only=dirname_or_filename - set directory or file read-only.\n\n");
 	printf("\t--rlimit-fsize=number - set the maximum file size that can be created\n");

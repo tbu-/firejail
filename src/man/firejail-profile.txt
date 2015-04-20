@@ -55,10 +55,21 @@ Remove ifconfig command from the regular path directories.
 Remove .ssh directory from user home directory.
 .TP
 \f\private
-Mount an empty tmpfs filesystem on top of user home directory.
+Mount new /root and /home/user directories in temporary
+filesystems. All modifications are discarded when the sandbox is
+closed.
 .TP
 \f\private directory
-Use mount directory as user home directory.
+Use directory as user home.
+.TP
+\f\private.keep file,directory
+Build a new user home in a temporary
+filesystem, and copy the files and directories in the list in the
+new home. All modifications are discarded when the sandbox is
+closed.
+.TP
+\f\private-dev
+Create a new /dev directory. Only null, full, zero, tty, pts, ptmx, random, urandom and shm devices are available.
 
 .SH Filters
 \fBcaps\fR and \fBseccomp\fR enable Linux capabilities and seccomp filters. Examples:
