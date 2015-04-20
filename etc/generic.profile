@@ -27,6 +27,7 @@ blacklist ${HOME}/.local/share/recently-used.xbel
 
 blacklist ${HOME}/.adobe
 blacklist ${HOME}/.macromedia
+blacklist ${HOME}/.mozilla
 blacklist ${HOME}/.icedove
 blacklist ${HOME}/.thunderbird
 caps.drop all

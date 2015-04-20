@@ -19,3 +19,6 @@
 /etc/firejail/gnome-mplayer.profile
 /etc/firejail/rhythmbox.profile
 /etc/firejail/totem.profile
+/etc/firejail/deluge.profile
+/etc/firejail/qbittorrent.profile
+/etc/firejail/generic.profile

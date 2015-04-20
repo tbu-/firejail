@@ -67,6 +67,9 @@ cp etc/clementine.profile debian/etc/firejail/.
 cp etc/gnome-mplayer.profile debian/etc/firejail/.
 cp etc/rhythmbox.profile debian/etc/firejail/.
 cp etc/totem.profile debian/etc/firejail/.
+cp etc/deluge.profile debian/etc/firejail/.
+cp etc/qbittorrent.profile debian/etc/firejail/.
+cp etc/generic.profile debian/etc/firejail/.
 cp platform/debian/conffiles $DEBIAN_CTRL_DIR/.
 find ./debian -type d | xargs chmod 755
 dpkg-deb --build debian
