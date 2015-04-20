@@ -33,6 +33,9 @@
 static void create_char_dev(const char *path, mode_t mode, int major, int minor) {
 	dev_t dev = makedev(major, minor);
 	int rv = mknod(path, S_IFCHR | mode, dev);
+	if (rv == -1)
+		goto errexit;
+	
 
 	if (chmod(path, mode) < 0)
 		goto errexit;

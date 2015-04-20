@@ -20,6 +20,8 @@
 #include "firejail.h"
 #include <sys/mount.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <fcntl.h>
 
 static char *client_filter = 
