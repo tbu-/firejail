@@ -23,7 +23,11 @@
 #include <glob.h>
 #include <dirent.h>
 #include <fcntl.h>
- #include <sys/stat.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+#include <grp.h>
 
 static void skel(const char *homedir, uid_t u, gid_t g) {
 	char *fname;
@@ -346,6 +350,35 @@ void fs_check_private_dir(void) {
 	}
 }
 
+#if 0
+static int mkpath(char* file_path, mode_t mode) {
+	assert(file_path && *file_path);
+	char* p;
+	for (p=strchr(file_path+1, '/'); p; p=strchr(p+1, '/')) {
+		*p='\0';
+		if (mkdir(file_path, mode)==-1) {
+			if (errno!=EEXIST) { *p='/'; return -1; }
+		}
+		*p='/';
+	}
+	return 0;
+}
+#endif
+
+static void duplicate(char *fname) {
+	char *cmd;
+
+	// copy the file
+	if (asprintf(&cmd, "cp -a --parents %s/%s %s", cfg.homedir, fname, HOME_DIR) == -1)
+		errExit("asprintf");
+	if (arg_debug)
+		printf("%s\n", cmd);
+	if (system(cmd))
+		errExit("system cp -a --parents");
+	free(cmd);
+}
+
+
 // private mode (--private.keep=list):
 // 	mount homedir on top of /home/user,
 // 	tmpfs on top of  /root in nonroot mode,
@@ -377,35 +410,55 @@ void fs_private_home_list(void) {
 		errExit("chmod");
 	
 	// copy the list of files in the new home directory
-	char *dlist = strdup(cfg.home_private_keep);
-	if (!dlist)
-		errExit("strdup");
-
-	char *ptr = strtok(dlist, ",");
-	char *cmd;
-	if (asprintf(&cmd, "cp -a %s/%s %s/%s", cfg.homedir, ptr, HOME_DIR, ptr) == -1)
-		errExit("asprintf");
-	if (arg_debug)
-		printf("%s\n", cmd);
-	if (system(cmd))
-		errExit("cp -a");
-	free(cmd);
-
-	while ((ptr = strtok(NULL, ",")) != NULL) {
-		if (asprintf(&cmd, "cp -a %s/%s %s/%s", cfg.homedir, ptr, HOME_DIR, ptr) == -1)
-			errExit("asprintf");
+	// using a new child process without root privileges
+	pid_t child = fork();
+	if (child < 0)
+		errExit("fork");
+	if (child == 0) {
 		if (arg_debug)
-			printf("%s\n", cmd);
-		if (system(cmd))
-			errExit("cp -a");
-		free(cmd);
-	}
-	free(dlist);	
+			printf("Copying files in the new home:\n");
+		
+		// drop privileges
+		if (setgroups(0, NULL) < 0)
+			errExit("setgroups");
+		if (setgid(getgid()) < 0)
+			errExit("setgid/getgid");
+		if (setuid(getuid()) < 0)
+			errExit("setuid/getuid");
+		
+		// copy the list of files in the new home directory
+		char *dlist = strdup(cfg.home_private_keep);
+		if (!dlist)
+			errExit("strdup");
 	
+		char *ptr = strtok(dlist, ",");
+		duplicate(ptr);
+	
+		while ((ptr = strtok(NULL, ",")) != NULL)
+			duplicate(ptr);
+		free(dlist);	
+		exit(0);
+	}
+	// wait for the child to finish
+	waitpid(child, NULL, 0);
+
+
+	// move all the files in NEWHOME_DIR
+	char *cmd;
+	if (asprintf(&cmd, "mv %s%s %s", HOME_DIR, cfg.homedir, NEWHOME_DIR) == -1)
+		errExit("asprintf");
+	if (system(cmd))
+		errExit("system mv");
+	free(cmd);
+	if (chown(NEWHOME_DIR, u, g) < 0)
+		errExit("chown");
+	if (chmod(NEWHOME_DIR, 0755) < 0)
+		errExit("chmod");
+
 	// mount bind private_homedir on top of homedir
 	if (arg_debug)
 		printf("Mount-bind %s on top of %s\n", HOME_DIR, homedir);
-	if (mount(HOME_DIR, homedir, NULL, MS_BIND|MS_REC, NULL) < 0)
+	if (mount(NEWHOME_DIR, homedir, NULL, MS_BIND|MS_REC, NULL) < 0)
 		errExit("mount bind");
 // preserve mode and ownership
 //	if (chown(homedir, s.st_uid, s.st_gid) == -1)
@@ -437,5 +490,6 @@ void fs_private_home_list(void) {
 	skel(homedir, u, g);
 	if (xflag)
 		copy_xauthority();
+
 }
 

@@ -129,20 +129,6 @@ void logerr(const char *msg) {
 }
 
 
-int mkpath(char* file_path, mode_t mode) {
-	assert(file_path && *file_path);
-	char* p;
-	for (p=strchr(file_path+1, '/'); p; p=strchr(p+1, '/')) {
-		*p='\0';
-		if (mkdir(file_path, mode)==-1) {
-			if (errno!=EEXIST) { *p='/'; return -1; }
-		}
-		*p='/';
-	}
-	return 0;
-}
-
-
 // return -1 if error, 0 if no error
 int copy_file(const char *srcname, const char *destname) {
 	assert(srcname);

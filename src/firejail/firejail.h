@@ -28,6 +28,7 @@
 #define MNT_DIR	"/tmp/firejail/mnt"
 #define OVERLAY_DIR	"/tmp/firejail/overlay"
 #define HOME_DIR	"/tmp/firejail/mnt/home"
+#define NEWHOME_DIR "/tmp/firejail/mnt/newhome"
 #define MAX_INCLUDE_LEVEL 6
 
 // main.c
