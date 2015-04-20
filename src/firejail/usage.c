@@ -134,7 +134,7 @@ void usage(void) {
 	printf("\t\tto work)\n\n");   
 	 
 	printf("\t--private - mount new /root and /home/user directories in temporary\n");
-	printf("\t\tfielsystems. All modifications are discarded when the sandbox is\n");
+	printf("\t\tfilesystems. All modifications are discarded when the sandbox is\n");
 	printf("\t\tclosed.\n\n");
 	printf("\t--private=directory - use directory as user home.\n\n");
 	printf("\t--private.keep=file,directory - build a new user home in a temporary\n");
