@@ -442,7 +442,7 @@ void fs_private_home_list(void) {
 	// wait for the child to finish
 	waitpid(child, NULL, 0);
 
-
+#if 0
 	// move all the files in NEWHOME_DIR
 	char *cmd;
 	if (asprintf(&cmd, "mv %s%s %s", HOME_DIR, cfg.homedir, NEWHOME_DIR) == -1)
@@ -454,11 +454,15 @@ void fs_private_home_list(void) {
 		errExit("chown");
 	if (chmod(NEWHOME_DIR, 0755) < 0)
 		errExit("chmod");
-
+#endif
 	// mount bind private_homedir on top of homedir
+	char *newhome;
+	if (asprintf(&newhome, "%s%s", HOME_DIR, cfg.homedir) == -1)
+		errExit("asprintf");
+
 	if (arg_debug)
-		printf("Mount-bind %s on top of %s\n", HOME_DIR, homedir);
-	if (mount(NEWHOME_DIR, homedir, NULL, MS_BIND|MS_REC, NULL) < 0)
+		printf("Mount-bind %s on top of %s\n", newhome, homedir);
+	if (mount(newhome, homedir, NULL, MS_BIND|MS_REC, NULL) < 0)
 		errExit("mount bind");
 // preserve mode and ownership
 //	if (chown(homedir, s.st_uid, s.st_gid) == -1)
