@@ -442,19 +442,6 @@ void fs_private_home_list(void) {
 	// wait for the child to finish
 	waitpid(child, NULL, 0);
 
-#if 0
-	// move all the files in NEWHOME_DIR
-	char *cmd;
-	if (asprintf(&cmd, "mv %s%s %s", HOME_DIR, cfg.homedir, NEWHOME_DIR) == -1)
-		errExit("asprintf");
-	if (system(cmd))
-		errExit("system mv");
-	free(cmd);
-	if (chown(NEWHOME_DIR, u, g) < 0)
-		errExit("chown");
-	if (chmod(NEWHOME_DIR, 0755) < 0)
-		errExit("chmod");
-#endif
 	// mount bind private_homedir on top of homedir
 	char *newhome;
 	if (asprintf(&newhome, "%s%s", HOME_DIR, cfg.homedir) == -1)

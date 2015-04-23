@@ -205,6 +205,16 @@ mkdir dirprivate
 ./private_dir_profile.exp
 rm -fr dirprivate
 
+echo "TESTING: private keep"
+./private-keep.exp
+
+uname -r | grep "3.18"
+if [ "$?" -eq 0 ];
+then
+	echo "TESTING: overlayfs on 3.18 kernel"
+	./fs_overlay.exp
+fi
+
 grep "openSUSE" /etc/os-release
 if [ "$?" -eq 0 ];
 then
