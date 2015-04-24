@@ -339,3 +339,14 @@ privileges against resources tied to that namespace will obviously not be grante
 
 One such thing is creating new network devices on the host or changing bridge configuration. To workaround that, 
 we wrote a tool called “lxc-user-nic” which is the only SETUID binary part of LXC 1.0 and which performs one simple task.
+
+* Default browser setup
+
+For KDE, go to { System Settings | Workspace Appearance And Behavior | Default Applications | Web Browser } and set your preferred webbrowser. 
+
+For Openbox, just edit your menu.xml file to point at the shell script, or use ObMenu to change the trigger line.
+
+For Xubuntu or XFCE fans, open Applications > System > Preferred Applications, and select Other. Browse to the icecat shell script.
+
+For Gnome, click System > Preferences > Preferred Applications. Change the Web browser option to point at the icecat shell script.
+
