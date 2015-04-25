@@ -97,8 +97,14 @@ echo "TESTING: zsh"
 echo "TESTING: csh"
 ./shell_csh.exp
 
-echo "TESTING: dash"
-./shell_dash.exp
+which dash
+if [ "$?" -eq 0 ];
+then
+        echo "TESTING: dash"
+        ./shell_dash.exp
+else
+        echo "TESTING: dash not found"
+fi
 
 which firefox
 if [ "$?" -eq 0 ];
