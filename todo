@@ -1,6 +1,3 @@
-* on Debian, the mail is stored in .icedove directory - to fix profiles
-
-
 * .Xauthority not copied in $HOME on OpenSUSE when running --private
 
 * --name not working on OpenSUSE; somehow the system
@@ -349,4 +346,12 @@ For Openbox, just edit your menu.xml file to point at the shell script, or use O
 For Xubuntu or XFCE fans, open Applications > System > Preferred Applications, and select Other. Browse to the icecat shell script.
 
 For Gnome, click System > Preferences > Preferred Applications. Change the Web browser option to point at the icecat shell script.
+
+* github
+
+First, create a github account if you do not already have one. Log in to github and go to the main fpm github page.
+
+At the top right, click on the button labeled "Fork". This will put a forked copy of the main fpm repo into your account. Next, clone your account's github repo of fpm. For example:
+
+$ git clone git@github.com:yourusername/fpm.git
 
