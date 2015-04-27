@@ -60,10 +60,15 @@ void net_configure_bridge(Bridge *br, char *dev_name) {
 		fprintf(stderr, "Error: bridge device %s not configured, aborting...\n", br->dev);
 		exit(1);
 	}
-	if (arg_debug)
-		printf("Bridge device %s at %d.%d.%d.%d/%d\n",
-			br->dev, PRINT_IP(br->ip), mask2bits(br->mask));
-
+	if (arg_debug) {
+		if (br->macvlan == 0)
+			printf("Bridge device %s at %d.%d.%d.%d/%d\n",
+				br->dev, PRINT_IP(br->ip), mask2bits(br->mask));
+		else
+			printf("macvlan parent device %s at %d.%d.%d.%d/%d\n",
+				br->dev, PRINT_IP(br->ip), mask2bits(br->mask));
+	}
+	
 	uint32_t range = ~br->mask + 1;		  // the number of potential addresses
 	// this software is not supported for /31 networks
 	if (range < 4) {

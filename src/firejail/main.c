@@ -658,9 +658,11 @@ int main(int argc, char **argv) {
 			// configure this IP address for the last bridge defined
 			if (strcmp(argv[i] + 5, "none") == 0)
 				br->arg_ip_none = 1;
-			else if (atoip(argv[i] + 5, &br->ipsandbox)) {
-				fprintf(stderr, "Error: invalid IP address, aborting...\n");
-				return 1;
+			else {
+				if (atoip(argv[i] + 5, &br->ipsandbox)) {
+					fprintf(stderr, "Error: invalid IP address, aborting...\n");
+					return 1;
+				}
 			}
 		}
 		else if (strncmp(argv[i], "--defaultgw=", 12) == 0) {
@@ -865,16 +867,20 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	// check and assign an IP address
+	// check and assign an IP address - for macvlan it will be done again in the sandbox!
 	if (any_bridge_configured()) {
 		lockfd = open("/var/lock/firejail.lock", O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
 		if (lockfd != -1)
 			flock(lockfd, LOCK_EX);
 
-		net_configure_sandbox_ip(&cfg.bridge0);
-		net_configure_sandbox_ip(&cfg.bridge1);
-		net_configure_sandbox_ip(&cfg.bridge2);
-		net_configure_sandbox_ip(&cfg.bridge3);
+		if (cfg.bridge0.macvlan == 0)
+			net_configure_sandbox_ip(&cfg.bridge0);
+		if (cfg.bridge1.macvlan == 0)
+			net_configure_sandbox_ip(&cfg.bridge1);
+		if (cfg.bridge2.macvlan == 0)
+			net_configure_sandbox_ip(&cfg.bridge2);
+		if (cfg.bridge3.macvlan == 0)
+			net_configure_sandbox_ip(&cfg.bridge3);
 	}
 
  	// create the parent-child communication pipe

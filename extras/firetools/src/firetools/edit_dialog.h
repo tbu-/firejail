@@ -15,7 +15,7 @@ public:
 		return name_->text();
 	}
 	
-	QString getDesc() {
+	QString getDescription() {
 		return desc_->text();
 	}
 	
@@ -23,6 +23,9 @@ public:
 		return cmd_->text();
 	}
 	
+private slots:
+	void help();
+
 private:
 	QLineEdit *name_;
 	QLineEdit *desc_;

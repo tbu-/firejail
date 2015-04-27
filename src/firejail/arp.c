@@ -160,6 +160,10 @@ uint32_t arp_random(const char *dev, uint32_t ifip, uint32_t ifmask) {
 	assert(ifmask);
 	assert(dev);
 
+	if (arg_debug)
+		printf("ARP-scan %s, %d.%d.%d.%d/%d\n",
+			dev, PRINT_IP(ifip), mask2bits(ifmask));
+
 	uint32_t range = ~ifmask + 1; // the number of potential addresses
 	// this software is not supported for /31 networks
 	if (range < 4)
@@ -223,8 +227,8 @@ uint32_t arp_assign(const char *dev, uint32_t ifip, uint32_t ifmask) {
 	if (!ip)
 		ip = arp_sequential(dev, ifip, ifmask);
 	if (!ip) {
-		fprintf(stderr, "Error: cannot assign an IP address; it looks like all of them are in use\n");
-		logerr("Cannot assign an IP address; it looks like all of them are in use");
+		fprintf(stderr, "Error: cannot assign an IP address; it looks like all of them are in use.\n");
+		logerr("Cannot assign an IP address; it looks like all of them are in use.");
 		exit(1);
 	}
 	printf("%d.%d.%d.%d IP address assigned to the sandbox\n", PRINT_IP(ip));

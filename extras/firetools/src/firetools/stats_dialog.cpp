@@ -22,7 +22,7 @@ StatsDialog::StatsDialog(): QDialog(), mode_(MODE_TOP), pid_(0), pid_seccomp_(-1
 	layout->addWidget(procView_, 0, 0);
 	setLayout(layout);
 	resize(600, 500);
-	setWindowTitle(tr("Firejail Tools&Stats"));
+	setWindowTitle(tr("Firejail Tools and Stats"));
 	
 	// detect if joining a sandbox is possible on this system
 	struct utsname u;

@@ -18,6 +18,7 @@ struct Application {
 	QIcon app_icon_;
 	
 	Application(const char *name, const char *description, const char *exec, const char *icon);
+	Application(QString name, QString description, QString exec, QString icon);
 	QIcon loadIcon(QString name);
 };
 

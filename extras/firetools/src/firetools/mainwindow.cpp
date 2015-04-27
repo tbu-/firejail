@@ -41,22 +41,33 @@ void MainWindow::cycleReady() {
 }
 
 void MainWindow::edit() {
-	if (edit_index_ != -1) {
-		if (edit_index_ == 0) {
-printf("here %d\n", __LINE__);			
+	// index 0 is the tools window
+	if (edit_index_ != -1 && edit_index_ != 0) {
+		EditDialog *edit;
+		
+		// new entry
+		if (active_index_ == -1) {
+			edit = new EditDialog("", "", "");
+			if (QDialog::Accepted == edit->exec())
+				applist.append(Application(edit->getName(), edit->getDescription(), edit->getCommand(), edit->getName()));
 		}
+		
+		// existing entry
 		else {
-			EditDialog *edit;
-			if (active_index_ == -1)
-				edit = new EditDialog("", "", "");
-			else
-				edit = new EditDialog(applist[active_index_].name_, applist[active_index_].description_, applist[active_index_].exec_);
-
+//printf("%s\n", applist[active_index_].exec_.toLocal8Bit().constData());
+			edit = new EditDialog(applist[active_index_].name_, applist[active_index_].description_, applist[active_index_].exec_);
 			if (QDialog::Accepted == edit->exec()) {
-				
+				applist[active_index_].name_ = edit->getName();
+				applist[active_index_].description_ = edit->getDescription();
+				applist[active_index_].exec_ = edit->getCommand();
 			}
-			delete edit;	
 		}
+		delete edit;
+		
+		// update
+		hide();
+		show();
+		update();
 	}
 }
 
@@ -68,7 +79,8 @@ void MainWindow::run() {
 			stats_->show();
 		}
 		else {
-			int rv = system(applist[index].exec_.toStdString().c_str());
+			QString exec = applist[index].exec_ + " &";
+			int rv = system(exec.toStdString().c_str());
 			(void) rv;
 		}
 	}
@@ -136,7 +148,8 @@ void MainWindow::mouseDoubleClickEvent(QMouseEvent *event) {
 				stats_->show();
 			}
 			else {
-				int rv = system(applist[index].exec_.toStdString().c_str());
+				QString exec = applist[index].exec_ + " &";
+				int rv = system(exec.toStdString().c_str());
 				(void) rv;
 			}
 			event->accept();
@@ -305,6 +318,10 @@ void MainWindow::createLocalActions() {
 	connect(qedit_, SIGNAL(triggered()), this, SLOT(edit()));
 	addAction(qedit_);
 
+	qhelp_ = new QAction(tr("&Help"), this);
+	connect(qhelp_, SIGNAL(triggered()), this, SLOT(help()));
+	addAction(qhelp_);
+
 	QAction *separator2 = new QAction(this);
 	separator2->setSeparator(true);
 	addAction(separator2);
@@ -314,3 +331,24 @@ void MainWindow::createLocalActions() {
 	connect(qquit, SIGNAL(triggered()), qApp, SLOT(quit()));
 	addAction(qquit);
 }
+
+void MainWindow::help() {
+	QMessageBox msgBox;
+	
+	QString txt;
+	txt += "<br/>";
+	txt += "Double click on an icon to open an application.<br/>\n";
+	txt += "Drag the launcher with the left mouse button.<br/>\n";
+	txt += "Use the right mouse button to open a context menu.<br/>\n";
+	txt += "<br/>";
+	txt += "<b>Context Menu</b><br/><br/>\n";
+	txt += "<b>Minimize:</b> minimize the launcer<br/>\n";
+	txt += "<b>Run:</b> start the program in a new sandbox.<br/>\n";
+	txt += "<b>Edit:</b> edit the sandbox.<br/>\n";
+	txt += "<b>Help:</b> this help window.<br/>\n";
+	txt += "<b>Quit:</b> shut down the launcer.<br/>\n";
+	txt += "<br/><br/>";
+
+	QMessageBox::about(this, tr("Firejail Launcher"), txt);
+}
+

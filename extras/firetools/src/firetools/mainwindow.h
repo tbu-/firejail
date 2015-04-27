@@ -29,6 +29,7 @@ public slots:
 private slots:
 	void edit();
 	void run();
+	void help();
 
 signals:
 	void cycleReadySignal();
@@ -43,6 +44,7 @@ private:
 	QPoint dragPosition_;
 	QAction *qedit_;
 	QAction *qrun_;
+	QAction *qhelp_;
 	int active_index_;
 	int animation_id_;
 	int edit_index_;

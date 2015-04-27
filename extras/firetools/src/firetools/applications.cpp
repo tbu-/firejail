@@ -9,7 +9,12 @@ QList<Application> applist;
 Application::Application(const char *name, const char *description, const char *exec, const char *icon):
 	name_(name), description_(description), exec_(exec), icon_(icon) {
 	
-	exec_ += " &";
+	app_icon_ = loadIcon(icon_);
+};
+
+Application::Application(QString name, QString description, QString exec, QString icon):
+	name_(name), description_(description), exec_(exec), icon_(icon) {
+	
 	app_icon_ = loadIcon(icon_);
 };
 
