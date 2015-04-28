@@ -228,6 +228,11 @@ void pid_print_tree(unsigned index, unsigned parent, int nowrap) {
 		if (pids[i].parent == index)
 			pid_print_tree(i, index, nowrap);
 	}
+
+	for (i = 0; i < index; i++) {
+		if (pids[i].parent == index)
+			pid_print_tree(i, index, nowrap);
+	}
 }
 
 void pid_print_list(unsigned index, int nowrap) {
@@ -356,21 +361,19 @@ void pid_read(pid_t mon_pid) {
 				parent %= MAX_PIDS;
 				if (pids[parent].level > 0) {
 					pids[pid].level = pids[parent].level + 1;
-					pids[pid].parent = parent;
 				}
+				pids[pid].parent = parent;
 			}
 			else if (strncmp(buf, "Uid:", 4) == 0) {
-				if (pids[pid].level > 0) {
-					char *ptr = buf + 5;
-					while (*ptr != '\0' && (*ptr == ' ' || *ptr == '\t')) {
-						ptr++;
-					}
-					if (*ptr == '\0') {
-						fprintf(stderr, "Error: cannot read /proc file\n");
-						exit(1);
-					}
-					pids[pid].uid = atoi(ptr);
+				char *ptr = buf + 5;
+				while (*ptr != '\0' && (*ptr == ' ' || *ptr == '\t')) {
+					ptr++;
 				}
+				if (*ptr == '\0') {
+					fprintf(stderr, "Error: cannot read /proc file\n");
+					exit(1);
+				}
+				pids[pid].uid = atoi(ptr);
 				break;
 			}
 		}
@@ -378,4 +381,12 @@ void pid_read(pid_t mon_pid) {
 		free(file);
 	}
 	closedir(dir);
+
+	pid_t pid;
+	for (pid = 0; pid < MAX_PIDS; pid++) {
+		int parent = pids[pid].parent;
+		if (pids[parent].level > 0) {
+			pids[pid].level = pids[parent].level + 1;
+		}
+	}
 }
