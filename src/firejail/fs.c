@@ -33,7 +33,9 @@ void fs_build_firejail_dir(void) {
 	if (stat(FIREJAIL_DIR, &s)) {
 		if (arg_debug)
 			printf("Creating %s directory\n", FIREJAIL_DIR);
-		mkdir(FIREJAIL_DIR, S_IRWXU | S_IRWXG | S_IRWXO);
+		int rv = mkdir(FIREJAIL_DIR, S_IRWXU | S_IRWXG | S_IRWXO);
+		if (rv == -1)
+			errExit("mkdir");
 		if (chown(FIREJAIL_DIR, 0, 0) < 0)
 			errExit("chown");
 		if (chmod(FIREJAIL_DIR, S_IRWXU  | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) < 0)
@@ -52,7 +54,9 @@ void fs_build_mnt_dir(void) {
 	if (stat(MNT_DIR, &s)) {
 		if (arg_debug)
 			printf("Creating %s directory\n", MNT_DIR);
-		mkdir(MNT_DIR, S_IRWXU | S_IRWXG | S_IRWXO);
+		int rv = mkdir(MNT_DIR, S_IRWXU | S_IRWXG | S_IRWXO);
+		if (rv == -1)
+			errExit("mkdir");
 		if (chown(MNT_DIR, 0, 0) < 0)
 			errExit("chown");
 		if (chmod(MNT_DIR, S_IRWXU  | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) < 0)
@@ -79,7 +83,9 @@ void fs_build_overlay_dir(void) {
 	if (stat(OVERLAY_DIR, &s)) {
 		if (arg_debug)
 			printf("Creating %s directory\n", MNT_DIR);
-		mkdir(OVERLAY_DIR, S_IRWXU | S_IRWXG | S_IRWXO);
+		int rv = mkdir(OVERLAY_DIR, S_IRWXU | S_IRWXG | S_IRWXO);
+		if (rv == -1)
+			errExit("mkdir");	
 		if (chown(OVERLAY_DIR, 0, 0) < 0)
 			errExit("chown");
 		if (chmod(OVERLAY_DIR, S_IRWXU  | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) < 0)
@@ -107,7 +113,9 @@ static char *create_empty_dir(void) {
 	fs_build_firejail_dir();
 	
 	if (stat(RO_DIR, &s)) {
-		mkdir(RO_DIR, S_IRUSR | S_IXUSR);
+		int rv = mkdir(RO_DIR, S_IRUSR | S_IXUSR);
+		if (rv == -1)
+			errExit("mkdir");	
 		if (chown(RO_DIR, 0, 0) < 0)
 			errExit("chown");
 	}

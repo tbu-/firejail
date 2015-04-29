@@ -219,6 +219,7 @@ int net_add_route(uint32_t ip, uint32_t mask, uint32_t gw) {
 // add a veth device to a bridge
 void net_bridge_add_interface(const char *bridge, const char *dev) {
 	struct ifreq ifr;
+	memset(&ifr, 0, sizeof(ifr));
 	int err;
 	int ifindex = if_nametoindex(dev);
 

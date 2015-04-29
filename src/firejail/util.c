@@ -422,8 +422,11 @@ void wait_for_other(int fd) {
 	// wait for the parent to be initialized
 	//****************************
 	char childstr[BUFLEN + 1];
+	int newfd = dup(fd);
+	if (newfd == -1)
+		errExit("dup");
 	FILE* stream;
-	stream = fdopen(dup(fd), "r");
+	stream = fdopen(newfd, "r");
 	*childstr = '\0';
 	if (fgets(childstr, BUFLEN, stream)) {
 		// remove \n)
@@ -444,7 +447,10 @@ void wait_for_other(int fd) {
 
 void notify_other(int fd) {
 	FILE* stream;
-	stream = fdopen(dup(fd), "w");
+	int newfd = dup(fd);
+	if (newfd == -1)
+		errExit("dup");
+	stream = fdopen(newfd, "w");
 	fprintf(stream, "%u\n", getpid());
 	fflush(stream);
 	fclose(stream);

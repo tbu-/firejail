@@ -216,11 +216,15 @@ void fs_var_cache(void) {
 			gid = p->pw_gid;
 		}
 		
-		mkdir("/var/cache/lighttpd/compress", S_IRWXU | S_IRWXG | S_IRWXO);
+		int rv = mkdir("/var/cache/lighttpd/compress", S_IRWXU | S_IRWXG | S_IRWXO);
+		if (rv == -1)
+			errExit("mkdir");
 		if (chown("/var/cache/lighttpd/compress", uid, gid) < 0)
 			errExit("chown");
 
-		mkdir("/var/cache/lighttpd/uploads", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+		rv = mkdir("/var/cache/lighttpd/uploads", S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
+		if (rv == -1)
+			errExit("mkdir");
 		if (chown("/var/cache/lighttpd/uploads", uid, gid) < 0)
 			errExit("chown");
 	}			

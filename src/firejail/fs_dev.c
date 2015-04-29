@@ -71,7 +71,9 @@ void fs_private_dev(void){
 	// create /dev/shm
 	if (arg_debug)
 		printf("Create /dev/shm directory\n");
-	mkdir("/dev/shm", S_IRWXU | S_IRWXG | S_IRWXO);
+	int rv = mkdir("/dev/shm", S_IRWXU | S_IRWXG | S_IRWXO);
+	if (rv == -1)
+		errExit("mkdir");
 	if (chown("/dev/shm", 0, 0) < 0)
 		errExit("chown");
 	if (chmod("/dev/shm", S_IRWXU | S_IRWXG | S_IRWXO) < 0)

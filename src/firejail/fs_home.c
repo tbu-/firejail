@@ -245,7 +245,9 @@ void fs_private(void) {
 		// create /home/user
 		if (arg_debug)
 			printf("Create a new user directory\n");
-		mkdir(homedir, S_IRWXU);
+		int rv = mkdir(homedir, S_IRWXU);
+		if (rv == -1)
+			errExit("mkdir");
 		if (chown(homedir, u, g) < 0)
 			errExit("chown");
 	}
@@ -403,7 +405,9 @@ void fs_private_home_list(void) {
 
 	// create /tmp/firejail/mnt/home directory
 	fs_build_mnt_dir();
-	mkdir(HOME_DIR, S_IRWXU | S_IRWXG | S_IRWXO);
+	int rv = mkdir(HOME_DIR, S_IRWXU | S_IRWXG | S_IRWXO);
+	if (rv == -1)
+		errExit("mkdir");
 	if (chown(HOME_DIR, u, g) < 0)
 		errExit("chown");
 	if (chmod(HOME_DIR, 0755) < 0)
