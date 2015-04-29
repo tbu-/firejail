@@ -102,6 +102,11 @@ int net_get_bridge_addr(const char *bridge, uint32_t *ip, uint32_t *mask) {
 
 // bring interface up
 void net_if_up(const char *ifname) {
+	if (strlen(ifname) > IFNAMSIZ) {
+		fprintf(stderr, "Error: invalid network device name %s\n", ifname);
+		exit(1);
+	}
+	
 	int sock = socket(AF_INET,SOCK_DGRAM,0);
 	if (sock < 0)
 		errExit("socket");
@@ -109,7 +114,7 @@ void net_if_up(const char *ifname) {
 	// get the existing interface flags
 	struct ifreq ifr;
 	memset(&ifr, 0, sizeof(ifr));
-	strcpy(ifr.ifr_name, ifname);
+	strncpy(ifr.ifr_name, ifname, IFNAMSIZ);
 	ifr.ifr_addr.sa_family = AF_INET;
 
 	// read the existing flags
@@ -153,13 +158,18 @@ void net_if_up(const char *ifname) {
 
 // configure interface
 void net_if_ip( const char *ifname, uint32_t ip, uint32_t mask) {
+	if (strlen(ifname) > IFNAMSIZ) {
+		fprintf(stderr, "Error: invalid network device name %s\n", ifname);
+		exit(1);
+	}
+
 	int sock = socket(AF_INET,SOCK_DGRAM,0);
 	if (sock < 0)
 		errExit("socket");
 
 	struct ifreq ifr;
 	memset(&ifr, 0, sizeof(ifr));
-	strcpy(ifr.ifr_name, ifname);
+	strncpy(ifr.ifr_name, ifname, IFNAMSIZ);
 	ifr.ifr_addr.sa_family = AF_INET;
 
 	((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr.s_addr = htonl(ip);
@@ -220,8 +230,12 @@ int net_add_route(uint32_t ip, uint32_t mask, uint32_t gw) {
 
 // add a veth device to a bridge
 void net_bridge_add_interface(const char *bridge, const char *dev) {
+	if (strlen(bridge) > IFNAMSIZ) {
+		fprintf(stderr, "Error: invalid network device name %s\n", bridge);
+		exit(1);
+	}
+
 	struct ifreq ifr;
-	memset(&ifr, 0, sizeof(ifr));
 	int err;
 	int ifindex = if_nametoindex(dev);
 
@@ -232,6 +246,7 @@ void net_bridge_add_interface(const char *bridge, const char *dev) {
 	if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
               	errExit("socket");
 
+	memset(&ifr, 0, sizeof(ifr));
 	strncpy(ifr.ifr_name, bridge, IFNAMSIZ);
 #ifdef SIOCBRADDIF
 	ifr.ifr_ifindex = ifindex;

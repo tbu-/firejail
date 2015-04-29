@@ -15,7 +15,6 @@ void check_output(int argc, char **argv) {
 			outfile = argv[i] + 9;
 		
 			struct stat s;
-			int found = 0;
 			if (stat(outfile, &s) == 0) {
 				// check permissions
 				if (s.st_uid != getuid() || s.st_gid != getgid()) {

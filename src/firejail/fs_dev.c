@@ -92,7 +92,9 @@ void fs_private_dev(void){
 #endif
 
 	// pseudo-terminal
-	mkdir("/dev/pts", 0755);
+	rv = mkdir("/dev/pts", 0755);
+	if (rv == -1)
+		errExit("mkdir");
 	if (chown("/dev/pts", 0, 0) < 0)
 		errExit("chown");
 	if (chmod("/dev/pts", 0755) < 0)

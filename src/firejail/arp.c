@@ -43,6 +43,11 @@ typedef struct arp_hdr_t {
 
 // returns 0 if the address is not in use, -1 otherwise
 int arp_check(const char *dev, uint32_t destaddr, uint32_t srcaddr) {
+	if (strlen(dev) > IFNAMSIZ) {
+		fprintf(stderr, "Error: invalid network device name %s\n", dev);
+		exit(1);
+	}
+	
 	if (arg_debug)
 		printf("Trying %d.%d.%d.%d ...\n", PRINT_IP(destaddr));
 
@@ -57,7 +62,7 @@ int arp_check(const char *dev, uint32_t destaddr, uint32_t srcaddr) {
 	// Find interface MAC address
 	struct ifreq ifr;
 	memset(&ifr, 0, sizeof (ifr));
-	snprintf(ifr.ifr_name, sizeof (ifr.ifr_name), "%s", dev);
+	strncpy(ifr.ifr_name, dev, IFNAMSIZ);
 	if (ioctl(sock, SIOCGIFHWADDR, &ifr) < 0)
 		errExit("ioctl");
 	close(sock);

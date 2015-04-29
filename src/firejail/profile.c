@@ -377,11 +377,11 @@ void profile_read(const char *fname) {
 		++lineno;
 		// remove empty space - ptr in allocated memory
 		char *ptr = line_remove_spaces(buf);
-		if (ptr == NULL || *ptr == '\0')
+		if (ptr == NULL)
 			continue;
 		
 		// comments
-		if (*ptr == '#') {
+		if (*ptr == '#' || *ptr == '\0') {
 			free(ptr);
 			continue;
 		}
