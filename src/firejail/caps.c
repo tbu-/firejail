@@ -232,7 +232,8 @@ int caps_check_list(const char *clist, void (*callback)(int)) {
 		else if (callback != NULL)
 			callback(nr);
 	}
-	
+
+	free(str);	
 	return 0;
 }
 

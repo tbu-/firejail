@@ -145,6 +145,7 @@ int copy_file(const char *srcname, const char *destname) {
 	int dst = open(destname, O_CREAT|O_WRONLY|O_TRUNC, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 	if (dst < 0) {
 		fprintf(stderr, "Warning: cannot open %s, file not copied\n", destname);
+		close(src);
 		return -1;
 	}
 
@@ -218,7 +219,7 @@ int is_link(const char *fname) {
 	return 0;
 }
 
-
+// remove multiple spaces and return allocated memory
 char *line_remove_spaces(const char *buf) {
 	assert(buf);
 	if (strlen(buf) == 0)

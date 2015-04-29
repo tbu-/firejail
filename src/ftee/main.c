@@ -76,6 +76,9 @@ static void log_rotate(const char *fname) {
 		if (rv == -1)
 			perror("rename");
 	}
+	
+	free(name1);
+	free(name2);
 }
 
 static void log_write(const unsigned char *str, int len, const char *fname) {

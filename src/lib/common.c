@@ -47,6 +47,7 @@ int join_namespace(pid_t pid, char *type) {
 	if (syscall(__NR_setns, fd, 0) < 0) {
 		free(path);
 		fprintf(stderr, "Error: cannot join namespace %s.\n", type);
+		close(fd);
 		return -1;
 	}
 

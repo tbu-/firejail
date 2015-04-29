@@ -370,5 +370,8 @@ void procevent(pid_t pid) {
 		fprintf(stderr, "Error: cannot open netlink socket\n");
 		exit(1);
 	}
+
 	procevent_monitor(sock, pid); // it will never return from here
+	assert(0);
+	close(sock); // quiet static analyzers
 }

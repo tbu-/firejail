@@ -375,14 +375,16 @@ void profile_read(const char *fname) {
 	int lineno = 0;
 	while (fgets(buf, MAX_READ, fp)) {
 		++lineno;
-		// remove empty space
+		// remove empty space - ptr in allocated memory
 		char *ptr = line_remove_spaces(buf);
 		if (ptr == NULL || *ptr == '\0')
 			continue;
 		
 		// comments
-		if (*ptr == '#')
+		if (*ptr == '#') {
+			free(ptr);
 			continue;
+		}
 		
 		// process include
 		if (strncmp(ptr, "include ", 8) == 0) {
@@ -390,6 +392,8 @@ void profile_read(const char *fname) {
 			// recursivity
 			profile_read(ptr + 8);
 			include_level--;
+//todo: test it and remove this comment
+			free(ptr);
 			continue;
 		}
 		

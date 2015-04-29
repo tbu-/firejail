@@ -211,6 +211,7 @@ int net_add_route(uint32_t ip, uint32_t mask, uint32_t gw) {
 		return -1;
 	}
 
+	close(sock);
 	return 0;
 }
 
@@ -241,6 +242,7 @@ void net_bridge_add_interface(const char *bridge, const char *dev) {
 		err = ioctl(sock, SIOCDEVPRIVATE, &ifr);
 	}
 	(void) err;
+	close(sock);
 }
 
 #define BUFSIZE 1024
