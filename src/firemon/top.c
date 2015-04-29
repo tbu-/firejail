@@ -242,8 +242,8 @@ void top(void) {
 		pid_read(0);
 
 		// start cpu measurements
-		unsigned utime;
-		unsigned stime;
+		unsigned utime = 0;
+		unsigned stime = 0;
 		for (i = 0; i < MAX_PIDS; i++) {
 			if (pids[i].level == 1)
 				pid_store_cpu(i, 0, &utime, &stime);

@@ -159,8 +159,11 @@ static void disable_file(OPERATION op, const char *fname, const char *emptydir, 
 	
 	// if the file is not present, do nothing
 	struct stat s;
-	if (stat(fname, &s) == -1)
+	if (stat(fname, &s) == -1) {
+		if (lnk)
+			free(lnk);
 		return;
+	}
 
 	// modify the file
 	if (op == BLACKLIST_FILE) {

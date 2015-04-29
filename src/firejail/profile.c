@@ -392,7 +392,6 @@ void profile_read(const char *fname) {
 			// recursivity
 			profile_read(ptr + 8);
 			include_level--;
-//todo: test it and remove this comment
 			free(ptr);
 			continue;
 		}

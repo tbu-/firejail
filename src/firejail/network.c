@@ -108,6 +108,7 @@ void net_if_up(const char *ifname) {
 
 	// get the existing interface flags
 	struct ifreq ifr;
+	memset(&ifr, 0, sizeof(ifr));
 	strcpy(ifr.ifr_name, ifname);
 	ifr.ifr_addr.sa_family = AF_INET;
 
@@ -157,6 +158,7 @@ void net_if_ip( const char *ifname, uint32_t ip, uint32_t mask) {
 		errExit("socket");
 
 	struct ifreq ifr;
+	memset(&ifr, 0, sizeof(ifr));
 	strcpy(ifr.ifr_name, ifname);
 	ifr.ifr_addr.sa_family = AF_INET;
 

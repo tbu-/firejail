@@ -99,6 +99,8 @@ static void log_write(const unsigned char *str, int len, const char *fname) {
 		log_rotate(fname);
 
 		// reopen the first file
+		if (out_fp)
+			fclose(out_fp);
 		out_fp = fopen(fname, "w");
 		if (!out_fp) {
 			fprintf(stderr, "Error: cannot open log file %s\n", fname);

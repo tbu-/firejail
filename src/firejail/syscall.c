@@ -4926,6 +4926,7 @@ int syscall_check_list(const char *slist, void (*callback)(int)) {
 			callback(nr);
 	}
 	
+	free(str);
 	return 0;
 }
 
