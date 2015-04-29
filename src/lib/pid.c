@@ -26,9 +26,9 @@
 #include <dirent.h>
        
 #define PIDS_BUFLEN 4096
-//Process pids[MAX_PIDS];
+//Process pids[max_pids];
 Process *pids = NULL;
-int MAX_PIDS=32769;
+int max_pids=32769;
 #define PIDS_BUFLEN 4096
 
 // get the memory associated with this pid
@@ -224,7 +224,7 @@ void pid_print_tree(unsigned index, unsigned parent, int nowrap) {
 	print_elem(index, nowrap);
 	
 	int i;
-	for (i = index + 1; i < MAX_PIDS; i++) {
+	for (i = index + 1; i < max_pids; i++) {
 		if (pids[i].parent == index)
 			pid_print_tree(i, index, nowrap);
 	}
@@ -253,7 +253,7 @@ void pid_store_cpu(unsigned index, unsigned parent, unsigned *utime, unsigned *s
 	*stime += stmp;
 	
 	int i;
-	for (i = index + 1; i < MAX_PIDS; i++) {
+	for (i = index + 1; i < max_pids; i++) {
 		if (pids[i].parent == index)
 			pid_store_cpu(i, index, utime, stime);
 	}
@@ -271,16 +271,16 @@ void pid_read(pid_t mon_pid) {
 		if (fp) {
 			int val;
 			if (fscanf(fp, "%d", &val) == 1) {
-				if (val >= MAX_PIDS)
-					MAX_PIDS = val + 1;
+				if (val >= max_pids)
+					max_pids = val + 1;
 			}
 			fclose(fp);
 		}
-		pids = malloc(sizeof(Process) * MAX_PIDS);
+		pids = malloc(sizeof(Process) * max_pids);
 		if (pids == NULL)
 			errExit("malloc");
 	}
-	memset(pids, 0, sizeof(Process) * MAX_PIDS);
+	memset(pids, 0, sizeof(Process) * max_pids);
 	pid_t mypid = getpid();
 
 	DIR *dir;
@@ -298,7 +298,7 @@ void pid_read(pid_t mon_pid) {
 	char *end;
 	while (child < 0 && (entry = readdir(dir))) {
 		pid_t pid = strtol(entry->d_name, &end, 10);
-		pid %= MAX_PIDS;
+		pid %= max_pids;
 		if (end == entry->d_name || *end)
 			continue;
 		if (pid == mypid)
@@ -358,7 +358,7 @@ void pid_read(pid_t mon_pid) {
 					exit(1);
 				}
 				unsigned parent = atoi(ptr);
-				parent %= MAX_PIDS;
+				parent %= max_pids;
 				if (pids[parent].level > 0) {
 					pids[pid].level = pids[parent].level + 1;
 				}
@@ -383,7 +383,7 @@ void pid_read(pid_t mon_pid) {
 	closedir(dir);
 
 	pid_t pid;
-	for (pid = 0; pid < MAX_PIDS; pid++) {
+	for (pid = 0; pid < max_pids; pid++) {
 		int parent = pids[pid].parent;
 		if (pids[parent].level > 0) {
 			pids[pid].level = pids[parent].level + 1;

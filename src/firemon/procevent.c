@@ -203,7 +203,7 @@ static int procevent_monitor(const int sock, pid_t mypid) {
 					pid = proc_ev->event_data.fork.parent_tgid;
 					if (pids[pid].level > 0) {
 						child = proc_ev->event_data.fork.child_tgid;
-						child %= MAX_PIDS;
+						child %= max_pids;
 						pids[child].level = pids[pid].level + 1;
 						pids[child].uid = pid_get_uid(child);
 					}
@@ -346,7 +346,7 @@ static int procevent_monitor(const int sock, pid_t mypid) {
 static void procevent_print_pids(void) {
 	// print files
 	int i;
-	for (i = 0; i < MAX_PIDS; i++) {
+	for (i = 0; i < max_pids; i++) {
 		if (pids[i].level == 1)
 			pid_print_tree(i, 0, 1);
 	}

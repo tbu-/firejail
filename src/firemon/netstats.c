@@ -38,7 +38,7 @@ static char *get_header(void) {
 void get_stats(int parent) {
 	// find the first child
 	int child = -1;
-	for (child = parent + 1; child < MAX_PIDS; child++) {
+	for (child = parent + 1; child < max_pids; child++) {
 		if (pids[child].parent == parent)
 			break;
 	}
@@ -175,7 +175,7 @@ void netstats(void) {
 		pid_read(0);	// todo: preserve the last calculation if any, so we don't have to do get_stats()
 
 		// start rx/tx measurements
-		for (i = 0; i < MAX_PIDS; i++) {
+		for (i = 0; i < max_pids; i++) {
 			if (pids[i].level == 1)
 				get_stats(i);
 		}
@@ -203,7 +203,7 @@ void netstats(void) {
 		free(header);
 
 		// start rx/tx measurements
-		for (i = 0; i < MAX_PIDS; i++) {
+		for (i = 0; i < max_pids; i++) {
 			if (pids[i].level == 1) {
 				get_stats(i);
 				print_proc(i, itv, col);

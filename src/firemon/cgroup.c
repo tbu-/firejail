@@ -52,7 +52,7 @@ void cgroup(pid_t pid) {
 	
 	// print processes
 	int i;
-	for (i = 0; i < MAX_PIDS; i++) {
+	for (i = 0; i < max_pids; i++) {
 		if (pids[i].level == 1) {
 			pid_print_list(i, 0);
 			int child = find_child(i);

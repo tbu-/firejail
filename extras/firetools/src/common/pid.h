@@ -19,8 +19,7 @@
 */
 #ifndef PID_H
 #define PID_H
-//#define MAX_PIDS 32769
-extern int MAX_PIDS;
+extern int max_pids;
 #include "common.h"
 
 typedef struct {
@@ -37,7 +36,7 @@ typedef struct {
 	unsigned long long rx;	// network rx, bytes
 	unsigned long long tx;	// networking tx, bytes
 } Process;
-//extern Process pids[MAX_PIDS];
+//extern Process pids[max_pids];
 extern Process *pids;
 
 // pid self-contained functions

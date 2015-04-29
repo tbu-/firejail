@@ -125,11 +125,19 @@ int main(int argc, char **argv) {
 	}
 	char *fname = argv[1];
 
+	// check if we can append to this file
+	FILE *fp = fopen(fname, "a");
+	if (!fp) {
+		fprintf(stderr, "Error: cannot open output file %s\n", fname);
+		exit(1);
+	}
+	fclose(fp);
+
+
 	// preserve the last log file
 	log_rotate(fname);
 
 	setvbuf (stdout, NULL, _IONBF, 0);
-	
 	while(1) {
 		int n = read(0, buf, sizeof(buf));
 		if (n < 0 && errno == EINTR)

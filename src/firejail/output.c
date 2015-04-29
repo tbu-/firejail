@@ -6,6 +6,7 @@
 void check_output(int argc, char **argv) {
 	int i;
 	char *outfile = NULL;
+//	drop_privs(0);
 
 	int found = 0;
 	for (i = 1; i < argc; i++) {
@@ -15,25 +16,29 @@ void check_output(int argc, char **argv) {
 		
 			struct stat s;
 			int found = 0;
-			if (stat(outfile, &s) == 0)
-				found = 1;
-		
-			// try to open the file for writing
+			if (stat(outfile, &s) == 0) {
+				// check permissions
+				if (s.st_uid != getuid() || s.st_gid != getgid()) {
+					fprintf(stderr, "Error: the output file needs to be owned by the current user.\n");
+					exit(1);
+				}
+			}
+
+			// drop privileges and try to open the file for writing
+			drop_privs(0);
 			FILE *fp = fopen(outfile, "a");
 			if (!fp) {
 				fprintf(stderr, "Error: cannot open output file %s\n", outfile);
 				exit(1);
 			}
 			fclose(fp);
-			if (found == 0)
-				unlink(outfile);
 			break;
 		}
 	}
-	
 	if (!found)
 		return;
-	
+
+
 	// build the new command line
 	int len = 0;
 	for (i = 0; i < argc; i++) {

@@ -23,7 +23,7 @@ PidThread::~PidThread() {
 }
 
 static void store(int pid, int interval, int clocktick) {
-	assert(pid < MAX_PIDS);
+	assert(pid < max_pids);
 	if (pids[pid].cmd == 0)	{ // process shutting down
 		// remove dbpid
 		DbPid *dbpid = Db::instance().removePid(pid);
@@ -77,7 +77,7 @@ void PidThread::run() {
 		unsigned stime;
 		unsigned long long rx;
 		unsigned long long tx;
-		for (int i = 0; i < MAX_PIDS; i++) {
+		for (int i = 0; i < max_pids; i++) {
 			if (pids[i].level == 1) {
 				// cpu
 				pid_get_cpu_sandbox(i, &utime, &stime);
@@ -99,7 +99,7 @@ void PidThread::run() {
 		Db::instance().newCycle();
 		
 		// read the cpu time again, memory
-		for (int i = 0; i < MAX_PIDS; i++) {
+		for (int i = 0; i < max_pids; i++) {
 			if (pids[i].level == 1) {
 				if (pids[i].zombie)
 					continue;

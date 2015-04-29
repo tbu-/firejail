@@ -26,9 +26,8 @@
 #include <dirent.h>
        
 #define PIDS_BUFLEN 4096
-//Process pids[MAX_PIDS];
 Process *pids = 0;
-int MAX_PIDS=32769;
+int max_pids = 32769;
 
 // get the memory associated with this pid
 void pid_getmem(unsigned pid, unsigned *rss, unsigned *shared) {
@@ -179,17 +178,17 @@ void pid_read(pid_t mon_pid) {
 		if (fp) {
 			int val;
 			if (fscanf(fp, "%d", &val) == 1) {
-				if (val >= MAX_PIDS)
-					MAX_PIDS = val + 1;
+				if (val >= max_pids)
+					max_pids = val + 1;
 			}
 			fclose(fp);
 		}
-		pids = (Process *) malloc(sizeof(Process) * MAX_PIDS);
+		pids = (Process *) malloc(sizeof(Process) * max_pids);
 		if (pids == NULL) 
 			errExit("malloc");
 	}
 
-	memset(pids, 0, sizeof(Process) * MAX_PIDS);
+	memset(pids, 0, sizeof(Process) * max_pids);
 	pid_t mypid = getpid();
 
 	DIR *dir;
@@ -207,7 +206,7 @@ void pid_read(pid_t mon_pid) {
 	char *end;
 	while (child < 0 && (entry = readdir(dir))) {
 		pid_t pid = strtol(entry->d_name, &end, 10);
-		pid %= MAX_PIDS;
+		pid %= max_pids;
 		if (end == entry->d_name || *end)
 			continue;
 		if (pid == mypid)
@@ -267,7 +266,7 @@ void pid_read(pid_t mon_pid) {
 					exit(1);
 				}
 				unsigned parent = atoi(ptr);
-				parent %= MAX_PIDS;
+				parent %= max_pids;
 				if (pids[parent].level > 0) {
 					pids[pid].level = pids[parent].level + 1;
 					pids[pid].parent = parent;
@@ -444,7 +443,7 @@ void pid_get_cpu_sandbox(unsigned pid, unsigned *utime, unsigned *stime) {
 	*stime += stmp;
 	
 	int i;
-	for (i = pid + 1; i < MAX_PIDS; i++) {
+	for (i = pid + 1; i < max_pids; i++) {
 		if (pids[i].parent == (int) pid)
 			pid_get_cpu_sandbox(i, utime, stime);
 	}
@@ -459,7 +458,7 @@ void pid_get_mem_sandbox(unsigned pid, unsigned *rss, unsigned *shared) {
 	pid_getmem(pid, rss, shared);
 	
 	int i;
-	for (i = pid + 1; i < MAX_PIDS; i++) {
+	for (i = pid + 1; i < max_pids; i++) {
 		if (pids[i].parent == (int) pid)
 			pid_get_mem_sandbox(i, rss, shared);
 	}
@@ -472,7 +471,7 @@ void pid_get_netstats_sandbox(int parent, unsigned long long *rx, unsigned long 
 	
 	// find the first child
 	int child = -1;
-	for (child = parent + 1; child < MAX_PIDS; child++) {
+	for (child = parent + 1; child < max_pids; child++) {
 		if (pids[child].parent == parent)
 			break;
 	}

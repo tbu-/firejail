@@ -49,7 +49,7 @@ static void my_handler(int s){
 // return -1 if not found
 int find_child(int id) {
 	int i;
-	for (i = 0; i < MAX_PIDS; i++) {
+	for (i = 0; i < max_pids; i++) {
 		if (pids[i].level == 2 && pids[i].parent == id)
 			return i;
 	}
