@@ -241,6 +241,17 @@ int caps_check_list(const char *clist, void (*callback)(int)) {
 void caps_print(void) {
 	int i;
 	int elems = sizeof(capslist) / sizeof(capslist[0]);
+	
+	// check current caps supported by the kernel
+	int cnt = 0;
+	unsigned long cap;
+	for (cap=0; cap <= 63; cap++) {
+		int code = prctl(PR_CAPBSET_DROP, cap, 0, 0, 0);
+		if (code == 0)
+			cnt++;
+	}
+	printf("Your kernel supports %d capabilities.\n", cnt);
+	
 	for (i = 0; i < elems; i++) {
 		printf("%d\t- %s\n", capslist[i].nr, capslist[i].name);
 	}
