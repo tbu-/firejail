@@ -1,4 +1,4 @@
-firejail (0.9.26-rc1) baseline; urgency=low
+firejail (0.9.26) baseline; urgency=low
   * private dev directory
   * private.keep option for whitelisting home files in a new private directory
   * user namespaces support, noroot option
