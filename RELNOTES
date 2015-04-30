@@ -4,7 +4,7 @@ firejail (0.9.26) baseline; urgency=low
   * user namespaces support, noroot option
   * added Deluge and qBittorent profiles
   * bugfixes
- -- netblue30 <netblue30@yahoo.com>  Mon, 20 Apr 2015 08:00:00 -0500
+ -- netblue30 <netblue30@yahoo.com>  Thu, 30 Apr 2015 08:00:00 -0500
 
 
 firejail (0.9.24) baseline; urgency=low
