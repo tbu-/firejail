@@ -4,6 +4,16 @@ set timeout 10
 spawn $env(SHELL)
 match_max 100000
 
+# check the existing address
+spawn $env(SHELL)
+send -- "firejail --net=eth0 --ip=192.168.1.60\r"
+expect {
+	timeout {puts "TESTING ERROR 1.1\n";puts "Please open a sandbox on 192.168.1.60\n";exit}
+	"the address 192.168.1.60 is already in use"
+}
+
+
+
 # grab 30 ip addresses
 set MAXi 229
 set i 200
@@ -25,14 +35,6 @@ send -- "firejail --net=eth0 --ip=192.168.1.200\r"
 expect {
 	timeout {puts "TESTING ERROR 1\n";exit}
 	"the address 192.168.1.200 is already in use"
-}
-
-# check the existing address
-spawn $env(SHELL)
-send -- "firejail --net=eth0 --ip=192.168.1.60\r"
-expect {
-	timeout {puts "TESTING ERROR 1.1\n";exit}
-	"192.168.1.60 is interface eth0 address"
 }
 
 

@@ -25,6 +25,11 @@ Perhaps iptables or your kernel needs to be upgraded.
 
 ??? seems to be working fine if the sandbox was started as root
 
+***********************
+* Debian 32bit issues
+***********************
+firejail --noroot not working
+
 
 ***********************
 * Sockets
