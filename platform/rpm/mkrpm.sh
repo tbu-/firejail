@@ -1,5 +1,5 @@
 #!/bin/bash
-VERSION="0.9.22"
+VERSION="0.9.26"
 rm -fr ~/rpmbuild
 rm -f firejail-$VERSION-1.x86_64.rpm
 
@@ -53,6 +53,9 @@ install -m 644 /etc/firejail/clementine.profile firejail-$VERSION/etc/firejail/c
 install -m 644 /etc/firejail/gnome-mplayer.profile firejail-$VERSION/etc/firejail/gnome-mplayer.profile
 install -m 644 /etc/firejail/rhythmbox.profile firejail-$VERSION/etc/firejail/rhythmbox.profile
 install -m 644 /etc/firejail/totem.profile firejail-$VERSION/etc/firejail/totem.profile
+install -m 644 /etc/firejail/deluge.profile firejail-$VERSION/etc/firejail/deluge.profile
+install -m 644 /etc/firejail/qbittorrent.profile firejail-$VERSION/etc/firejail/qbittorrent.profile
+install -m 644 /etc/firejail/generic.profile firejail-$VERSION/etc/firejail/generic.profile
 install -m 644 /etc/firejail/login.users firejail-$VERSION/etc/firejail/login.users
 
 mkdir -p firejail-$VERSION/usr/share/bash-completion/completions
@@ -124,6 +127,9 @@ rm -rf %{buildroot}
 %config(noreplace) %{_sysconfdir}/%{name}/gnome-mplayer.profile
 %config(noreplace) %{_sysconfdir}/%{name}/rhythmbox.profile
 %config(noreplace) %{_sysconfdir}/%{name}/totem.profile
+%config(noreplace) %{_sysconfdir}/%{name}/deluge.profile
+%config(noreplace) %{_sysconfdir}/%{name}/qbittorrent.profile
+%config(noreplace) %{_sysconfdir}/%{name}/generic.profile
 
 /usr/bin/firejail
 /usr/bin/firemon
@@ -141,6 +147,13 @@ rm -rf %{buildroot}
 chmod u+s /usr/bin/firejail
 
 %changelog
+* Thu Apr 30 2015 netblue30 <netblue30@yahoo.com> 0.9.26-1
+ - private dev directory
+ - private.keep option for whitelisting home files in a new private directory
+ - user namespaces support, noroot option
+ - added Deluge and qBittorent profiles
+ - bugfixes
+
 * Sun Apr 5 2015  netblue30 <netblue30@yahoo.com> 0.9.24-1
  - whitelist and blacklist seccomp filters
  - doubledash option
