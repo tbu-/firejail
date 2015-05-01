@@ -26,9 +26,36 @@ Perhaps iptables or your kernel needs to be upgraded.
 ??? seems to be working fine if the sandbox was started as root
 
 ***********************
-* Debian 32bit issues
+* Expect testing on 3.2 kernels 
 ***********************
-firejail --noroot not working
+Several tests failing, join and seccomp not present in the kernel - to clean up!
+TESTING: doubledash
+netblue@debian:~/work/firejail-sf/test$ TESTING ERROR 8
+TESTING: join
+netblue@debian:~/work/firejail-sf/test$ TESTING ERROR 2
+TESTING: firefox
+netblue@debian:~/work/firejail-sf/test$ TESTING ERROR 5.1
+TESTING: midori
+netblue@debian:~/work/firejail-sf/test$ TESTING ERROR 5.1
+TESTING: transmission-gtk
+netblue@debian:~/work/firejail-sf/test$ TESTING ERROR 5.1
+TESTING: transmission-qt
+netblue@debian:~/work/firejail-sf/test$ TESTING ERROR 5.1
+TESTING: evince
+netblue@debian:~/work/firejail-sf/test$ TESTING ERROR 5.1
+TESTING: seccomp su
+[sudo] password for netblue: TESTING ERROR 1
+TESTING: seccomp ptrace
+[netblue@debian test]$ TESTING ERROR 1
+TESTING: seccomp chmod (seccomp lists)
+[netblue@debian ~]$ TESTING ERROR 2
+TESTING: seccomp chmod profile (seccomp lists)
+[netblue@debian ~]$ TESTING ERROR 2
+TESTING: firemon --seccomp
+netblue@debian:~/work/firejail-sf/test$ TESTING ERROR 2
+TESTING: firemon --caps
+netblue@debian:~/work/firejail-sf/test$ TESTING ERROR 6
+
 
 
 ***********************

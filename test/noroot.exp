@@ -4,11 +4,7 @@ set timeout 10
 spawn $env(SHELL)
 match_max 100000
 
-send -- "firejail --debug --noroot --nogroups --caps.drop=all --seccomp --cpu=0,1 --name=noroot-sandbox\r"
-expect {
-	timeout {puts "TESTING ERROR 0\n";exit}
-	"no supplementary groups"
-}
+send -- "firejail --debug --noroot --caps.drop=all --seccomp --cpu=0,1 --name=noroot-sandbox\r"
 expect {
 	timeout {puts "TESTING ERROR 0.1\n";exit}
 	"Child process initialized"

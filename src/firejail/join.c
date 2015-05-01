@@ -294,15 +294,16 @@ void join(pid_t pid, const char *homedir, int argc, char **argv, int index) {
 			errExit("setenv");
 		if (setenv("container", "firejail", 1) < 0) // LXC sets container=lxc,
 			errExit("setenv");
-		// drop privileges
-		drop_privs(arg_nogroups);
 
+		// mount user namespace or drop privileges
 		if (arg_noroot) {
 			if (arg_debug)
 				printf("Joining user namespace\n");
 			if (join_namespace(1, "user"))
 				exit(1);
 		}
+		else 
+			drop_privs(arg_nogroups);
 
 		// set prompt color to green
 		//export PS1='\[\e[1;32m\][\u@\h \W]\$\[\e[0m\] '

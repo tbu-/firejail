@@ -353,18 +353,23 @@ int sandbox(void* sandbox_arg) {
 	// save cgroup in MNT_DIR/cgroup file
 	if (cfg.cgroup)
 		save_cgroup();
-		
-	// drop privileges
-	save_nogroups();
-	drop_privs(arg_nogroups);
 
 	//****************************************
-	// create new user namespace now that privileged child setup is complete
+	// drop privileges or create a new user namespace
 	//****************************************
-	if (arg_noroot)
-		unshare(CLONE_NEWUSER);
+	save_nogroups();
+	if (arg_noroot) {
+		int rv = unshare(CLONE_NEWUSER);
+		if (rv == -1) {
+			fprintf(stderr, "Warning: cannot mount a new user namespace\n");
+			perror("unshare");
+			drop_privs(arg_nogroups);
+		}
+	}
+	else
+		drop_privs(arg_nogroups);
  	
- 	// notify parent that new user namespace has been created so a proper
+	// notify parent that new user namespace has been created so a proper
  	// UID/GID map can be setup
  	notify_other(child_to_parent_fds[1]);
  	close(child_to_parent_fds[1]);
