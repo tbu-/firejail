@@ -99,6 +99,7 @@ void set_cgroup(const char *path) {
 		goto errout2;
 		
 	// add the task to cgroup
+	/* coverity[toctou] */
 	FILE *fp = fopen(path,	"a");
 	if (!fp)
 		goto errout;

@@ -75,6 +75,7 @@ static void skel(const char *homedir, uid_t u, gid_t g) {
 			}
 		}
 		else { // 
+			/* coverity[toctou] */
 			FILE *fp = fopen(fname, "w");
 			if (fp) {
 				fprintf(fp, "\n");
@@ -98,6 +99,7 @@ static void skel(const char *homedir, uid_t u, gid_t g) {
 			return;
 		if (stat("/etc/skel/.bashrc", &s) == 0) {
 			if (copy_file("/etc/skel/.bashrc", fname) == 0) {
+				/* coverity[toctou] */
 				if (chown(fname, u, g) == -1)
 					errExit("chown");
 			}

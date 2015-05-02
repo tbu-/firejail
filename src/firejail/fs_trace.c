@@ -33,6 +33,7 @@ void fs_trace_preload(void) {
 	if (stat("/etc/ld.so.preload", &s)) {
 		if (arg_debug)
 			printf("Creating an empty /etc/ld.so.preload file\n");
+		/* coverity[toctou] */
 		FILE *fp = fopen("/etc/ld.so.preload", "w");
 		if (!fp)
 			errExit("fopen");

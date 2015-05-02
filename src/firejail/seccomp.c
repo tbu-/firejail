@@ -365,6 +365,7 @@ static void read_seccomp_file(char *file_name) {
 		errExit("malloc");
 		
 	// read file
+	/* coverity[toctou] */
 	int fd = open(fname,O_RDONLY);
 	if (fd == -1)
 		errExit("open");

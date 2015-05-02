@@ -54,6 +54,7 @@ static void log_rotate(const char *fname) {
 
 	sprintf(name2 + index, ".2");
 	if (stat(name2, &s) == 0) {
+		/* coverity[toctou] */
 		int rv = rename(name2, name1);
 		if (rv == -1)
 			perror("rename");

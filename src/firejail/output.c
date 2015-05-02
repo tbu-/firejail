@@ -25,6 +25,7 @@ void check_output(int argc, char **argv) {
 
 			// drop privileges and try to open the file for writing
 			drop_privs(0);
+			/* coverity[toctou] */
 			FILE *fp = fopen(outfile, "a");
 			if (!fp) {
 				fprintf(stderr, "Error: cannot open output file %s\n", outfile);

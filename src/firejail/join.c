@@ -271,6 +271,7 @@ void join(pid_t pid, const char *homedir, int argc, char **argv, int index) {
 		if (homedir) {
 			struct stat s;
 			if (stat(homedir, &s) == 0) {
+				/* coverity[toctou] */
 				if (chdir(homedir) < 0)
 					errExit("chdir");
 			}

@@ -302,6 +302,7 @@ int sandbox(void* sandbox_arg) {
 		if (cfg.homedir) {
 			struct stat s;
 			if (stat(cfg.homedir, &s) == 0) {
+				/* coverity[toctou] */
 				if (chdir(cfg.homedir) < 0)
 					errExit("chdir");
 			}

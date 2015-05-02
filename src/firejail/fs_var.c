@@ -127,6 +127,7 @@ void fs_var_log(void) {
 		release_all();
 		
 		// create an empty /var/log/wtmp file
+		/* coverity[toctou] */
 		FILE *fp = fopen("/var/log/wtmp", "w");
 		if (fp)
 			fclose(fp);

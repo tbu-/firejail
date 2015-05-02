@@ -33,6 +33,7 @@ void fs_build_firejail_dir(void) {
 	if (stat(FIREJAIL_DIR, &s)) {
 		if (arg_debug)
 			printf("Creating %s directory\n", FIREJAIL_DIR);
+		/* coverity[toctou] */
 		int rv = mkdir(FIREJAIL_DIR, S_IRWXU | S_IRWXG | S_IRWXO);
 		if (rv == -1)
 			errExit("mkdir");
@@ -54,6 +55,7 @@ void fs_build_mnt_dir(void) {
 	if (stat(MNT_DIR, &s)) {
 		if (arg_debug)
 			printf("Creating %s directory\n", MNT_DIR);
+		/* coverity[toctou] */
 		int rv = mkdir(MNT_DIR, S_IRWXU | S_IRWXG | S_IRWXO);
 		if (rv == -1)
 			errExit("mkdir");
@@ -83,6 +85,7 @@ void fs_build_overlay_dir(void) {
 	if (stat(OVERLAY_DIR, &s)) {
 		if (arg_debug)
 			printf("Creating %s directory\n", MNT_DIR);
+		/* coverity[toctou] */
 		int rv = mkdir(OVERLAY_DIR, S_IRWXU | S_IRWXG | S_IRWXO);
 		if (rv == -1)
 			errExit("mkdir");	
@@ -113,6 +116,7 @@ static char *create_empty_dir(void) {
 	fs_build_firejail_dir();
 	
 	if (stat(RO_DIR, &s)) {
+		/* coverity[toctou] */
 		int rv = mkdir(RO_DIR, S_IRUSR | S_IXUSR);
 		if (rv == -1)
 			errExit("mkdir");	
@@ -128,6 +132,7 @@ static char *create_empty_file(void) {
 	fs_build_firejail_dir();
 
 	if (stat(RO_FILE, &s)) {
+		/* coverity[toctou] */
 		FILE *fp = fopen(RO_FILE, "w");
 		if (!fp)
 			errExit("fopen");
@@ -190,6 +195,7 @@ static void disable_file(OPERATION op, const char *fname, const char *emptydir, 
 			// preserve owner and mode for the directory
 			if (mount("tmpfs", fname, "tmpfs", MS_NOSUID | MS_NODEV | MS_STRICTATIME | MS_REC,  0) < 0)
 				errExit("mounting tmpfs");
+			/* coverity[toctou] */
 			if (chown(fname, s.st_uid, s.st_gid) == -1)
 				errExit("mounting tmpfs chmod");
 		}
@@ -274,8 +280,10 @@ void fs_blacklist(const char *homedir) {
 			// preserve dname2 mode and ownership
 			if (mount(dname1, dname2, NULL, MS_BIND|MS_REC, NULL) < 0)
 				errExit("mount bind");
+			/* coverity[toctou] */
 			if (chown(dname2, s.st_uid, s.st_gid) == -1)
 				errExit("mount-bind chown");
+			/* coverity[toctou] */
 			if (chmod(dname2, s.st_mode) == -1)
 				errExit("mount-bind chmod");
 				

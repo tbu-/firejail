@@ -57,6 +57,7 @@ void netfilter(const char *fname) {
 		if (!filter)
 			errExit("malloc");
 		
+		/* coverity[toctou] */
 		FILE *fp = fopen(fname, "r");
 		if (!fp) {
 			fprintf(stderr, "Error: cannot open network filter file\n");

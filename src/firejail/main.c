@@ -88,6 +88,7 @@ static void myexit(int rv) {
 	
 	struct stat s;
 	if (stat("/proc/firejail", &s) == 0) {
+		/* coverity[toctou] */
 		FILE *fp = fopen("/proc/firejail", "w");
 		if (fp) {
 			// deregistration
