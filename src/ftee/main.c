@@ -114,6 +114,56 @@ static void log_write(const unsigned char *str, int len, const char *fname) {
 	fflush(0);
 }
 
+
+// return 1 if the file is a directory
+static int is_dir(const char *fname) {
+	assert(fname);
+	if (*fname == '\0')
+		return 0;
+	
+	// if fname doesn't end in '/', add one
+	int rv;
+	struct stat s;
+	if (fname[strlen(fname) - 1] == '/')
+		rv = stat(fname, &s);
+	else {
+		char *tmp;
+		if (asprintf(&tmp, "%s/", fname) == -1) {
+			fprintf(stderr, "Error: cannot allocate memory, %s:%d\n", __FILE__, __LINE__);
+			exit(1);
+		}		
+		rv = stat(tmp, &s);
+		free(tmp);
+	}
+	
+	if (rv == -1)
+		return 0;
+		
+	if (S_ISDIR(s.st_mode))
+		return 1;
+
+	return 0;
+}
+
+// return 1 if the file is a link
+static int is_link(const char *fname) {
+	assert(fname);
+	if (*fname == '\0')
+		return 0;
+
+	struct stat s;
+	if (lstat(fname, &s) == 0) {
+		if (S_ISLNK(s.st_mode))
+			return 1;
+	}
+
+	return 0;
+}
+
+
+
+
+
 static void usage(void) {
 	printf("Usage: ftee filename\n");
 }
@@ -125,6 +175,28 @@ int main(int argc, char **argv) {
 		exit(1);
 	}
 	char *fname = argv[1];
+
+
+	// do not accept directories, links, and files with ".."
+	if (strstr(fname, "..") || is_link(fname) || is_dir(fname)) {
+		fprintf(stderr, "Error: invalid output file. Links, directories and files with \"..\" are not allowed.\n");
+		exit(1);
+	}
+	
+	struct stat s;
+	if (stat(fname, &s) == 0) {
+		// check permissions
+		if (s.st_uid != getuid() || s.st_gid != getgid()) {
+			fprintf(stderr, "Error: the output file needs to be owned by the current user.\n");
+			exit(1);
+		}
+		
+		// check hard links
+		if (s.st_nlink != 1) {
+			fprintf(stderr, "Error: no hard links allowed.\n");
+			exit(1);
+		}
+	}
 
 	// check if we can append to this file
 	FILE *fp = fopen(fname, "a");

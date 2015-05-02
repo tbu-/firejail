@@ -196,20 +196,42 @@ char *get_link(const char *fname) {
 }
 
 
+// return 1 if the file is a directory
 int is_dir(const char *fname) {
 	assert(fname);
+	if (*fname == '\0')
+		return 0;
+	
+	// if fname doesn't end in '/', add one
+	int rv;
 	struct stat s;
-	if (lstat(fname, &s) == 0) {
-		if (S_ISDIR(s.st_mode))
-			return 1;
+	if (fname[strlen(fname) - 1] == '/')
+		rv = stat(fname, &s);
+	else {
+		char *tmp;
+		if (asprintf(&tmp, "%s/", fname) == -1) {
+			fprintf(stderr, "Error: cannot allocate memory, %s:%d\n", __FILE__, __LINE__);
+			errExit("asprintf");
+		}		
+		rv = stat(tmp, &s);
+		free(tmp);
 	}
+	
+	if (rv == -1)
+		return 0;
+		
+	if (S_ISDIR(s.st_mode))
+		return 1;
 
 	return 0;
 }
 
-
+// return 1 if the file is a link
 int is_link(const char *fname) {
 	assert(fname);
+	if (*fname == '\0')
+		return 0;
+
 	struct stat s;
 	if (lstat(fname, &s) == 0) {
 		if (S_ISLNK(s.st_mode))
@@ -218,6 +240,7 @@ int is_link(const char *fname) {
 
 	return 0;
 }
+
 
 // remove multiple spaces and return allocated memory
 char *line_remove_spaces(const char *buf) {

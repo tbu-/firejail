@@ -13,12 +13,24 @@ void check_output(int argc, char **argv) {
 		if (strncmp(argv[i], "--output=", 9) == 0) {
 			found = 1;
 			outfile = argv[i] + 9;
-		
+
+			// do not accept directories, links, and files with ".."
+			if (strstr(outfile, "..") || is_link(outfile) || is_dir(outfile)) {
+				fprintf(stderr, "Error: invalid output file. Links, directories and files with \"..\" are not allowed.\n");
+				exit(1);
+			}
+			
 			struct stat s;
 			if (stat(outfile, &s) == 0) {
 				// check permissions
 				if (s.st_uid != getuid() || s.st_gid != getgid()) {
 					fprintf(stderr, "Error: the output file needs to be owned by the current user.\n");
+					exit(1);
+				}
+				
+				// check hard links
+				if (s.st_nlink != 1) {
+					fprintf(stderr, "Error: no hard links allowed.\n");
 					exit(1);
 				}
 			}
