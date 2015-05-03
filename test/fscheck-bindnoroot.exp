@@ -4,12 +4,11 @@ set timeout 10
 spawn $env(SHELL)
 match_max 100000
 
-send -- "firejail --version\r"
+# dir
+send -- "firejail --net=br0 --bind=fscheck-dir,/etc\r"
 expect {
 	timeout {puts "TESTING ERROR 0\n";exit}
-	"firejail version "
+	"Error"
 }
 after 100
-
-puts "\n"
 

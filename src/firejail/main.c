@@ -511,11 +511,18 @@ int main(int argc, char **argv) {
 		}
 		else if (strncmp(argv[i], "--profile=", 10) == 0) {
 			// multiple profile files are allowed!
-			// check file access as user, not as root (suid)
+			char *ptr = argv[i] + 10;
+			if (is_dir(ptr) || is_link(ptr) || strstr(ptr, "..")) {
+				fprintf(stderr, "Error: invalid profile file\n");
+				exit(1);
+			}
+			
+			// access call checks as real UID/GID, not as effective UID/GID
 			if (access(argv[i] + 10, R_OK)) {
 				fprintf(stderr, "Error: cannot access profile file\n");
 				return 1;
 			}
+
 			profile_read(argv[i] + 10);
 			custom_profile = 1;
 		}
@@ -535,11 +542,10 @@ int main(int argc, char **argv) {
 					errExit("asprintf");
 				cfg.chrootdir = tmp;
 			}
+			
 			// check chroot dirname exists
-			struct stat s;
-			int rv = stat(cfg.chrootdir, &s);
-			if (rv < 0) {
-				fprintf(stderr, "Error: cannot find %s directory, aborting...\n", cfg.chrootdir);
+			if (strstr(cfg.chrootdir, "..") || !is_dir(cfg.chrootdir) || is_link(cfg.chrootdir)) {
+				fprintf(stderr, "Error: invalid directory %s, aborting...\n", cfg.chrootdir);
 				return 1;
 			}
 			
@@ -695,11 +701,7 @@ int main(int argc, char **argv) {
 		else if (strncmp(argv[i], "--netfilter=", 12) == 0) {
 			arg_netfilter = 1;
 			arg_netfilter_file = argv[i] + 12;
-			struct stat s;
-			if (stat(arg_netfilter_file, &s) == -1) {
-				fprintf(stderr, "Error: network filter file not found\n");
-				exit(1);
-			}
+			check_netfilter_file(arg_netfilter_file);
 		}
 
 		//*************************************
@@ -744,11 +746,16 @@ int main(int argc, char **argv) {
 				return 1;
 			}
 			cfg.shell = argv[i] + 8;
-			// check if the file exists
-			struct stat s;
-			if (stat(cfg.shell, &s) == -1) {
-				fprintf(stderr, "Error: cannot find shell %s\n", cfg.shell);
-				return 1;
+
+			if (is_dir(cfg.shell) || is_link(cfg.shell) || strstr(cfg.shell, "..")) {
+				fprintf(stderr, "Error: invalid shell\n");
+				exit(1);
+			}
+			
+			// access call checks as real UID/GID, not as effective UID/GID
+			if (access(cfg.shell, R_OK)) {
+				fprintf(stderr, "Error: cannot access shell file\n");
+				exit(1);
 			}
 		}
 		else if (strcmp(argv[i], "-c") == 0) {

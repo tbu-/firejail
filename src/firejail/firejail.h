@@ -330,6 +330,7 @@ void set_cgroup(const char *path);
 void check_output(int argc, char **argv);
 
 // netfilter.c
+void check_netfilter_file(const char *fname);
 void netfilter(const char *fname);
 
 #endif

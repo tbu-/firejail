@@ -112,7 +112,7 @@ static void sandbox_if_up(Bridge *br) {
 }
 
 static void chk_chroot(void) {
-		// if we are starting firejail inside some other container technology, we don't care about this
+	// if we are starting firejail inside some other container technology, we don't care about this
 	char *mycont = getenv("container");
 	if (mycont)
 		return;

@@ -38,6 +38,20 @@ static char *client_filter =
 "-A INPUT -p icmp --icmp-type echo-request -j ACCEPT \n"
 "COMMIT\n";
 
+
+void check_netfilter_file(const char *fname) {
+	if (is_dir(fname) || is_link(fname) || strstr(fname, "..")) {
+		fprintf(stderr, "Error: invalid network filter file\n");
+		exit(1);
+	}
+	
+	// access call checks as real UID/GID, not as effective UID/GID
+	if (access(fname, R_OK)) {
+		fprintf(stderr, "Error: cannot access network filter file\n");
+		exit(1);
+	}
+}
+
 void netfilter(const char *fname) {
 	// default filter
 	char *filter = client_filter;

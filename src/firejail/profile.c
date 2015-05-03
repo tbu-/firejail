@@ -118,17 +118,10 @@ int profile_check_line(char *ptr, int lineno) {
 	}
 	else if (strncmp(ptr, "netfilter ", 10) == 0) {
 		arg_netfilter = 1;
-		
-		char *fname = ptr + 10;
-		struct stat s;
-		if (stat(fname, &s) == -1) {
-			fprintf(stderr, "Error: network filter file not found\n");
-			exit(1);
-		}
-		arg_netfilter_file = strdup(fname);
+		arg_netfilter_file = strdup(ptr + 10);
 		if (!arg_netfilter_file)
 			errExit("strdup");
-		
+		check_netfilter_file(arg_netfilter_file);
 		return 0;
 	}
 	
@@ -256,6 +249,10 @@ int profile_check_line(char *ptr, int lineno) {
 		// check directories
 		check_file_name(dname1, lineno);
 		check_file_name(dname2, lineno);
+		if (strstr(dname1, "..") || strstr(dname2, "..")) {
+			fprintf(stderr, "Error: invalid file name.\n");
+			exit(1);
+		}
 		
 		// insert comma back
 		*(dname2 - 1) = ',';
@@ -325,6 +322,13 @@ int profile_check_line(char *ptr, int lineno) {
 
 	// some characters just don't belong in filenames
 	check_file_name(ptr, lineno);
+	if (strstr(ptr, "..")) {
+		if (lineno == 0)
+			fprintf(stderr, "Error: \"%s\" is an invalid filename\n", ptr);
+		else
+			fprintf(stderr, "Error: line %d in the custom profile is invalid\n", lineno);
+		exit(1);
+	}
 	return 1;
 }
 

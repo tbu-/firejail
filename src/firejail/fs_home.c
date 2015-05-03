@@ -266,7 +266,7 @@ void fs_private(void) {
 		copy_xauthority();
 }
 
-static void check_dir(const char *name) {
+static void check_dir_or_file(const char *name) {
 	assert(name);
 	struct stat s;
 	char *fname;
@@ -282,26 +282,18 @@ static void check_dir(const char *name) {
 	// check uid
 	uid_t uid = getuid();
 	gid_t gid = getgid();
-	if (uid != 0 || gid != 0) {
-		if (s.st_uid != uid || s.st_gid != gid) {
-			fprintf(stderr, "Error: only files or directories created by the current user are allowed.\n");
-			exit(1);
-		}
+	if (s.st_uid != uid || s.st_gid != gid) {
+		fprintf(stderr, "Error: only files or directories created by the current user are allowed.\n");
+		exit(1);
 	}
 
-	// check symbolic link
-	struct stat sl;
-	if (lstat(fname, &sl) == -1) {
-		fprintf(stderr, "Error: invalid file type, %s.\n", fname);
-		exit(1);
-	}		
-	if (S_ISLNK(sl.st_mode)) {
-		fprintf(stderr, "Error: symbolic links are not allowed, %s.\n", fname);
-		exit(1);
-	}
-	
 	// dir or regular file
 	if (S_ISDIR(s.st_mode) || S_ISREG(s.st_mode)) {
+		free(fname);
+		return;
+	}
+
+	if (!is_link(fname)) {
 		free(fname);
 		return;
 	}
@@ -312,14 +304,19 @@ static void check_dir(const char *name) {
 
 // check directory linst specified by user (--private.keep option) - exit if it fails
 void fs_check_home_list(void) {
+	if (strstr(cfg.home_private_keep, "..")) {
+		fprintf(stderr, "Error: invalid private.keep list\n");
+		exit(1);
+	}
+	
 	char *dlist = strdup(cfg.home_private_keep);
 	if (!dlist)
 		errExit("strdup");
 
 	char *ptr = strtok(dlist, ",");
-	check_dir(ptr);
+	check_dir_or_file(ptr);
 	while ((ptr = strtok(NULL, ",")) != NULL)
-		check_dir(ptr);
+		check_dir_or_file(ptr);
 	
 	free(dlist);
 }
@@ -333,7 +330,13 @@ void fs_check_private_dir(void) {
 			errExit("asprintf");
 		cfg.home_private = tmp;
 	}
-	// check chroot dirname exists
+	
+	if (!is_dir(cfg.home_private) || is_link(cfg.home_private) || strstr(cfg.home_private, "..")) {
+		fprintf(stderr, "Error: invalid private directory\n");
+		exit(1);
+	}
+
+	// check home directory and chroot home directory have the same owner
 	struct stat s2;
 	int rv = stat(cfg.home_private, &s2);
 	if (rv < 0) {
@@ -341,7 +344,6 @@ void fs_check_private_dir(void) {
 		exit(1);
 	}
 
-	// check home directory and chroot home directory have the same owner
 	struct stat s1;
 	rv = stat(cfg.homedir, &s1);
 	if (rv < 0) {

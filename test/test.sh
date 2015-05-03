@@ -2,6 +2,8 @@
 
 ./chk_config.exp
 
+./fscheck.sh
+
 echo "TESTING: version"
 ./option_version.exp
 
