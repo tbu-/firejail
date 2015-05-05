@@ -1,9 +1,16 @@
 ***********************
+*  tab completion doesn't work
+***********************
+- caps.keep
+- seccomp.*
+- dns.print
+
+***********************
 * OpenSUSE issues
 ***********************
 1. .Xauthority not copied in $HOME on OpenSUSE when running --private
 2. --name not working on OpenSUSE. The system does not read /etc/hosts.
-	Fixed by changing enable-cache hosts no in /etc/nscd.conf
+	Fixed by changing "enable-cache hosts no" in /etc/nscd.conf
 3. DNS test not working in chroot - cannot resolve host name
 
 ***********************

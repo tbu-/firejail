@@ -2,26 +2,48 @@
 .SH NAME
 Firejail \- Linux namespaces sandbox program
 .SH SYNOPSIS
-firejail [options] [program and arguments]
+firejail [OPTIONS] [program and arguments]
 .SH DESCRIPTION
 Firejail is a SUID sandbox program that reduces the risk of security breaches by
 restricting the running environment of untrusted applications using Linux
-namespaces. It includes a sandbox profile for Mozilla Firefox.
+namespaces, seccomp-bpf and Linux capabilities.
+It allows a process and all its descendants to have their own private view of the
+globally shared kernel resources, such as the network stack, process table, mount table.
+Firejail can work in a SELinux or AppArmor environment,
+and it is integrated with Linux Control Groups.
 
-Firejail also expands the restricted shell facility found in bash by adding Linux
-namespace support. It supports sandboxing specific users upon
-login.
+Written in C with virtually no dependencies, the software should run on any Linux computer with a 3.x kernel version
+or newer.
+It can sandbox any type of processes: servers, graphical applications, and even user login sessions. 
+The software includes sandbox profiles for a number of more common
+Linux programs, such as Mozilla Firefox, Chromium, VLC, Transmission etc.
+
 .SH USAGE
-Without any options, the sandbox consists of a filesystem chroot build from the
-current system directories mounted read-only, and new PID and IPC namespaces.
-If no program is specified as an argument, /bin/bash is started by default in the sandbox.
+Without any options, the sandbox consists of a chroot filesystem build in a new mount namespace,
+and new PID and UTS namespaces. IPC, network and user namespaces can be added using the command line options.
+The default Firejail filesystem is based on the host filesystem with the main directories mounted read-only.
+Only /home, /tmp and /var directories are writable.
+
+If no program is specified as an argument, /bin/bash is started by default.
+Examples:
+
+$ firejail [OPTIONS]                # starting a /bin/bash shell
+.br
+$ firejail [OPTIONS] firefox        # starting Mozilla Firefox
+
+Multiple commands can be run in sandbox using regular bash logic operators:
+
+$ sudo firejail [OPTIONS] "/etc/init.d/nginx start && sleep inf"
+
+In the previous example, "sleep inf" command is required in order to keep the session open for the daemon program.
+
 .SH OPTIONS
 .TP
 \fB\-\-
 Signal the end of options and disables further option processing.
 .TP
 \fB\-\-bind=dirname1,dirname2
-Mount-bind dirname1 on top of dirname2. This option is only available when running as root.
+Mount-bind dirname1 on top of dirname2. This option is only available when running the sandbox as root.
 .TP
 \fB\-\-bind=filename1,filename2
 Mount-bind filename1 on top of filename2. This option is only available when running as root.
@@ -33,33 +55,113 @@ Blacklist directory or file.
 Execute command and exit.
 .TP
 \fB\-\-caps
-Enable default Linux capabilities filter. The filter disables CAP_SYS_MODULE, CAP_SYS_RAWIO, CAP_SYS_BOOT, 
-CAP_SYS_NICE, CAP_SYS_TTY_CONFIG, CAP_SYSLOG, CAP_MKNOD, CAP_SYS_ADMIN.
+Linux capabilities is a kernel feature designed to split up the root privilege into a set of distinct privileges.
+These privileges can be enabled or disabled independently, thus restricting what a process running
+as root can do in the system.
+
+By default root programs run with all capabilities enabled. \-\-caps option disables the following capabilities:
+CAP_SYS_MODULE, CAP_SYS_RAWIO,
+CAP_SYS_BOOT, CAP_SYS_NICE, CAP_SYS_TTY_CONFIG, CAP_SYSLOG, CAP_MKNOD, CAP_SYS_ADMIN.
+The filter is applied to all processes started in the sandbox.
+.br
+
+.br
+Example:
+.br
+$ sudo firejail \-\-caps "/etc/init.d/nginx start && sleep inf"
+
 .TP
 \fB\-\-caps.drop=all
-Drop all capabilities.
+Drop all capabilities for the processes running in the sandbox. This option is recomended for running GUI programs
+or any other program that doesn't require root privileges. It is a must-have option for sandboxing untrusted programs
+installed from unofficial sources - such as games, Java programs, etc.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-caps.drop=all warzone2100
+
 .TP
 \fB\-\-caps.drop=capability,capability,capability
-Blacklist Linux capabilities filter.
+Define a custom blacklist Linux capabilities filter.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-caps.keep=net_broadcast,net_admin,net_raw
+
 .TP
 \fB\-\-caps.keep=capability,capability,capability
-Whitelist Linux capabilities filter.
+Define a custom whitelist Linux capabilities filter.
+.br
+
+.br
+Example:
+.br
+$ sudo firejail \-\-caps.keep=chown,net_bind_service,setgid,\\
+setuid "/etc/init.d/nginx start && sleep inf"
+
 .TP
 \fB\-\-caps.print=name
-Print the caps filter for the sandbox started using \-\-name option.
+Print the caps filter for the sandbox identified by name.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-name=mygame \-\-caps.drop=all warzone2100 &
+.br
+[...]
+.br
+$ firejail \-\-caps.print=mygame
+
 .TP
 \fB\-\-caps.print=pid
-Print the caps filter for the specified sandbox.
+Print the caps filter for a sandbox identified by PID.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-list
+.br
+3272:netblue:firejail \-\-private firefox
+.br
+$ firejail \-\-caps.print=3272
+
 .TP
 \fB\-\-cgroup=tasks-file
 Place the sandbox in the specified control group. tasks-file is the full path of cgroup tasks file.
-Example: \-\-cgroup=/sys/fs/cgroup/g1/tasks
+.br
+
+.br
+Example:
+.br
+# firejail \-\-cgroup=/sys/fs/cgroup/g1/tasks
+
 .TP
 \fB\-\-chroot=dirname
-Chroot into dirname directory.
+Chroot the sandbox into a root filesystem. If the sandbox is started as a
+regular user, default seccomp and capabilities filters are eanbled.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-chroot=/media/ubuntu warzone2100
+
 .TP
-\fB\-\-cpu=cpu-number,cpu-number
-Set CPU affinity. Example: \-\-cpu=0,1,2
+\fB\-\-cpu=cpu-number,cpu-number,cpu-number
+Set CPU affinity.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-cpu=0,1 handbrake
+
 .TP
 \fB\-\-csh
 Use /bin/csh as default user shell.
@@ -75,41 +177,126 @@ Print all recognized capabilities in the current Firejail software build and exi
 .TP
 \fB\-\-defaultgw=address
 Use this address as default gateway in the new network namespace.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-net=eth0 \-\-defaultgw=10.10.20.1 firefox
+
 .TP
 \fB\-\-dns=address
 Set a DNS server for the sandbox. Up to three DNS servers can be defined.
+Use this option if you don't trust the DNS setup on your network.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-dns=8.8.8.8 \-\-dns=8.8.4.4 firefox
+
 .TP
 \fB\-\-dns.print=name
-Print DNS configuration for the sandbox started using \-\-name option.
+Print DNS configuration for a sandbox identified by name.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-name=mygame \-\-caps.drop=all warzone2100 &
+.br
+[...]
+.br
+$ firejail \-\-dns.print=mygame
+
 .TP
 \fB\-\-dns.print=pid
-Print DNS configuration of the specified process. Use \-\-list option to get a list of all active sandboxes.
+Print DNS configuration for a sandbox identified by PID.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-list
+.br
+3272:netblue:firejail \-\-private firefox
+.br
+$ firejail \-\-dns.print=3272
+
 .TP
 \fB\-?\fR, \fB\-\-help\fR
 Print options end exit.
 .TP
 \fB\-\-ip=address
 Use this IP address in the new network namespace.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-net=eth0 \-\-ip=10.10.20.56 firefox
+
 .TP
 \fB\-\-ip=none
 No IP address and no default gateway are configured in the new network namespace. Use this option
 in case you intend to start an external DHCP client in the sandbox.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-net=eth0 \-\-\ip=none
+
 .TP
 \fB\-\-ipc-namespace
 Enable  a new IPC namespace if the sandbox was started as a regular user. IPC namespace is enabled by default only if
 the sandbox is started as root.
+
 .TP
 \fB\-\-join=name
-Join the sandbox started using \-\-name option.
+Join the sandbox identified by name. By default a /bin/bash shell is started after joining the sandbox.
+If a program is specified, the program is run in the sandbox.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-name=mygame \-\-caps.drop=all warzone2100 &
+.br
+[...]
+.br
+$ firejail \-\-join=mygame
+
+
 .TP
 \fB\-\-join=pid
-Join the sandbox specified by process ID. Use \-\-list option to get a list of all active sandboxes.
+Join the sandbox identified by PID. By default a /bin/bash shell is started after joining the sandbox.
+If a program is specified, the program is run in the sandbox.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-list
+.br
+3272:netblue:firejail \-\-private firefox
+.br
+$ firejail \-\-join=3272
+
 .TP
 \fB\-\-list
 List all sandboxes.
 .TP
 \fB\-\-name=name
-Set sandbox hostname.
+Set sandbox hostname. Several options, such as \-\-join and \-\-shutdown, can use
+this name to identify a sandbox.
+.br
+
+.br
+Example:
+.br
+$ firejail --name=mybrowser firefox
+
 .TP
 \fB\-\-net=bridgename
 Enable a new network namespace and connect it to this bridge device.
@@ -117,6 +304,20 @@ Unless specified with option \-\-ip and \-\-defaultgw, an IP address and a defau
 automatically to the sandbox. The IP address is checked using ARP before assignment. The IP address
 assigned as default gateway is the bridge device IP address. Up to four \-\-net
 bridge devices can be defined. Mixing bridge and macvlan devices is allowed.
+.br
+
+.br
+Example:
+.br
+$ sudo brctl addbr br0
+.br
+$ sudo ifconfig br0 10.10.20.1/24
+.br
+$ sudo brctl addbr br1
+.br
+$ sudo ifconfig br1 10.10.30.1/24
+.br
+$ firejail \-\-net=br0 --net=br1
 
 .TP
 \fB\-\-net=ethernet_interface
@@ -128,12 +329,32 @@ to the sandbox. The IP address is checked using ARP before
 assignment. The IP address assigned as default gateway is the
 default gateway of the host. Up to four \-\-net devices can
 be defined. Mixing bridge and macvlan devices is allowed.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-net=eth0 \-\-ip=192.168.1.80 \-\-dns=8.8.8.8 firefox
+
 .TP
 \fB\-\-net=none
-Enable a new, unconnected network namespace.
+Enable a new, unconnected network namespace. The only interface
+available in the new namespace is a new loopback interface (lo).
+Use this option to deny
+network access to programs that don't really need network access.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-net=none vlc
+
 .TP
 \fB\-\-netfilter
-Enable the default client network filter in the new network namespace:
+Enable a default client network filter in the new network namespace.
+New network namespaces are created using \-\-net option. If a new network namespaces is not created,
+\-\-netfilter option does nothing.
+The default filter is as follows:
 .br
 
 .br
@@ -156,13 +377,41 @@ Enable the default client network filter in the new network namespace:
 \-A INPUT \-p icmp \-\-icmp-type echo-request \-j ACCEPT
 .br
 COMMIT
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-net=eth0 \-\-netfilter firefox
 .TP
 \fB\-\-netfilter=filename
 Enable the network filter specified by filename in the new network namespace. The filter file format
 is the format of iptables-save and iptable-restore commands.
+New network namespaces are created using \-\-net option. If a new network namespaces is not created,
+\-\-netfilter option does nothing.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-net=eth0 \-\-netfilter=myfile firefox
 .TP
 \fB\-\-netstats
-Monitor network statistics for sandboxes creating a new network namespace.
+Monitor network namespace statistics.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-netstats
+.br
+PID  User    RX(KB/s) TX(KB/s) Command
+.br
+1294 netblue 53.355   1.473    firejail \-\-net=eth0 firefox
+.br
+7383 netblue 9.045    0.112    firejail \-\-net=eth0 transmission
+
+
 .TP
 \fB\-\-nogroups
 Disable supplementary groups. Without this option, supplementary groups are enabled for the user starting the
@@ -178,10 +427,24 @@ is not supported for \-\-chroot and \-\-overlay configurations.
 \fB\-\-output=logfile
 stdout logging and log rotation. Copy stdout to logfile, and keep the size of the file under 500KB using log
 rotation. Five files with prefixes .1 to .5 are used in rotation.
+
 .TP
 \fB\-\-overlay
-Mount a filesystem overlay on top of the current filesystem. OverlayFS support is required in Linux kernel
-for this option to work.
+Mount a filesystem overlay on top of the current filesystem. All filesystem modifications go into the overlay,
+and are discarded when the sandbox is closed.
+.br
+
+.br
+OverlayFS support is required in Linux kernel for this option to work.
+OverlayFS was officially introduced in Linux kernel version 3.18. It was also
+available in earlier kernel versions in some distributions such as Ubuntu and OpenSUSE.	
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-overlay firefox
+
 .TP
 \fB\-\-private
 Mount new /root and /home/user directories in temporary

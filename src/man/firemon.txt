@@ -2,7 +2,7 @@
 .SH NAME
 Firemon \- Monitoring program for processes started in a Firejail sandbox.
 .SH SYNOPSIS
-firemon [options] [PID]
+firemon [OPTIONS] [PID]
 .SH DESCRIPTION
 Firemon monitors programs started in a Firejail sandbox.
 Without a PID specified, all processes started by Firejail are monitored. Descendants of
