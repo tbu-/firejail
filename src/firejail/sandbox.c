@@ -281,7 +281,17 @@ int sandbox(void* sandbox_arg) {
 			printf("Network namespace enabled\n");
 	}
 	net_ifprint();
-	
+
+	// scanning the network	
+	if (cfg.bridge0.configured && cfg.bridge0.scan && cfg.bridge0.ipsandbox)
+		arp_scan(cfg.bridge0.devsandbox, cfg.bridge0.ipsandbox, cfg.bridge0.mask);
+	if (cfg.bridge1.configured && cfg.bridge1.scan && cfg.bridge1.ipsandbox)
+		arp_scan(cfg.bridge1.devsandbox, cfg.bridge1.ipsandbox, cfg.bridge1.mask);
+	if (cfg.bridge2.configured && cfg.bridge2.scan && cfg.bridge2.ipsandbox)
+		arp_scan(cfg.bridge2.devsandbox, cfg.bridge2.ipsandbox, cfg.bridge2.mask);
+	if (cfg.bridge3.configured && cfg.bridge3.scan && cfg.bridge3.ipsandbox)
+		arp_scan(cfg.bridge3.devsandbox, cfg.bridge3.ipsandbox, cfg.bridge3.mask);
+
 	// if any dns server is configured, it is time to set it now
 	fs_resolvconf();
 	

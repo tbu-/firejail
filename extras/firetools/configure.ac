@@ -59,7 +59,7 @@ chmod +x sanitizer.sh
 FIREJAIL=`which firejail`
 if test -z "$FIREJAIL"
 then
-	AC_MSG_WARN([Firejail is requred for running firetools, please install it (http://firejail.sf.net/).])
+	AC_MSG_WARN([Firejail is required for running firetools, please install it (http://firejail.sf.net/).])
 else
 	echo "Found $FIREJAIL"
 fi

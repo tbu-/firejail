@@ -651,6 +651,14 @@ int main(int argc, char **argv) {
 			}
 			net_configure_bridge(br, argv[i] + 6);
 		}
+		else if (strcmp(argv[i], "--scan") == 0) {
+			Bridge *br = last_bridge_configured();
+			if (br == NULL) {
+				fprintf(stderr, "Error: no network device configured\n");
+				return 1;
+			}
+			br->scan = 1;
+		}
 		else if (strncmp(argv[i], "--ip=", 5) == 0) {
 			Bridge *br = last_bridge_configured();
 			if (br == NULL) {
@@ -894,8 +902,6 @@ int main(int argc, char **argv) {
  	// create the parent-child communication pipe
  	if (pipe(parent_to_child_fds) < 0)
  		errExit("pipe");
- 
- 	// create the parent-child communication pipe
  	if (pipe(child_to_parent_fds) < 0)
 		errExit("pipe");
 

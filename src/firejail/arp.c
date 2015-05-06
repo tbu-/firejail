@@ -240,3 +240,154 @@ uint32_t arp_assign(const char *dev, uint32_t ifip, uint32_t ifmask) {
 	
 	return ip;
 }
+
+
+void arp_scan(const char *dev, uint32_t srcaddr, uint32_t srcmask) {
+	assert(dev);
+	assert(srcaddr);
+	
+	printf("Scanning interface %s (%d.%d.%d.%d/%d)\n",
+		dev, PRINT_IP(srcaddr & srcmask), mask2bits(srcmask));
+			
+	if (strlen(dev) > IFNAMSIZ) {
+		fprintf(stderr, "Error: invalid network device name %s\n", dev);
+		exit(1);
+	}
+	
+	// find interface mac address
+	int sock;
+	if ((sock = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0)
+		errExit("socket");
+	struct ifreq ifr;
+	memset(&ifr, 0, sizeof (ifr));
+	strncpy(ifr.ifr_name, dev, IFNAMSIZ);
+	if (ioctl(sock, SIOCGIFHWADDR, &ifr) < 0)
+		errExit("ioctl");
+	close(sock);
+	uint8_t mac[6];
+	memcpy (mac, ifr.ifr_hwaddr.sa_data, 6);
+
+	// open layer2 socket
+	if ((sock = socket(PF_PACKET, SOCK_RAW, htons (ETH_P_ALL))) < 0)
+		errExit("socket");
+	
+	// try all possible ip addresses in ascending order
+	uint32_t range = ~srcmask + 1; // the number of potential addresses
+	// this software is not supported for /31 networks
+	if (range < 4) {
+		fprintf(stderr, "Warning: this option is not supported for /31 networks\n");
+		return;
+	}
+
+	uint32_t dest = (srcaddr & srcmask) + 1;
+	uint32_t last = dest + range - 1;
+	uint32_t src = htonl(srcaddr);
+	int cnt = 1;
+	while (dest < last) {
+		if ((++cnt % 50) == 0) {
+			if (range > 300)
+				printf("*");
+			fflush(0);
+			usleep(10000);
+		}
+		
+		// configure layer2 socket address information
+		struct sockaddr_ll addr;
+		memset(&addr, 0, sizeof(addr));
+		if ((addr.sll_ifindex = if_nametoindex(dev)) == 0)
+			errExit("if_nametoindex");
+		addr.sll_family = AF_PACKET;
+		memcpy (addr.sll_addr, mac, 6);
+		addr.sll_halen = htons(6);
+	
+	
+		// build the arp packet header
+		ArpHdr hdr;
+		memset(&hdr, 0, sizeof(hdr));
+		hdr.htype = htons(1);
+		hdr.ptype = htons(ETH_P_IP);
+		hdr.hlen = 6;
+		hdr.plen = 4;
+		hdr.opcode = htons(1); //ARPOP_REQUEST
+		memcpy(hdr.sender_mac, mac, 6);
+		memcpy(hdr.sender_ip, (uint8_t *)&src, 4);
+		uint32_t dst = htonl(dest);
+		memcpy(hdr.target_ip, (uint8_t *)&dst, 4);
+	
+		// buiild ethernet frame
+		uint8_t frame[ETH_FRAME_LEN]; // includes eht header, vlan, and crc
+		memset(frame, 0, sizeof(frame));
+		frame[0] = frame[1] = frame[2] = frame[3] = frame[4] = frame[5] = 0xff;
+		memcpy(frame + 6, mac, 6);
+		frame[12] = ETH_P_ARP / 256;
+		frame[13] = ETH_P_ARP % 256;
+		memcpy (frame + 14, &hdr, sizeof(hdr));
+	
+		// send packet
+		int len;
+		if ((len = sendto (sock, frame, 14 + sizeof(ArpHdr), 0, (struct sockaddr *) &addr, sizeof (addr))) <= 0)
+			errExit("send");
+		fflush(0);
+		dest++;
+	}
+	if (range > 300)
+		printf("\n");
+
+	// wait not more than one second for an answer
+	fd_set fds;
+	FD_ZERO(&fds);
+	FD_SET(sock, &fds);
+	int maxfd = sock;
+	struct timeval ts;
+	ts.tv_sec = 1; // 1 second wait time
+	ts.tv_usec = 0;
+
+	while (1) {
+		uint8_t frame[ETH_FRAME_LEN]; // includes eht header, vlan, and crc
+		memset(frame, 0, ETH_FRAME_LEN);	
+		int nready = select(maxfd + 1,  &fds, (fd_set *) 0, (fd_set *) 0, &ts);
+		if (nready < 0)
+			errExit("select");
+		else if (nready == 0) { // timeout
+			break;
+		}
+		else {
+			// read the incoming packet
+			int len = recvfrom(sock, frame, ETH_FRAME_LEN, 0, NULL, NULL);
+			if (len < 0) {
+				perror("recvfrom");
+			}
+
+			// parse the incomming packet
+			if (len < 14 + sizeof(ArpHdr))
+				continue;
+
+			// look only at ARP packets
+			if (frame[12] != (ETH_P_ARP / 256) || frame[13] != (ETH_P_ARP % 256))
+				continue;
+
+			ArpHdr hdr;
+			memcpy(&hdr, frame + 14, sizeof(ArpHdr));
+
+			if (hdr.opcode == htons(2)) {
+				// check my mac and my address
+				if (memcmp(mac, hdr.target_mac, 6) != 0)
+					continue;
+				uint32_t ip;
+				memcpy(&ip, hdr.target_ip, 4);
+				if (ip != src) {
+					continue;
+				}
+				memcpy(&ip, hdr.sender_ip, 4);
+				ip = ntohl(ip);
+				printf("%02x:%02x:%02x:%02x:%02x:%02x\t%d.%d.%d.%d\n",
+					PRINT_MAC(hdr.sender_mac), PRINT_IP(ip));									
+			}
+		}
+	}
+	
+	printf("\n");
+	close(sock);
+}
+
+

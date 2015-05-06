@@ -1,0 +1,63 @@
+all: apps firescan.1
+APPS = src
+
+datarootdir=@datarootdir@
+PREFIX=@prefix@
+prefix=@prefix@
+VERSION=@PACKAGE_VERSION@
+NAME=@PACKAGE_NAME@
+PACKAGE_TARNAME=@PACKAGE_TARNAME@
+DOCDIR=@docdir@
+
+.PHONY: apps $(APPS)
+apps: $(APPS)
+$(APPS): $(MYLIBS)
+	$(MAKE) -C $@
+
+firescan.1: man/firescan.txt
+	./mkman.sh $(VERSION) man/firescan.txt firescan.1
+
+clean:;
+	$(MAKE) -C src clean;
+	rm -f firescan.1 firescanl.1.gz
+
+distclean: clean
+	$(MAKE) -C src distclean
+	rm -fr Makefile autom4te.cache config.log config.status config.h
+
+install: all
+	# firescan executable
+	strip src/firescan
+	mkdir -p $(DESTDIR)/$(PREFIX)/bin
+	install -c -m 0755 src/firescan $(DESTDIR)/$(PREFIX)/bin/.
+	chmod u+s $(DESTDIR)/$(PREFIX)/bin/firescan
+	# documents
+	mkdir -p $(DESTDIR)/$(DOCDIR)
+	install -c -m 0644 COPYING $(DESTDIR)/$(DOCDIR)/.
+	install -c -m 0644 README $(DESTDIR)/$(DOCDIR)/.
+	install -c -m 0644 RELNOTES $(DESTDIR)/$(DOCDIR)/.
+	# man pages
+	rm -f firescan.1.gz
+	gzip -9n firejail.1
+	mkdir -p $(DESTDIR)/$(PREFIX)/share/man/man1
+	install -c -m 0644 firescan.1.gz $(DESTDIR)/$(PREFIX)/share/man/man1/.	
+
+uninstall:;
+	rm -f $(DESTDIR)/$(PREFIX)/bin/firescan
+	rm -fr $(DESTDIR)/$(PREFIX)/share/doc/firescan
+	rm -f $(DESTDIR)/$(PREFIX)/share/man/man1/firescan.1*
+	
+dist:
+	make distclean
+	rm -fr $(NAME)-$(VERSION) $(NAME)-$(VERSION).tar.bz2
+	mkdir $(NAME)-$(VERSION)
+	cd $(NAME)-$(VERSION); cp -a ../src .; cp -a ../etc .; cp -a ../platform .; cp -a ../test .; rm -fr src/firejail-lkm; rm -f src/tools/rvtest; rm -fr src/art; cd ..
+	cd $(NAME)-$(VERSION); cp -a ../configure .; cp -a ../configure.ac .; cp -a ../Makefile.in .; cp -a ../install.sh .; cp -a ../mkman.sh .; cp -a ../mkdeb.sh .;cd ..
+	cd $(NAME)-$(VERSION); cp -a ../COPYING .; cp -a ../README .; cp -a ../RELNOTES .; cd ..
+	cd $(NAME)-$(VERSION); rm -fr `find . -name .svn`; rm -fr $(NAME)-$(VERSION); cd ..
+	tar -cjvf $(NAME)-$(VERSION).tar.bz2 $(NAME)-$(VERSION)
+	rm -fr $(NAME)-$(VERSION)
+
+deb: dist
+	./mkdeb.sh $(NAME) $(VERSION)
+
