@@ -136,6 +136,7 @@ extern char *arg_netfilter_file;	// netfilter file
 extern int arg_doubledash;	// double dash
 extern int arg_shell_none;	// run the program directly without a shell
 extern int arg_private_dev;	// private dev directory
+extern int arg_scan;		// arp-scan all interfaces
 
 extern int parent_to_child_fds[2];
 extern int child_to_parent_fds[2];

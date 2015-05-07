@@ -228,9 +228,12 @@ uint32_t arp_assign(const char *dev, uint32_t ifip, uint32_t ifmask) {
 	ip = arp_random(dev, ifip, ifmask);
 	if (!ip)
 		ip = arp_random(dev, ifip, ifmask);
+		
 	// try all possible IP addresses one by one
 	if (!ip)
 		ip = arp_sequential(dev, ifip, ifmask);
+	
+	// print result
 	if (!ip) {
 		fprintf(stderr, "Error: cannot assign an IP address; it looks like all of them are in use.\n");
 		logerr("Cannot assign an IP address; it looks like all of them are in use.");
@@ -246,8 +249,8 @@ void arp_scan(const char *dev, uint32_t srcaddr, uint32_t srcmask) {
 	assert(dev);
 	assert(srcaddr);
 	
-	printf("Scanning interface %s (%d.%d.%d.%d/%d)\n",
-		dev, PRINT_IP(srcaddr & srcmask), mask2bits(srcmask));
+//	printf("Scanning interface %s (%d.%d.%d.%d/%d)\n",
+//		dev, PRINT_IP(srcaddr & srcmask), mask2bits(srcmask));
 			
 	if (strlen(dev) > IFNAMSIZ) {
 		fprintf(stderr, "Error: invalid network device name %s\n", dev);
@@ -342,6 +345,8 @@ void arp_scan(const char *dev, uint32_t srcaddr, uint32_t srcmask) {
 	ts.tv_sec = 1; // 1 second wait time
 	ts.tv_usec = 0;
 
+	int header_printed = 0;
+	int last_ip = 0;
 	while (1) {
 		uint8_t frame[ETH_FRAME_LEN]; // includes eht header, vlan, and crc
 		memset(frame, 0, ETH_FRAME_LEN);	
@@ -375,18 +380,26 @@ void arp_scan(const char *dev, uint32_t srcaddr, uint32_t srcmask) {
 					continue;
 				uint32_t ip;
 				memcpy(&ip, hdr.target_ip, 4);
-				if (ip != src) {
+				if (ip != src)
 					continue;
-				}
 				memcpy(&ip, hdr.sender_ip, 4);
 				ip = ntohl(ip);
-				printf("%02x:%02x:%02x:%02x:%02x:%02x\t%d.%d.%d.%d\n",
+				
+				if (ip == last_ip) // filter duplicates
+					continue;
+				last_ip = ip;
+					
+				// printing
+				if (header_printed == 0) {
+					printf("   Network scan:\n");
+					header_printed = 1;
+				}
+				printf("   %02x:%02x:%02x:%02x:%02x:%02x\t%d.%d.%d.%d\n",
 					PRINT_MAC(hdr.sender_mac), PRINT_IP(ip));									
 			}
 		}
 	}
 	
-	printf("\n");
 	close(sock);
 }
 

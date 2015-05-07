@@ -72,6 +72,7 @@ char *arg_netfilter_file = NULL;			// netfilter file
 int arg_doubledash = 0;			// double dash
 int arg_shell_none = 0;			// run the program directly without a shell
 int arg_private_dev = 0;			// private dev directory
+int arg_scan = 0;				// arp-scan all interfaces
 
 int parent_to_child_fds[2];
 int child_to_parent_fds[2];
@@ -652,12 +653,7 @@ int main(int argc, char **argv) {
 			net_configure_bridge(br, argv[i] + 6);
 		}
 		else if (strcmp(argv[i], "--scan") == 0) {
-			Bridge *br = last_bridge_configured();
-			if (br == NULL) {
-				fprintf(stderr, "Error: no network device configured\n");
-				return 1;
-			}
-			br->scan = 1;
+			arg_scan = 1;
 		}
 		else if (strncmp(argv[i], "--ip=", 5) == 0) {
 			Bridge *br = last_bridge_configured();

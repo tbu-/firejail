@@ -61,6 +61,19 @@ void net_ifprint(void) {
 			sprintf(maskstr, "%d.%d.%d.%d", PRINT_IP(mask));
 			printf("%-20.20s%-20.20s%-20.20s%-20.20s\n",
 				ifa->ifa_name, ipstr, maskstr, status);
+
+			// network scanning
+			if (!arg_scan)				// scanning disabled
+				continue;
+			if (strcmp(ifa->ifa_name, "lo") == 0)	// no loopbabck scanning
+				continue;
+			if (mask2bits(mask) < 16)		// not scanning large networks
+				continue;
+			if (!ip)					// if not configured
+				continue;
+			// only if the interface is up and running
+			if (ifa->ifa_flags & IFF_RUNNING && ifa->ifa_flags & IFF_UP)
+				arp_scan(ifa->ifa_name, ip, mask);
 		}
 	}
 	printf("\n");
