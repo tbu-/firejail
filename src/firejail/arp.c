@@ -28,7 +28,6 @@
 #include <linux/tcp.h>
 #include <linux/if_packet.h>
 
-
 typedef struct arp_hdr_t {
 	uint16_t htype;
 	uint16_t ptype;
@@ -286,78 +285,81 @@ void arp_scan(const char *dev, uint32_t srcaddr, uint32_t srcmask) {
 	uint32_t dest = (srcaddr & srcmask) + 1;
 	uint32_t last = dest + range - 1;
 	uint32_t src = htonl(srcaddr);
-	int cnt = 1;
-	while (dest < last) {
-		if ((++cnt % 50) == 0) {
-			if (range > 300)
-				printf("*");
-			fflush(0);
-			usleep(10000);
-		}
-		
-		// configure layer2 socket address information
-		struct sockaddr_ll addr;
-		memset(&addr, 0, sizeof(addr));
-		if ((addr.sll_ifindex = if_nametoindex(dev)) == 0)
-			errExit("if_nametoindex");
-		addr.sll_family = AF_PACKET;
-		memcpy (addr.sll_addr, mac, 6);
-		addr.sll_halen = htons(6);
-	
-	
-		// build the arp packet header
-		ArpHdr hdr;
-		memset(&hdr, 0, sizeof(hdr));
-		hdr.htype = htons(1);
-		hdr.ptype = htons(ETH_P_IP);
-		hdr.hlen = 6;
-		hdr.plen = 4;
-		hdr.opcode = htons(1); //ARPOP_REQUEST
-		memcpy(hdr.sender_mac, mac, 6);
-		memcpy(hdr.sender_ip, (uint8_t *)&src, 4);
-		uint32_t dst = htonl(dest);
-		memcpy(hdr.target_ip, (uint8_t *)&dst, 4);
-	
-		// buiild ethernet frame
-		uint8_t frame[ETH_FRAME_LEN]; // includes eht header, vlan, and crc
-		memset(frame, 0, sizeof(frame));
-		frame[0] = frame[1] = frame[2] = frame[3] = frame[4] = frame[5] = 0xff;
-		memcpy(frame + 6, mac, 6);
-		frame[12] = ETH_P_ARP / 256;
-		frame[13] = ETH_P_ARP % 256;
-		memcpy (frame + 14, &hdr, sizeof(hdr));
-	
-		// send packet
-		int len;
-		if ((len = sendto (sock, frame, 14 + sizeof(ArpHdr), 0, (struct sockaddr *) &addr, sizeof (addr))) <= 0)
-			errExit("send");
-		fflush(0);
-		dest++;
-	}
-	if (range > 300)
-		printf("\n");
 
 	// wait not more than one second for an answer
-	fd_set fds;
-	FD_ZERO(&fds);
-	FD_SET(sock, &fds);
-	int maxfd = sock;
-	struct timeval ts;
-	ts.tv_sec = 1; // 1 second wait time
-	ts.tv_usec = 0;
-
 	int header_printed = 0;
 	int last_ip = 0;
+	struct timeval ts;
+	ts.tv_sec = 2; // 2 seconds receive timeout
+	ts.tv_usec = 0;
+	
 	while (1) {
+		fd_set rfds;
+		FD_ZERO(&rfds);
+		FD_SET(sock, &rfds);
+		fd_set wfds;
+		FD_ZERO(&wfds);
+		FD_SET(sock, &wfds);
+		int maxfd = sock;
+
 		uint8_t frame[ETH_FRAME_LEN]; // includes eht header, vlan, and crc
 		memset(frame, 0, ETH_FRAME_LEN);	
-		int nready = select(maxfd + 1,  &fds, (fd_set *) 0, (fd_set *) 0, &ts);
+
+		int nready;
+		if (dest < last)
+			nready = select(maxfd + 1,  &rfds, &wfds, (fd_set *) 0, NULL);
+		else		
+			nready = select(maxfd + 1,  &rfds,  (fd_set *) 0, (fd_set *) 0, &ts);
+		
 		if (nready < 0)
 			errExit("select");
-		else if (nready == 0) { // timeout
+			
+		if (nready == 0) { // timeout
 			break;
 		}
-		else {
+		
+		if (FD_ISSET(sock, &wfds) && dest < last) {
+			// configure layer2 socket address information
+			struct sockaddr_ll addr;
+			memset(&addr, 0, sizeof(addr));
+			if ((addr.sll_ifindex = if_nametoindex(dev)) == 0)
+				errExit("if_nametoindex");
+			addr.sll_family = AF_PACKET;
+			memcpy (addr.sll_addr, mac, 6);
+			addr.sll_halen = htons(6);
+		
+			// build the arp packet header
+			ArpHdr hdr;
+			memset(&hdr, 0, sizeof(hdr));
+			hdr.htype = htons(1);
+			hdr.ptype = htons(ETH_P_IP);
+			hdr.hlen = 6;
+			hdr.plen = 4;
+			hdr.opcode = htons(1); //ARPOP_REQUEST
+			memcpy(hdr.sender_mac, mac, 6);
+			memcpy(hdr.sender_ip, (uint8_t *)&src, 4);
+			uint32_t dst = htonl(dest);
+			memcpy(hdr.target_ip, (uint8_t *)&dst, 4);
+		
+			// buiild ethernet frame
+			uint8_t frame[ETH_FRAME_LEN]; // includes eht header, vlan, and crc
+			memset(frame, 0, sizeof(frame));
+			frame[0] = frame[1] = frame[2] = frame[3] = frame[4] = frame[5] = 0xff;
+			memcpy(frame + 6, mac, 6);
+			frame[12] = ETH_P_ARP / 256;
+			frame[13] = ETH_P_ARP % 256;
+			memcpy (frame + 14, &hdr, sizeof(hdr));
+		
+			// send packet
+			int len;
+			if ((len = sendto (sock, frame, 14 + sizeof(ArpHdr), 0, (struct sockaddr *) &addr, sizeof (addr))) <= 0)
+				errExit("send");
+//printf("send %d bytes to %d.%d.%d.%d\n", len, PRINT_IP(dest));		
+			fflush(0);
+			dest++;
+		}
+		
+		if (FD_ISSET(sock, &rfds)) {
 			// read the incoming packet
 			int len = recvfrom(sock, frame, ETH_FRAME_LEN, 0, NULL, NULL);
 			if (len < 0) {
