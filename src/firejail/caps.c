@@ -214,6 +214,7 @@ int caps_check_list(const char *clist, void (*callback)(int)) {
 			int nr = caps_find_name(start);
 			if (nr == -1) {
 				fprintf(stderr, "Error: capability %s not found\n", start);
+				free(str);
 				return -1;
 			}
 			else if (callback != NULL)

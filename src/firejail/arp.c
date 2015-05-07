@@ -279,6 +279,7 @@ void arp_scan(const char *dev, uint32_t srcaddr, uint32_t srcmask) {
 	// this software is not supported for /31 networks
 	if (range < 4) {
 		fprintf(stderr, "Warning: this option is not supported for /31 networks\n");
+		close(sock);
 		return;
 	}
 

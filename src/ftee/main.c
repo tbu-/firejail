@@ -199,6 +199,7 @@ int main(int argc, char **argv) {
 	}
 
 	// check if we can append to this file
+	/* coverity[toctou] */
 	FILE *fp = fopen(fname, "a");
 	if (!fp) {
 		fprintf(stderr, "Error: cannot open output file %s\n", fname);

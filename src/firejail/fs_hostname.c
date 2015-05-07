@@ -65,6 +65,7 @@ void fs_hostname(const char *hostname) {
 		if (asprintf(&fhost, "%s/hosts", MNT_DIR) == -1)
 			errExit("asprintf");
 		// copy /etc/host into our new file, and modify it on the fly
+		/* coverity[toctou] */
 		FILE *fp1 = fopen("/etc/hosts", "r");
 		if (!fp1) {
 			fprintf(stderr, "Error: cannot open /etc/hosts\n");

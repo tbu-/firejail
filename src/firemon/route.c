@@ -81,7 +81,7 @@ static void extract_if(const char *fname) {
 			else if (*start == '+')
 				continue;
 			else if (*start == '|') {
-				strcpy(last_start, start);
+				strncpy(last_start, start, MAXBUF);
 				continue;
 			}
 			else if (strstr(buf, "LOCAL")) {
