@@ -5,6 +5,11 @@
 # http://bash-completion.alioth.debian.org
 #*******************************************************************
 
+__interfaces(){
+    cut -f 1 -d ':' /proc/net/dev | tail -n +3 | grep -v lo | xargs
+}
+
+
 _firejail()
 {
     local cur prev words cword split
@@ -50,6 +55,11 @@ _firejail()
             _filedir
             return 0
             ;;
+         --net)
+         	comps=$(__interfaces)
+            COMPREPLY=( $(compgen -W '$comps' -- "$cur") )
+            return 0
+         	;;
     esac
 
     $split && return 0

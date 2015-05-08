@@ -27,7 +27,7 @@ typedef struct  iflist_t {
 	uint32_t ip;
 } IfList;
 static IfList *ifs = NULL;
-static char last_start[MAXBUF];
+static char last_start[MAXBUF + 1];
 
 static IfList *list_find(uint32_t ip, uint32_t mask) {
 	IfList *ptr = ifs;
@@ -81,6 +81,7 @@ static void extract_if(const char *fname) {
 			else if (*start == '+')
 				continue;
 			else if (*start == '|') {
+				memset(last_start, 0, MAXBUF + 1);
 				strncpy(last_start, start, MAXBUF);
 				continue;
 			}
