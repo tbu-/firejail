@@ -280,27 +280,26 @@ int sandbox(void* sandbox_arg) {
 		if (arg_debug)
 			printf("Network namespace enabled\n");
 	}
-	net_ifprint();
-
-#if 0
-	// scanning the network in the new namespace
-	if (arg_scan && any_bridge_configured()) {
-		if (cfg.bridge0.configured && cfg.bridge0.scan && cfg.bridge0.ipsandbox)
-			arp_scan(cfg.bridge0.devsandbox, cfg.bridge0.ipsandbox, cfg.bridge0.mask);
-		if (cfg.bridge1.configured && cfg.bridge1.scan && cfg.bridge1.ipsandbox)
-			arp_scan(cfg.bridge1.devsandbox, cfg.bridge1.ipsandbox, cfg.bridge1.mask);
-		if (cfg.bridge2.configured && cfg.bridge2.scan && cfg.bridge2.ipsandbox)
-			arp_scan(cfg.bridge2.devsandbox, cfg.bridge2.ipsandbox, cfg.bridge2.mask);
-		if (cfg.bridge3.configured && cfg.bridge3.scan && cfg.bridge3.ipsandbox)
-			arp_scan(cfg.bridge3.devsandbox, cfg.bridge3.ipsandbox, cfg.bridge3.mask);
-	}
-	// scanning the local network
-	else if (arg_scan)
-		arp_scan_local();
-#endif
-
+	
 	// if any dns server is configured, it is time to set it now
 	fs_resolvconf();
+
+	// print network configuration
+	if (any_bridge_configured() || cfg.defaultgw || cfg.dns1) {
+		printf("\n");
+		if (any_bridge_configured())
+			net_ifprint();
+		if (cfg.defaultgw != 0)
+			printf("Default gateway %d.%d.%d.%d\n", PRINT_IP(cfg.defaultgw));
+		if (cfg.dns1 != 0)
+			printf("DNS server %d.%d.%d.%d\n", PRINT_IP(cfg.dns1));
+		if (cfg.dns2 != 0)
+			printf("DNS server %d.%d.%d.%d\n", PRINT_IP(cfg.dns2));
+		if (cfg.dns3 != 0)
+			printf("DNS server %d.%d.%d.%d\n", PRINT_IP(cfg.dns3));
+		printf("\n");
+	}
+	
 	
 
 	//****************************

@@ -238,7 +238,6 @@ uint32_t arp_assign(const char *dev, uint32_t ifip, uint32_t ifmask) {
 		logerr("Cannot assign an IP address; it looks like all of them are in use.");
 		exit(1);
 	}
-	printf("%d.%d.%d.%d IP address assigned to the sandbox\n", PRINT_IP(ip));
 	
 	return ip;
 }

@@ -134,21 +134,6 @@ void net_configure_veth_pair(Bridge *br, const char *ifname, pid_t child) {
 	free(msg);
 }
 
-
-void net_bridge_wait_ip(Bridge *br) {
-	assert(br);
-	if (br->configured == 0 || br->arg_ip_none)
-		return;
-
-	// wait for the ip address to come up
-	int cnt = 0;
-	while (cnt < 5) {			  // arp_check has a 1s wait
-		if (arp_check(br->dev, br->ipsandbox, br->ip) == 0)
-			break;
-		cnt++;
-	}
-}
-
 // the default address should be in the range of at least on of the bridge devices
 void check_default_gw(uint32_t defaultgw) {
 	assert(defaultgw);
@@ -221,11 +206,6 @@ void net_check_cfg(void) {
 				gw = 0;
 			cfg.defaultgw = gw;
 		}
-
-		if (cfg.defaultgw == 0)
-			fprintf(stderr, "Warning: default network gateway not set.\n");
-		else
-			fprintf(stderr, "Using %d.%d.%d.%d as default gateway.\n", PRINT_IP(cfg.defaultgw));
 	}
 }
 

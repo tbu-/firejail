@@ -35,6 +35,14 @@
 #include <signal.h>
 #include <time.h>
 
+#if 0
+#include <sys/times.h>
+{
+struct tms tm;
+clock_t systick = times(&tm);
+printf("time %s:%d %u\n", __FILE__, __LINE__, (uint32_t) systick);
+}
+#endif
 
 #define STACK_SIZE (1024 * 1024)
 static char child_stack[STACK_SIZE];		// space for child's stack
@@ -193,7 +201,7 @@ int main(int argc, char **argv) {
 	int arg_ipc = 0;
 	int arg_cgroup = 0;
 	int custom_profile = 0;	// custom profile loaded
-	
+
 	// initialize globals
 	init_cfg();
 	cfg.original_argv = argv;
@@ -964,13 +972,13 @@ int main(int argc, char **argv) {
  	close(parent_to_child_fds[0]);
  	close(child_to_parent_fds[1]);
  
- 	// notify child that base setup is complete
+	// notify child that base setup is complete
  	notify_other(parent_to_child_fds[1]);
  
  	// wait for child to create new user namespace with CLONE_NEWUSER
  	wait_for_other(child_to_parent_fds[0]);
  	close(child_to_parent_fds[0]);
- 
+
  	if (arg_noroot) {
 	 	// update the UID and GID maps in the new child user namespace
 		// uid
@@ -1000,13 +1008,8 @@ int main(int argc, char **argv) {
  	notify_other(parent_to_child_fds[1]);
  	close(parent_to_child_fds[1]);
  
-	if (lockfd != -1) {
-		net_bridge_wait_ip(&cfg.bridge0);
-		net_bridge_wait_ip(&cfg.bridge1);
-		net_bridge_wait_ip(&cfg.bridge2);
-		net_bridge_wait_ip(&cfg.bridge3);
+	if (lockfd != -1)
 		flock(lockfd, LOCK_UN);
-	}
 
 	// handle CTRL-C in parent
 	signal (SIGINT, my_handler);

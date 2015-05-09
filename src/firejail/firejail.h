@@ -155,7 +155,6 @@ int sandbox(void* sandbox_arg);
 void net_configure_bridge(Bridge *br, char *dev_name);
 void net_configure_sandbox_ip(Bridge *br);
 void net_configure_veth_pair(Bridge *br, const char *ifname, pid_t child);
-void net_bridge_wait_ip(Bridge *br);
 void net_check_cfg(void);
 void net_dns_print_name(const char *name);
 void net_dns_print(pid_t pid);

@@ -228,7 +228,8 @@ $ firejail \-\-dns.print=3272
 Print options end exit.
 .TP
 \fB\-\-ip=address
-Use this IP address in the new network namespace.
+Assign IP addresses to the last network interface defined by a \-\-net option. A
+default gateway is assigned by default.
 .br
 
 .br
@@ -238,7 +239,8 @@ $ firejail \-\-net=eth0 \-\-ip=10.10.20.56 firefox
 
 .TP
 \fB\-\-ip=none
-No IP address and no default gateway are configured in the new network namespace. Use this option
+No IP address and no default gateway are configured for the last interface
+defined by a \-\-net option. Use this option
 in case you intend to start an external DHCP client in the sandbox.
 .br
 

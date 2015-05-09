@@ -76,7 +76,6 @@ void net_ifprint(void) {
 				arp_scan(ifa->ifa_name, ip, mask);
 		}
 	}
-	printf("\n");
 	freeifaddrs(ifaddr);
 }
 

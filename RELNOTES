@@ -1,3 +1,10 @@
+firejail (0.9.27) baseline; urgency=low
+  * work in progress
+  * network scanning
+  * reworked network status printed when the sandbox starts
+  * bugfixes
+ -- netblue30 <netblue30@yahoo.com>  Sun, 9 May 2015 08:00:00 -0500
+
 firejail (0.9.26) baseline; urgency=low
   * private dev directory
   * private.keep option for whitelisting home files in a new private directory
