@@ -174,7 +174,7 @@ void fs_private_homedir(void) {
 	gid_t g = getgid();
 	struct stat s;
 	if (stat(homedir, &s) == -1) {
-		fprintf(stderr, "Error: cannot find user home directory, aborting...\n");
+		fprintf(stderr, "Error: cannot find user home directory\n");
 		exit(1);
 	}
 	
@@ -340,18 +340,18 @@ void fs_check_private_dir(void) {
 	struct stat s2;
 	int rv = stat(cfg.home_private, &s2);
 	if (rv < 0) {
-		fprintf(stderr, "Error: cannot find %s directory, aborting...\n", cfg.home_private);
+		fprintf(stderr, "Error: cannot find %s directory\n", cfg.home_private);
 		exit(1);
 	}
 
 	struct stat s1;
 	rv = stat(cfg.homedir, &s1);
 	if (rv < 0) {
-		fprintf(stderr, "Error: cannot find %s directory, full path name required, aborting...\n", cfg.homedir);
+		fprintf(stderr, "Error: cannot find %s directory, full path name required\n", cfg.homedir);
 		exit(1);
 	}
 	if (s1.st_uid != s2.st_uid || s1.st_gid != s2.st_gid) {
-		printf("Error: the two home directories must have the same owner, aborting...\n");
+		printf("Error: the two home directories must have the same owner\n");
 		exit(1);
 	}
 }
@@ -403,7 +403,7 @@ void fs_private_home_list(void) {
 	gid_t g = getgid();
 	struct stat s;
 	if (stat(homedir, &s) == -1) {
-		fprintf(stderr, "Error: cannot find user home directory, aborting...\n");
+		fprintf(stderr, "Error: cannot find user home directory\n");
 		exit(1);
 	}
 

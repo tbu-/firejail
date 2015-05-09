@@ -24,6 +24,7 @@
 #include <netdb.h>
 #include <ifaddrs.h>
 #include <net/if.h>
+#include <net/if_arp.h>
 #include <net/route.h>
 #include <linux/if_bridge.h>
 
@@ -36,8 +37,8 @@ void net_ifprint(void) {
 	if (getifaddrs(&ifaddr) == -1)
 		errExit("getifaddrs");
 
-	printf("%-20.20s%-20.20s%-20.20s%-20.20s\n",
-		"Interface", "IP", "Mask", "Status");
+	printf("%-17.17s%-19.19s%-17.17s%-17.17s%-6.6s\n",
+		"Interface", "MAC", "IP", "Mask", "Status");
 	// walk through the linked list
 	for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
 		if (ifa->ifa_addr == NULL)
@@ -49,18 +50,31 @@ void net_ifprint(void) {
 			si = (struct sockaddr_in *) ifa->ifa_addr;
 			ip = ntohl(si->sin_addr.s_addr);
 
+			// interface status
 			char *status;
 			if (ifa->ifa_flags & IFF_RUNNING && ifa->ifa_flags & IFF_UP)
 				status = "UP";
 			else
 				status = "DOWN";
 
+			// ip address and mask
 			char ipstr[30];
 			sprintf(ipstr, "%d.%d.%d.%d", PRINT_IP(ip));
 			char maskstr[30];
 			sprintf(maskstr, "%d.%d.%d.%d", PRINT_IP(mask));
-			printf("%-20.20s%-20.20s%-20.20s%-20.20s\n",
-				ifa->ifa_name, ipstr, maskstr, status);
+			
+			// mac address
+			unsigned char mac[6];
+			net_get_mac(ifa->ifa_name, mac);
+			char macstr[30];
+			if (strcmp(ifa->ifa_name, "lo") == 0)
+				macstr[0] = '\0';
+			else
+				sprintf(macstr, "%02x:%02x:%02x:%02x:%02x:%02x", PRINT_MAC(mac));
+
+			// print				
+			printf("%-17.17s%-19.19s%-17.17s%-17.17s%-6.6s\n",
+				ifa->ifa_name, macstr, ipstr, maskstr, status);
 
 			// network scanning
 			if (!arg_scan)				// scanning disabled
@@ -80,8 +94,8 @@ void net_ifprint(void) {
 }
 
 
-// return -1 if the bridge was not found; if the bridge was found retrun 0 and fill in IP address and mask
-int net_get_bridge_addr(const char *bridge, uint32_t *ip, uint32_t *mask) {
+// return -1 if the interface was not found; if the interface was found retrn 0 and fill in IP address and mask
+int net_get_if_addr(const char *bridge, uint32_t *ip, uint32_t *mask) {
 	assert(bridge);
 	assert(ip);
 	assert(mask);
@@ -169,7 +183,7 @@ void net_if_up(const char *ifname) {
 }
 
 // configure interface
-void net_if_ip( const char *ifname, uint32_t ip, uint32_t mask) {
+void net_if_ip(const char *ifname, uint32_t ip, uint32_t mask) {
 	if (strlen(ifname) > IFNAMSIZ) {
 		fprintf(stderr, "Error: invalid network device name %s\n", ifname);
 		exit(1);
@@ -306,3 +320,40 @@ uint32_t network_get_defaultgw(void) {
 	return retval;
 }
 
+int net_config_mac(const char *ifname, const unsigned char mac[6]) {
+	struct ifreq ifr;
+	int sock;
+
+	if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+              	errExit("socket");
+
+	memset(&ifr, 0, sizeof(ifr));
+	strncpy(ifr.ifr_name, ifname, IFNAMSIZ);
+	ifr.ifr_hwaddr.sa_family = ARPHRD_ETHER;
+	memcpy(ifr.ifr_hwaddr.sa_data, mac, 6);
+	
+	if (ioctl(sock, SIOCSIFHWADDR, &ifr) == -1)
+		errExit("ioctl");
+	close(sock);
+	return 0;
+}
+
+int net_get_mac(const char *ifname, unsigned char mac[6]) {
+
+	struct ifreq ifr;
+	int sock;
+
+	if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+              	errExit("socket");
+
+	memset(&ifr, 0, sizeof(ifr));
+	strncpy(ifr.ifr_name, ifname, IFNAMSIZ);
+	ifr.ifr_hwaddr.sa_family = ARPHRD_ETHER;
+	
+	if (ioctl(sock, SIOCGIFHWADDR, &ifr) == -1)
+		errExit("ioctl");
+	memcpy(mac, ifr.ifr_hwaddr.sa_data, 6);
+
+	close(sock);
+	return 0;
+}

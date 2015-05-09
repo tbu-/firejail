@@ -7,8 +7,8 @@ struct Bridge {
 
 net_configure_bridge(br, device) {
 	br->dev  = devname;
-	br->ip = extracted from kernel device - using net_get_bridge_addr() in network.c
-	br->mask = extracted from kernel device - using net_get_bridge_addr() in network.c
+	br->ip = extracted from kernel device - using net_get_if_addr() in network.c
+	br->mask = extracted from kernel device - using net_get_if_addr() in network.c
 	check available network range; /31 networks are not supported
 }
 

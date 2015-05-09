@@ -186,7 +186,7 @@ int profile_check_line(char *ptr, int lineno) {
 	if (strncmp(ptr, "dns ", 4) == 0) {
 		uint32_t dns;
 		if (atoip(ptr + 4, &dns)) {
-			fprintf(stderr, "Error: invalid DNS server IP address, aborting...\n");
+			fprintf(stderr, "Error: invalid DNS server IP address\n");
 			return 1;
 		}
 		

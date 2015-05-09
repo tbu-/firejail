@@ -33,13 +33,16 @@
 
 #define errExit(msg)    do { char msgout[500]; sprintf(msgout, "Error %s:%s(%d)", msg, __FUNCTION__, __LINE__); perror(msgout); exit(1);} while (0)
 
+// macro to print ip addresses in a printf statement
 #define PRINT_IP(A) \
 ((int) (((A) >> 24) & 0xFF)),  ((int) (((A) >> 16) & 0xFF)), ((int) (((A) >> 8) & 0xFF)), ((int) ( (A) & 0xFF))
 
+// macro to print a mac addresses in a printf statement
 #define PRINT_MAC(A) \
 ((unsigned) (*(A)) & 0xff), ((unsigned) (*((A) + 1) & 0xff)), ((unsigned) (*((A) + 2) & 0xff)), \
 ((unsigned) (*((A) + 3)) & 0xff), ((unsigned) (*((A) + 4) & 0xff)), ((unsigned) (*((A) + 5)) & 0xff)
 
+// the number of bits in a network mask
 static inline uint8_t mask2bits(uint32_t mask) {
 	uint32_t tmp = 0x80000000;
 	int i;
@@ -53,6 +56,7 @@ static inline uint8_t mask2bits(uint32_t mask) {
 	}
 	return rv;
 }
+
 // read an IPv4 address and convert it to uint32_t
 static inline int atoip(const char *str, uint32_t *ip) {
 	unsigned a, b, c, d;
@@ -64,6 +68,7 @@ static inline int atoip(const char *str, uint32_t *ip) {
 	return 0;
 }
 
+// verify an ip address is in the network range given by ifip and mask
 static inline char *in_netrange(uint32_t ip, uint32_t ifip, uint32_t ifmask) {
 	if ((ip & ifmask) != (ifip & ifmask))
 		return "Error: the IP address is not in the interface range\n";
@@ -74,6 +79,34 @@ static inline char *in_netrange(uint32_t ip, uint32_t ifip, uint32_t ifmask) {
 	return NULL;
 }
 
+// read a mac address
+static inline int atomac(char *str, unsigned char macAddr[6]) {
+	unsigned mac[6];
+
+	if (sscanf(str, "%2x:%2x:%2x:%2x:%2x:%2x", &mac[0], &mac[1], &mac[2], &mac[3], &mac[4], &mac[5]) != 6)
+		return 1;
+
+	int i;
+	for (i = 0; i < 6; i++) {
+		if (mac[i] > 0xff)
+			return 1;
+			
+		macAddr[i] = (unsigned char) mac[i];
+	}
+
+	return 0;
+}
+
+// check a mac address is configured
+static inline int mac_not_zero(const unsigned char mac[6]) {
+	int i;
+	for (i = 0; i < 6; i++) {
+		if (mac[i] != 0)
+			return 1;
+	}
+	
+	return 0;
+}
 
 int join_namespace(pid_t pid, char *type);
 int name2pid(const char *name, pid_t *pid);

@@ -265,9 +265,21 @@ int sandbox(void* sandbox_arg) {
 	else if (any_bridge_configured()) {
 		// configure lo and eth0...eth3
 		net_if_up("lo");
+		
+		if (mac_not_zero(cfg.bridge0.mac))
+			net_config_mac(cfg.bridge0.devsandbox, cfg.bridge0.mac);
 		sandbox_if_up(&cfg.bridge0);
+		
+		if (mac_not_zero(cfg.bridge1.mac))
+			net_config_mac(cfg.bridge1.devsandbox, cfg.bridge1.mac);
 		sandbox_if_up(&cfg.bridge1);
+		
+		if (mac_not_zero(cfg.bridge2.mac))
+			net_config_mac(cfg.bridge2.devsandbox, cfg.bridge2.mac);
 		sandbox_if_up(&cfg.bridge2);
+		
+		if (mac_not_zero(cfg.bridge3.mac))
+			net_config_mac(cfg.bridge3.devsandbox, cfg.bridge3.mac);
 		sandbox_if_up(&cfg.bridge3);
 		
 		// add a default route

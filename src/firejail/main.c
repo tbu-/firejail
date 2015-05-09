@@ -120,7 +120,7 @@ static void my_handler(int s){
 static void extract_user_data(void) {
 	// check suid
 	if (geteuid()) {
-		fprintf(stderr, "Error: the sandbox is not setuid root, aborting...\n");
+		fprintf(stderr, "Error: the sandbox is not setuid root\n");
 		exit(1);
 	}
 
@@ -139,7 +139,7 @@ static void extract_user_data(void) {
 			errExit("strdup");
 	}
 	else {
-		fprintf(stderr, "Error: user %s doesn't have a user directory assigned, aborting...\n", cfg.username);
+		fprintf(stderr, "Error: user %s doesn't have a user directory assigned\n", cfg.username);
 		exit(1);
 	}
 	
@@ -554,7 +554,7 @@ int main(int argc, char **argv) {
 			
 			// check chroot dirname exists
 			if (strstr(cfg.chrootdir, "..") || !is_dir(cfg.chrootdir) || is_link(cfg.chrootdir)) {
-				fprintf(stderr, "Error: invalid directory %s, aborting...\n", cfg.chrootdir);
+				fprintf(stderr, "Error: invalid directory %s\n", cfg.chrootdir);
 				return 1;
 			}
 			
@@ -663,6 +663,23 @@ int main(int argc, char **argv) {
 		else if (strcmp(argv[i], "--scan") == 0) {
 			arg_scan = 1;
 		}
+		else if (strncmp(argv[i], "--mac=", 6) == 0) {
+			Bridge *br = last_bridge_configured();
+			if (br == NULL) {
+				fprintf(stderr, "Error: no network device configured\n");
+				return 1;
+			}
+			if (mac_not_zero(br->mac)) {
+				fprintf(stderr, "Error: cannot configure the MAC address twice for the same interface\n");
+				return 1;
+			}
+
+			// read the address
+			if (atomac(argv[i] + 6, br->mac)) {
+				fprintf(stderr, "Error: invalid MAC address\n");
+				return 1;
+			}
+		}
 		else if (strncmp(argv[i], "--ip=", 5) == 0) {
 			Bridge *br = last_bridge_configured();
 			if (br == NULL) {
@@ -679,21 +696,21 @@ int main(int argc, char **argv) {
 				br->arg_ip_none = 1;
 			else {
 				if (atoip(argv[i] + 5, &br->ipsandbox)) {
-					fprintf(stderr, "Error: invalid IP address, aborting...\n");
+					fprintf(stderr, "Error: invalid IP address\n");
 					return 1;
 				}
 			}
 		}
 		else if (strncmp(argv[i], "--defaultgw=", 12) == 0) {
 			if (atoip(argv[i] + 12, &cfg.defaultgw)) {
-				fprintf(stderr, "Error: invalid IP address, aborting...\n");
+				fprintf(stderr, "Error: invalid IP address\n");
 				return 1;
 			}
 		}
 		else if (strncmp(argv[i], "--dns=", 6) == 0) {
 			uint32_t dns;
 			if (atoip(argv[i] + 6, &dns)) {
-				fprintf(stderr, "Error: invalid DNS server IP address, aborting...\n");
+				fprintf(stderr, "Error: invalid DNS server IP address\n");
 				return 1;
 			}
 			

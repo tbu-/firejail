@@ -51,13 +51,13 @@ void net_configure_bridge(Bridge *br, char *dev_name) {
 			br->devsandbox = newname;
 		}			
 		else {
-			fprintf(stderr, "Error: cannot find network device %s, aborting...\n", br->dev);
+			fprintf(stderr, "Error: cannot find network device %s\n", br->dev);
 			exit(1);
 		}
 	}
 
-	if (net_get_bridge_addr(br->dev, &br->ip, &br->mask)) {
-		fprintf(stderr, "Error: bridge device %s not configured, aborting...\n", br->dev);
+	if (net_get_if_addr(br->dev, &br->ip, &br->mask)) {
+		fprintf(stderr, "Error: interface %s is not configured\n", br->dev);
 		exit(1);
 	}
 	if (arg_debug) {

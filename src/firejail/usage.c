@@ -70,7 +70,7 @@ void usage(void) {
 	printf("\t\tusing --name option.\n\n");
 	printf("\t--dns.print=pid - print DNS configuration of the specified process.\n\n");
 	printf("\t--help, -? - this help screen.\n\n");
-	printf("\t--ip=address - use this IP address in the new network namespace.\n\n");
+	printf("\t--ip=address - set interface IP address.\n\n");
 	printf("\t--ip=none - no IP address and no default gateway address are configured\n");
 	printf("\t\tin the new network namespace. Use this option in case you intend\n");
 	printf("\t\tto start an external DHCP client in the sandbox.\n\n");
@@ -80,6 +80,7 @@ void usage(void) {
 	printf("\t--join=name - join the sandbox started using --name option.\n\n");
 	printf("\t--join=pid - join the sandbox of the specified process.\n\n");
 	printf("\t--list - list all sandboxes.\n\n");
+	printf("\t--mac=xx:xx:xx:xx:xx:xx - set interface MAC address.\n\n");
 	printf("\t--name=name - set sandbox hostname.\n\n");
 	printf("\t--net=bridgename - enable network namespaces and connect to this bridge\n");
 	printf("\t\tdevice. Unless specified with option --ip and --defaultgw, an\n");

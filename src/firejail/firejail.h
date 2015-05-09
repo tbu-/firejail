@@ -39,7 +39,8 @@ typedef struct bridge_t {
 	
 	// inside the sandbox
 	char *devsandbox;	// name of the device inside the sandbox
-	uint32_t ipsandbox;	// ipaddress inside the sandbox
+	uint32_t ipsandbox;	// ip address inside the sandbox
+	uint8_t mac[6];		// mac address inside the sandbox
 	
 	// flags
 	uint8_t arg_ip_none;	// --ip=none
@@ -162,11 +163,13 @@ void net_dns_print(pid_t pid);
 // network.c
 void net_if_up(const char *ifname);
 void net_if_ip(const char *ifname, uint32_t ip, uint32_t mask);
-int net_get_bridge_addr(const char *bridge, uint32_t *ip, uint32_t *mask);
+int net_get_if_addr(const char *bridge, uint32_t *ip, uint32_t *mask);
 int net_add_route(uint32_t dest, uint32_t mask, uint32_t gw);
 void net_ifprint(void);
 void net_bridge_add_interface(const char *bridge, const char *dev);
 uint32_t network_get_defaultgw(void);
+int net_config_mac(const char *ifname, const unsigned char mac[6]);
+int net_get_mac(const char *ifname, unsigned char mac[6]);
 
 // fs.c
 // build /tmp/firejail directory
