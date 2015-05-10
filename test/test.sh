@@ -276,6 +276,9 @@ echo "TESTING: no network"
 echo "TESTING: network IP"
 ./net_ip.exp
 
+echo "TESTING: network MAC"
+./net_mac.exp
+
 echo "TESTING: network bad IP"
 ./net_badip.exp
 

@@ -111,6 +111,8 @@ extern int arg_command;	// -c
 extern int arg_overlay;		// --overlay
 extern int arg_zsh;		// use zsh as default shell
 extern int arg_csh;		// use csh as default shell
+extern pid_t arg_sandbox_pid;	// --sandbox=PID
+extern char *arg_sandbox_name; // --sandbox=name
 
 extern int arg_seccomp;	// enable default seccomp filter
 extern char *arg_seccomp_list;//  optional seccomp list on top of default filter

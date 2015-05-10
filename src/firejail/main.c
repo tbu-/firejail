@@ -54,6 +54,8 @@ int arg_command = 0;				// -c
 int arg_overlay = 0;				// --overlay
 int arg_zsh = 0;				// use zsh as default shell
 int arg_csh = 0;				// use csh as default shell
+pid_t arg_sandbox_pid = 0;			// --sandbox=PID
+char *arg_sandbox_name = NULL;		// --sandbox=name
 
 int arg_seccomp = 0;				// enable default seccomp filter
 char *arg_seccomp_list = NULL;		// optional seccomp list on top of default filter
@@ -247,6 +249,16 @@ int main(int argc, char **argv) {
 		}
 		else if (strcmp(argv[i], "--debug") == 0)
 			arg_debug = 1;
+		else if (strncmp(argv[i], "--sandbox=", 10) == 0) {
+			logargs(argc, argv);
+			
+			// shutdown sandbox by pid or by name
+			pid_t pid;
+			if (read_pid(argv[i] + 10, &pid) == 0)
+				arg_sandbox_pid = pid;
+			else
+				arg_sandbox_name = argv[i] + 10;
+		}
 
 		//*************************************
 		// independent commands - the program will exit!

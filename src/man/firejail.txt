@@ -2,7 +2,23 @@
 .SH NAME
 Firejail \- Linux namespaces sandbox program
 .SH SYNOPSIS
+Start a sandbox:
+.PP
+.RS
 firejail [OPTIONS] [program and arguments]
+.RE
+.PP
+Modify an existing sandbox:
+.PP
+.RS
+firejail --sandbox={<name>|<PID>} {\-\-bandwidth}
+.RE
+.PP
+Miscellaneous:
+.PP
+.RS
+firejail {\-? | \-\-debug-caps | \-\-debug-syscalls | \-\-help | \-\-list | \-\-netstats | \-\-top | \-\-tree | \-\-version}
+.RE
 .SH DESCRIPTION
 Firejail is a SUID sandbox program that reduces the risk of security breaches by
 restricting the running environment of untrusted applications using Linux
@@ -11,30 +27,29 @@ It allows a process and all its descendants to have their own private view of th
 globally shared kernel resources, such as the network stack, process table, mount table.
 Firejail can work in a SELinux or AppArmor environment,
 and it is integrated with Linux Control Groups.
-
+.PP
 Written in C with virtually no dependencies, the software should run on any Linux computer with a 3.x kernel version
 or newer.
 It can sandbox any type of processes: servers, graphical applications, and even user login sessions. 
 The software includes sandbox profiles for a number of more common
 Linux programs, such as Mozilla Firefox, Chromium, VLC, Transmission etc.
-
 .SH USAGE
 Without any options, the sandbox consists of a chroot filesystem build in a new mount namespace,
 and new PID and UTS namespaces. IPC, network and user namespaces can be added using the command line options.
 The default Firejail filesystem is based on the host filesystem with the main directories mounted read-only.
 Only /home, /tmp and /var directories are writable.
-
+.PP
 If no program is specified as an argument, /bin/bash is started by default.
 Examples:
-
+.PP
 $ firejail [OPTIONS]                # starting a /bin/bash shell
-.br
+.PP
 $ firejail [OPTIONS] firefox        # starting Mozilla Firefox
-
+.PP
 Multiple commands can be run in sandbox using regular bash logic operators:
-
+.PP
 $ sudo firejail [OPTIONS] "/etc/init.d/nginx start && sleep inf"
-
+.PP
 In the previous example, "sleep inf" command is required in order to keep the session open for the daemon program.
 
 .SH OPTIONS
