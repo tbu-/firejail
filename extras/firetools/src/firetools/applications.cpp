@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "firetools.h"
 #include "applications.h"
 #include "../common/utils.h"
@@ -17,6 +18,75 @@ Application::Application(QString name, QString description, QString exec, QStrin
 	
 	app_icon_ = loadIcon(icon_);
 };
+
+// load an application from a desktop file
+Application::Application(const char *name):
+	name_(name), description_("unknown"), exec_("unknown"), icon_("unknown") {
+
+	// retrieve desktop file
+	if (!have_config_file(name))
+		return;
+	char *fname = get_config_file_name(name);
+	if (!fname)
+		return;
+	
+	// open file
+	FILE *fp = fopen(fname, "r");
+	if (!fp) {
+		free(fname);
+		return;
+	}
+	free(fname);
+	
+	// read file
+#define MAXBUF 10000	
+	char buf[MAXBUF];
+	while (fgets(buf, MAXBUF, fp)) {
+		// remove '\n'
+		char *ptr = strchr(buf, '\n');
+		if (ptr)
+			*ptr = '\0';
+		
+		// skip blancs
+		char *start = buf;
+		while (*start == ' ' || *start == '\t')
+			start++;
+		
+		// parse
+		if (strncmp(buf, "Comment=", 8) == 0)
+				description_ = buf + 8;
+		else if (strncmp(buf, "Exec=", 5) == 0)
+				exec_ = buf + 5;
+		else if (strncmp(buf, "Icon=", 5) == 0)
+				icon_ = buf + 5;
+	}
+	fclose(fp);
+
+	app_icon_ = loadIcon(icon_);
+}
+
+int Application::saveConfig() {
+	char *fname = get_config_file_name(name_.toLocal8Bit().constData());
+	if (!fname)
+		return 1;
+	
+	// open file
+	FILE *fp = fopen(fname, "w");
+	if (!fp) {
+		free(fname);
+		return 1;
+	}
+	free(fname);
+
+	fprintf(fp, "[Desktop Entry]\n");
+	fprintf(fp, "Name=%s\n", name_.toLocal8Bit().constData());
+	fprintf(fp, "Comment=%s\n", description_.toLocal8Bit().constData());
+	fprintf(fp, "Icon=%s\n", icon_.toLocal8Bit().constData());
+	fprintf(fp, "Exec=%s\n", exec_.toLocal8Bit().constData());
+	fclose(fp);
+	
+	return 0;
+}
 
 /*
 From: http://standards.freedesktop.org/icon-theme-spec/icon-theme-spec-latest.html
@@ -43,21 +113,21 @@ QIcon Application::loadIcon(QString name) {
 	}
 	
 	// look for the file in firejail config directory under /home/user
-	QString conf = QDir::homePath() + "/.config/firejail/" + name + ".png";
+	QString conf = QDir::homePath() + "/.config/firetools/" + name + ".png";
 	QFileInfo checkFile1(conf);
 	if (checkFile1.exists() && checkFile1.isFile()) {
 		if (arg_debug)
 			printf("icon %s: local config dir\n", name.toLocal8Bit().data());
 		return QIcon(conf);
 	}
-	conf = QDir::homePath() + "/.config/firejail/" + name + ".jpg";
+	conf = QDir::homePath() + "/.config/firetools/" + name + ".jpg";
 	QFileInfo checkFile2(conf);
 	if (checkFile2.exists() && checkFile2.isFile()) {
 		if (arg_debug)
 			printf("icon %s: local config dir\n", name.toLocal8Bit().data());
 		return QIcon(conf);
 	}
-	conf = QDir::homePath() + "/.config/firejail/" + name + ".svg";
+	conf = QDir::homePath() + "/.config/firetools/" + name + ".svg";
 	QFileInfo checkFile3(conf);
 	if (checkFile3.exists() && checkFile3.isFile()) {
 		if (arg_debug)
@@ -166,8 +236,12 @@ void applications_init() {
 	applist.append(Application("firestats", "Firejail Tools and Statistics", "firestats", ":resources/firestats.png"));
 
 	// browsers
-	if (which("iceweasel"))
-		applist.append(Application("iceweasel", "Debian Iceweasel", "firejail iceweasel", "iceweasel"));
+	if (which("iceweasel")) {
+		if (have_config_file("iceweasel"))
+			applist.append(Application("iceweasel"));
+		else
+			applist.append(Application("iceweasel", "Debian Iceweasel", "firejail iceweasel", "iceweasel"));
+	}
 	else if (which("firefox"))
 		applist.append(Application("firefox", "Mozilla Firefox", "firejail firefox", "firefox"));
 

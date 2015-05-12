@@ -28,7 +28,7 @@ private:
 
 private:
 	QTextBrowser *procView_;
-	bool updated_;
+//	bool updated_;
 #define MODE_TOP 0
 #define MODE_PID 1	
 #define MODE_TREE 2

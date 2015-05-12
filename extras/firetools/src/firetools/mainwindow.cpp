@@ -48,8 +48,11 @@ void MainWindow::edit() {
 		// new entry
 		if (active_index_ == -1) {
 			edit = new EditDialog("", "", "");
-			if (QDialog::Accepted == edit->exec())
-				applist.append(Application(edit->getName(), edit->getDescription(), edit->getCommand(), edit->getName()));
+			if (QDialog::Accepted == edit->exec()) {
+				Application app(edit->getName(), edit->getDescription(), edit->getCommand(), edit->getName());
+				app.saveConfig();
+				applist.append(app);
+			}
 		}
 		
 		// existing entry
@@ -60,6 +63,7 @@ void MainWindow::edit() {
 				applist[active_index_].name_ = edit->getName();
 				applist[active_index_].description_ = edit->getDescription();
 				applist[active_index_].exec_ = edit->getCommand();
+				applist[active_index_].saveConfig();
 			}
 		}
 		delete edit;

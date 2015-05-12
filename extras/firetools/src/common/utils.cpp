@@ -1,6 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <pwd.h>
+#include "common.h"
 #include "utils.h"
 
 #define MAXBUF (1024 * 1024) // 1MB output buffer
@@ -30,14 +35,67 @@ char *run_program(const char *prog) {
 }
 
 bool which(const char *prog) {
+	// build command
 	char *cmd;
 	if (asprintf(&cmd, "which %s", prog) == -1) {
 		perror("asprintf");
 		exit(1);
 	}
 	
+	// run command
 	char *res = run_program(cmd);
 	if (strstr(res, prog))
 		return true;
 	return false;
+}
+
+// check if a name.desktop file exists in config home directory
+bool have_config_file(const char *name) {
+	assert(name);
+	
+	// build the full path
+	char *path = get_config_file_name(name);
+	if (!path)
+		return false;
+	
+	// check file
+	struct stat s;
+	bool rv = true;
+	if (stat(path, &s) == -1)
+		rv = false;
+	else if (!S_ISREG(s.st_mode))
+		rv = false;
+
+	free(path);
+	return rv;		
+}
+
+char *get_config_file_name(const char *name) {
+	assert(name);
+
+	// build the full path
+	char *path;
+	char *homedir = get_home_directory();
+	if (asprintf(&path, "%s/.config/firetools/%s.desktop", homedir, name) == -1)
+		errExit("asprintf");
+	free(homedir);
+	return path;
+}	
+
+char *get_home_directory() {
+	// access account information
+	struct passwd *pw = getpwuid(getuid());
+	if (!pw)
+		errExit("getpwuid");
+		
+	// extract home directory
+	if (pw->pw_dir != NULL) {
+		char *homedir = strdup(pw->pw_dir);
+		if (!homedir)
+			errExit("strdup");
+printf("homedir #%s#\n", homedir);		
+		return homedir;
+	}
+	
+	return 0;
 }

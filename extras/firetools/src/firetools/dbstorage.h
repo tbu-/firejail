@@ -30,8 +30,8 @@ struct DbStorage {
 				return tx_;
 			default:
 				assert(0);
-				return 0;
 		}
+
 		return 0;
 	}
 }; 

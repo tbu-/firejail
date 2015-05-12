@@ -38,8 +38,6 @@ static void store(int pid, int interval, int clocktick) {
 		dbpid = Db::instance().newPid(pid);
 	}
 	assert(dbpid);
-	if (!dbpid)
-		return;
 
 	int cycle = Db::instance().getCycle();
 	
@@ -73,8 +71,8 @@ void PidThread::run() {
 		pid_read(0);
 		
 		// start cpu and network measurements
-		unsigned utime;
-		unsigned stime;
+		unsigned utime = 0;
+		unsigned stime = 0;
 		unsigned long long rx;
 		unsigned long long tx;
 		for (int i = 0; i < max_pids; i++) {

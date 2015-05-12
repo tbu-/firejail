@@ -19,7 +19,10 @@ struct Application {
 	
 	Application(const char *name, const char *description, const char *exec, const char *icon);
 	Application(QString name, QString description, QString exec, QString icon);
+	Application(const char *name);
+	
 	QIcon loadIcon(QString name);
+	int saveConfig();
 };
 
 extern QList<Application> applist;

@@ -22,7 +22,7 @@ void DbPid::setCmd(const char *cmd) {
 	}
 	else {
 		if (cmd_) {
-			if (strcmp(cmd, cmd)) {
+			if (strcmp(cmd_, cmd)) {
 				delete cmd_;
 				cmd_ = 0;
 			}
