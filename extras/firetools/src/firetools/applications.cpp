@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <string.h>
+#include <dirent.h>
 #include "firetools.h"
 #include "applications.h"
+#include "../common/common.h"
 #include "../common/utils.h"
 #include <QDirIterator>
 #include <QPainter>
@@ -231,76 +233,127 @@ QIcon Application::loadIcon(QString name) {
 }
 
 
+struct DefaultApp {
+	const char *name;
+	const char *alias;
+	const char *description;
+	const char *command;
+	const char *icon;
+};
+
+DefaultApp dapps[] = {
+	{ "iceweasel", "", "Debian Iceweasel", "firejail iceweasel", "iceweasel" },
+	{ "firefox", "iceweasel", "Mozilla Firefox", "firejail firefox", "firefox"},
+	{ "chromium", "", "Chromium Web Browser", "firejail chromium", "chromium"},
+	{ "chromium-browser", "chromium", "Chromium Web Browser", "firejail chromium-browser", "chromium-browser"},
+	{ "midori", "", "Midori Web Browser", "firejail midori", "midori" },
+	{ "opera", "", "Opera Web Browser", "firejail opera", "opera" },
+	{ "icedove", "", "Debian Icedove", "firejail icedove", ":resources/icedove.png" },
+	{ "thunderbird", "icedove","Thunderbird", "firejail thunderbird", ":resources/icedove.png" },
+	{ "evince", "", "Evince PDF viewer", "firejail evince", "evince" },
+	{ "transmission-gtk", "", "Transmission BitTorrent Client", "firejail transmission-gtk", "transmission" },
+	{ "transmission-qt", "transmission-gtk", "Transmission BitTorrent Client", "firejail transmission-qt", "transmission" },
+	{ "deluge", "", "Deluge BitTorrent Client", "firejail deluge", "deluge" },
+	{ "qbittorrent", "", "qBittorrent Client", "firejail qbittorrent", "qbittorrent" },
+	{ "vlc", "", "VideoLAN Client", "firejail vlc", "vlc" },
+	{ "rhythmbox", "", "Rhythmbox", "firejail rhythmbox", "rhythmbox" },
+	{ "totem", "", "Totem", "firejail totem", "totem" },
+	{ "audacious", "", "Audacious", "firejail audacious", "audacious" },
+	{ "gnome-mplayer", "", "GNOME MPlayer", "firejail gnome-mplayer", "gnome-mplayer" },
+	{ "clementine", "", "Clementine", "firejail clementine", "application-x-clementine" },
+	{ "xterm", "", "xterm", "firejail --profile=/etc/firejail/generic.profile xterm", ":resources/gnome-terminal" },
+	{ 0, 0, 0, 0, 0 }
+};
+
+
 void applications_init() {
 	// firetools
 	applist.append(Application("firestats", "Firejail Tools and Statistics", "firestats", ":resources/firestats.png"));
 
-	// browsers
-	if (which("iceweasel")) {
-		if (have_config_file("iceweasel"))
-			applist.append(Application("iceweasel"));
+	// load default apps
+	DefaultApp *app = &dapps[0];
+	while (app->name != 0) {
+		// de we have the program?
+		if (which(app->name) == false) {
+			app++;
+			continue;			
+		}
+		
+		// is there an alias?
+		if (*app->alias != '\0' && which(app->alias)) {
+			app++;
+			continue;
+		}
+		
+		// is there a user config file?
+		if (have_config_file(app->name))
+			applist.append(Application(app->name));
 		else
-			applist.append(Application("iceweasel", "Debian Iceweasel", "firejail iceweasel", "iceweasel"));
+			applist.append(Application(app->name, app->description, app->command, app->icon));
+
+		app++;
 	}
-	else if (which("firefox"))
-		applist.append(Application("firefox", "Mozilla Firefox", "firejail firefox", "firefox"));
-
-	if (which("chromium"))
-		applist.append(Application("chromium", "Chromium Web Browser", "firejail chromium", "chromium"));
-	else if (which("chromium-browser"))
-		applist.append(Application("chromium", "Chromium Web Browser", "firejail chromium-browser", "chromium-browser"));
 	
-	if (which("midori"))
-		applist.append(Application("midori", "Midori Web Browser", "firejail midori", "midori"));
-
-	if (which("opera"))
-		applist.append(Application("opera", "Opera Web Browser", "firejail opera", "opera"));
-
-	// email
-	if (which("icedove"))
-		applist.append(Application("icedove", "Debian Icedove", "firejail icedove", ":resources/icedove.png"));
-	else if (which("thunderbird"))
-		applist.append(Application("thunderbird", "Thunderbird", "firejail thunderbird", ":resources/icedove.png"));
-
-	// pdf viewers
-	if (which("evince"))
-		applist.append(Application("evince", "Evince PDF viewer", "firejail evince", "evince"));
-
-	// bittorrent
-	if (which("transmission-gtk"))
-		applist.append(Application("transmission", "Transmission BitTorrent Client", "firejail transmission-gtk", "transmission"));
-	else if (which("transmission-qt"))
-		applist.append(Application("transmission", "Transmission BitTorrent Client", "firejail transmission-qt", "transmission"));
-
-	if (which("deluge"))
-		applist.append(Application("deluge", "Deluge BitTorrent Client", "firejail deluge", "deluge"));
-
-	if (which("qbittorrent"))
-		applist.append(Application("qbittorrent", "qBittorrent Client", "firejail qbittorrent", "qbittorrent"));
-
-	// multimedia
-	if (which("vlc"))
-		applist.append(Application("vlc", "VideoLAN Client", "firejail vlc", "vlc"));
-
-	if (which("rhythmbox"))
-		applist.append(Application("rhythmbox", "Rhythmbox", "firejail rhythmbox", "rhythmbox"));
-
-	if (which("totem"))
-		applist.append(Application("totem", "Totem", "firejail totem", "totem"));
-
-	if (which("audacious"))
-		applist.append(Application("audacious", "Audacious", "firejail audacious", "audacious"));
-
-	if (which("gnome-mplayer"))
-		applist.append(Application("gnome-mplayer", "GNOME MPlayer", "firejail gnome-mplayer", "gnome-mplayer"));
-
-	if (which("clementine"))
-		applist.append(Application("clementine", "Clementine", "firejail clementine", "application-x-clementine"));
-
-	// terminal
-	if (which("xterm"))
-		applist.append(Application("xterm", "xterm", "firejail --profile=/etc/firejail/generic.profile xterm", ":resources/gnome-terminal"));
-
+	// load user apps from home directory
+	char *home = get_home_directory();
+	if (!home)
+		return;
+	char *homecfg;
+	if (asprintf(&homecfg, "%s/.config/firetools", home) == -1)
+		errExit("asprintf");
+	free(home);
+	DIR *dir = opendir(homecfg);
+	if (!dir)
+		return;
+	free(homecfg);
+	
+	// walk home config directory
+	struct dirent *entry;
+	while ((entry = readdir(dir))) {
+		if (strcmp(entry->d_name, ".") == 0)
+			continue;
+		if (strcmp(entry->d_name, "..") == 0)
+			continue;
+		
+		// look only at .desktop files
+		int len = strlen(entry->d_name);
+		if (len <= 8)
+			continue;
+		char *fname = strdup(entry->d_name);
+		if (!fname)
+			errExit("strdup");
+		char *ending = fname + len - 8;
+		if (strcmp(ending, ".desktop") != 0) {
+			free(fname);
+			continue;
+		}
+		
+		// check if the app is in default list
+		printf("%s ", entry->d_name);
+		fflush(0);
+		*ending = '\0';
+		DefaultApp *app = &dapps[0];
+		bool found = false;
+		while (app->name != 0) {
+			if (strcmp(fname, app->name) == 0) {
+				printf("- skipping...\n");
+				found = true;
+			}
+			
+			app++;
+		}
+		if (found) {
+			free(fname);
+			continue;
+		}
+		printf(" - loading...\n");
+		
+		// load file
+		applist.append(Application(fname));
+		free(fname);
+	}
+	
+	closedir(dir);
 }
 
 

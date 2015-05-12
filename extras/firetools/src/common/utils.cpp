@@ -93,7 +93,6 @@ char *get_home_directory() {
 		char *homedir = strdup(pw->pw_dir);
 		if (!homedir)
 			errExit("strdup");
-printf("homedir #%s#\n", homedir);		
 		return homedir;
 	}
 	
