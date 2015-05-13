@@ -265,6 +265,16 @@ DefaultApp dapps[] = {
 	{ 0, 0, 0, 0, 0 }
 };
 
+bool applications_check_default(const char *name) {
+	DefaultApp *app = &dapps[0];
+	while (app->name != NULL) {
+		if (strcmp(app->name, name) == 0)
+			return true;
+		app++;
+	}
+	
+	return false;
+}
 
 void applications_init() {
 	// firetools

@@ -5,8 +5,10 @@
 #include "edit_dialog.h"
 #include "db.h"
 #include "graph.h"
+#include "applications.h"
 #include "../common/utils.h"
 #include "../../firetools_config.h"
+
 
 
 EditDialog::EditDialog(QString name, QString desc, QString cmd): QDialog() {
@@ -15,6 +17,8 @@ EditDialog::EditDialog(QString name, QString desc, QString cmd): QDialog() {
 	lname->setText(tr("Name"));
 	name_ = new QLineEdit;
 	name_->setText(name);
+	if (applications_check_default(name.toLocal8Bit().data()))
+		name_->setEnabled(false);
 
 	QLabel *ldesc = new QLabel;
 	ldesc->setText(tr("Description"));
@@ -25,8 +29,6 @@ EditDialog::EditDialog(QString name, QString desc, QString cmd): QDialog() {
 	lcmd->setText(tr("Command"));
 	cmd_ = new QLineEdit;
 	cmd_->setText(cmd);
-
-//	egcmd->setText(tr("firejail --profile=/etc/firejail/generic.profile firefox"));
 
 	// buttons
     	QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok

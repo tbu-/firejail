@@ -29,5 +29,6 @@ extern QList<Application> applist;
 void applications_init();
 int applications_get_index(QPoint pos);
 int applications_get_position(QPoint pos);
+bool applications_check_default(const char *name);
 
 #endif
