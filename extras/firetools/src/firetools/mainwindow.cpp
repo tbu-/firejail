@@ -1,5 +1,5 @@
 #include <QtGui>
-//#include <QPixmap>
+#include <unistd.h>
 #include "mainwindow.h"
 #include "../common/utils.h"
 #include "applications.h"
@@ -75,6 +75,23 @@ void MainWindow::edit() {
 	}
 }
 
+void MainWindow::remove() {
+//printf("line %d, active index %d, name %s\n", __LINE__, active_index_, 
+//	applist[active_index_].name_.toLocal8Bit().constData());
+
+	char *fname = get_config_file_name(applist[active_index_].name_.toLocal8Bit().constData());
+	if (fname) {
+		unlink(fname);
+		applist.removeAt(active_index_);
+		
+		// update
+		hide();
+		show();
+		update();
+	}
+	free(fname);
+}
+
 
 void MainWindow::run() {
 	int index = active_index_;
@@ -121,15 +138,22 @@ void MainWindow::mousePressEvent(QMouseEvent *event) {
 				qedit_->setDisabled(true);
 			else
 				qedit_->setDisabled(false);
+			qdelete_->setDisabled(true);
 		}
 		else {
 			qrun_->setDisabled(false);
 			if (active_index_ == 0) {
 				edit_index_ = -1;
 				qedit_->setDisabled(true);
+				qdelete_->setDisabled(true);
 			}
-			else				
+			else {			
 				qedit_->setDisabled(false);
+				if (applications_check_default(applist[active_index_].name_.toLocal8Bit().constData()))
+					qdelete_->setDisabled(true);
+				else
+					qdelete_->setDisabled(false);
+			}
 		}
 	}
 }
@@ -322,6 +346,10 @@ void MainWindow::createLocalActions() {
 	connect(qedit_, SIGNAL(triggered()), this, SLOT(edit()));
 	addAction(qedit_);
 
+	qdelete_ = new QAction(tr("&Delete"), this);
+	connect(qdelete_, SIGNAL(triggered()), this, SLOT(remove()));
+	addAction(qdelete_);
+
 	qhelp_ = new QAction(tr("&Help"), this);
 	connect(qhelp_, SIGNAL(triggered()), this, SLOT(help()));
 	addAction(qhelp_);
@@ -349,6 +377,7 @@ void MainWindow::help() {
 	txt += "<b>Minimize:</b> minimize the launcer<br/>\n";
 	txt += "<b>Run:</b> start the program in a new sandbox.<br/>\n";
 	txt += "<b>Edit:</b> edit the sandbox.<br/>\n";
+	txt += "<b>Delete:</b> delete the sandbox.<br/>\n";
 	txt += "<b>Help:</b> this help window.<br/>\n";
 	txt += "<b>Quit:</b> shut down the launcer.<br/>\n";
 	txt += "<br/><br/>";

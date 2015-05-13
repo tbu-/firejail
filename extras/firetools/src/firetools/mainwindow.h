@@ -28,6 +28,7 @@ public slots:
 	
 private slots:
 	void edit();
+	void remove();
 	void run();
 	void help();
 
@@ -45,6 +46,7 @@ private:
 	QAction *qedit_;
 	QAction *qrun_;
 	QAction *qhelp_;
+	QAction *qdelete_;
 	int active_index_;
 	int animation_id_;
 	int edit_index_;

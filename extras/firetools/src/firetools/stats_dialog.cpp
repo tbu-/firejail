@@ -467,14 +467,14 @@ void StatsDialog::anchorClicked(const QUrl & link) {
 	}
 	else if (linkstr == "about") {
 		QString msg = "<table cellpadding=\"10\"><tr><td><img src=\":/resources/firetools.png\"></td>";
-		msg += "<td>Firetool " + tr("version") + " " + PACKAGE_VERSION + "<br/><br/>";
-		msg += tr(
+		msg += "<td>" + tr(
+			"Firetools is the graphical user interface component of Firejal.<br/><br/>"
 			"Firejail  is  a  SUID sandbox program that reduces the risk of security "
 			"breaches by restricting the running environment of  untrusted  applications "
-			"using Linux namespaces and seccomp-bpf. Firetool is the graphical "
-			"user interface of Firejail. Firejail and Firetool are released "
-			"under GPL v2 license.<br/><br/>");
-		msg += QString(PACKAGE_URL) + "</td></tr></table><br/><br/>";
+			"using Linux namespaces, Linux capabilities and seccomp-bpf.<br/><br/>") + 
+			tr("Version:") + " " + PACKAGE_VERSION + "<br/>" +
+			tr("License:") + " GPL v2<br/>" +
+			tr("Homepage:") + " " + QString(PACKAGE_URL) + "</td></tr></table><br/><br/>";
 	
 		QMessageBox::about(this, tr("About"), msg);
 		
