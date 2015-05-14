@@ -1,7 +1,0 @@
-Lock down user privileges
-
-Malware tends to execute with privileges of the currently logged on user.
-This is one reason why users should not run programs as root. 
-
-
-In order to do so, there are privileges and permission requirements on its execution that must be fulfilled.

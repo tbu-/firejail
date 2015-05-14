@@ -1,5 +1,5 @@
 AC_PREREQ([2.68])
-AC_INIT(firetools, 0.9, netblue30@yahoo.com, , http://firejail.sourceforge.net)
+AC_INIT(firetools, 0.9.26, netblue30@yahoo.com, , http://firejail.sourceforge.net)
 AC_CONFIG_SRCDIR([src/firetools/main.cpp])
 #AC_CONFIG_HEADERS([config.h])
 
@@ -62,6 +62,15 @@ then
 	AC_MSG_WARN([Firejail is required for running firetools, please install it (http://firejail.sf.net/).])
 else
 	echo "Found $FIREJAIL"
+fi
+
+# testing xterm
+XTERM=`which xterm`
+if test -z "$XTERML"
+then
+	AC_MSG_WARN([xterm is required for running firetools, please install it.])
+else
+	echo "Found $XTERM"
 fi
 
 cp confdefs.h firetools_config.h
