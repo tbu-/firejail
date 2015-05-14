@@ -10,7 +10,8 @@
 extern bool data_ready;
 
 
-StatsDialog::StatsDialog(): QDialog(), mode_(MODE_TOP), pid_(0), pid_seccomp_(-1), pid_caps_(QString("")), have_join_(true) {
+StatsDialog::StatsDialog(): QDialog(), mode_(MODE_TOP), pid_(0), pid_seccomp_(-1), pid_caps_(QString("")),
+	have_join_(true), caps_cnt_(64) {
 	procView_ = new QTextBrowser;
 	procView_->setOpenLinks(false);
 	procView_->setOpenExternalLinks(false);
@@ -36,6 +37,17 @@ StatsDialog::StatsDialog(): QDialog(), mode_(MODE_TOP), pid_(0), pid_seccomp_(-1
 			else if (major == 3 && minor < 8)
 				have_join_ = false;
 		}
+	}
+	
+	// detect the number of capabilities supported by the current kernel
+	char *str = run_program("firejail --debug-caps");
+	if (!str)
+		return;
+	int val;
+	if (sscanf(str, "Your kernel supports %d", &val) == 1 && val <= 64) {
+		if (arg_debug)
+			printf("%d capabilities supported by the kernel\n", val);
+		caps_cnt_ = val;
 	}
 }
 
@@ -217,8 +229,14 @@ void StatsDialog::updateCaps() {
 		str = run_program(cmd);
 		char *ptr = str;
 		// htmlize!
+		int cnt = 0;
 		while (*ptr != 0) {
 			if (*ptr == '\n') {
+				// print only caps supported by the current kernel
+				if (cnt >= caps_cnt_)
+					break;
+				cnt++;
+				
 				*ptr = '\0';
 				msg += QString(str) + "<br/>\n";
 				ptr++;

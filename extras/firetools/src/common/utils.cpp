@@ -11,6 +11,7 @@
 #define MAXBUF (1024 * 1024) // 1MB output buffer
 static char outbuf[MAXBUF + 1];
 
+// run a user program using popen; returns static memory
 char *run_program(const char *prog) {
 	// open pipe
 	FILE *fp;
@@ -34,6 +35,7 @@ char *run_program(const char *prog) {
 	return outbuf;
 }
 
+// returns true or false if the program was found using "which" shell command
 bool which(const char *prog) {
 	// build command
 	char *cmd;
@@ -70,6 +72,7 @@ bool have_config_file(const char *name) {
 	return rv;		
 }
 
+// get a coniguration file path based on the name; returns allocated memory
 char *get_config_file_name(const char *name) {
 	assert(name);
 
@@ -82,6 +85,7 @@ char *get_config_file_name(const char *name) {
 	return path;
 }	
 
+// get the full path of the home directory; returns allocated memory
 char *get_home_directory() {
 	// access account information
 	struct passwd *pw = getpwuid(getuid());

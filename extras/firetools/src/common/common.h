@@ -35,13 +35,16 @@
 
 #define errExit(msg)    do { char msgout[500]; sprintf(msgout, "Error %s:%s(%d)", msg, __FUNCTION__, __LINE__); perror(msgout); exit(1);} while (0)
 
+// macro to print ip addresses in a printf statement
 #define PRINT_IP(A) \
 ((int) (((A) >> 24) & 0xFF)),  ((int) (((A) >> 16) & 0xFF)), ((int) (((A) >> 8) & 0xFF)), ((int) ( (A) & 0xFF))
 
+// macro to print a mac addresses in a printf statement
 #define PRINT_MAC(A) \
 ((unsigned) (*(A)) & 0xff), ((unsigned) (*((A) + 1) & 0xff)), ((unsigned) (*((A) + 2) & 0xff)), \
 ((unsigned) (*((A) + 3)) & 0xff), ((unsigned) (*((A) + 4) & 0xff)), ((unsigned) (*((A) + 5)) & 0xff)
 
+// convert a network mask to the number of bits
 static inline uint8_t mask2bits(uint32_t mask) {
 	uint32_t tmp = 0x80000000;
 	int i;
@@ -55,6 +58,7 @@ static inline uint8_t mask2bits(uint32_t mask) {
 	}
 	return rv;
 }
+
 // read an IPv4 address and convert it to uint32_t
 static inline int atoip(const char *str, uint32_t *ip) {
 	unsigned a, b, c, d;
@@ -66,6 +70,7 @@ static inline int atoip(const char *str, uint32_t *ip) {
 	return 0;
 }
 
+// verify ip address is in the ifip/ifmask network range
 static inline char *in_netrange(uint32_t ip, uint32_t ifip, uint32_t ifmask) {
 	if ((ip & ifmask) != (ifip & ifmask))
 		return (char *) "Error: the IP address is not in the interface range\n";

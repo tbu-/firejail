@@ -28,7 +28,7 @@ private:
 
 private:
 	QTextBrowser *procView_;
-//	bool updated_;
+
 #define MODE_TOP 0
 #define MODE_PID 1	
 #define MODE_TREE 2
@@ -40,6 +40,7 @@ private:
 	int pid_seccomp_;
 	QString pid_caps_;
 	bool have_join_;
+	int caps_cnt_;
 };
 
 
