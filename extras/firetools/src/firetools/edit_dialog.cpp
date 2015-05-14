@@ -1,7 +1,7 @@
+#include "firetools.h"
+#include <sys/utsname.h>
 #include <QtGui>
 #include <QUrl>
-#include <assert.h>
-#include <sys/utsname.h>
 #include "edit_dialog.h"
 #include "db.h"
 #include "graph.h"

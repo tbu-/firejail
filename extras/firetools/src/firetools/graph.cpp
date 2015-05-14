@@ -1,6 +1,6 @@
+#include "firetools.h"
 #include <QtGui>
 #include <QUrl>
-#include <assert.h>
 #include "graph.h"
 #include "dbpid.h"
 

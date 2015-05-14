@@ -1,14 +1,10 @@
+#include "firetools.h"
 #include <QtGui>
 #include <QElapsedTimer>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/time.h>
-#include <sys/types.h>
-#include <unistd.h>
 
 #include "pid_thread.h"
 #include "../common/pid.h"
-#include <db.h>
+#include "db.h"
 
 bool data_ready = false;
 

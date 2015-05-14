@@ -1,5 +1,4 @@
-#include <stdio.h>
-#include <assert.h>
+#include "firetools.h"
 #include "db.h"
 
 Db::Db(): cycle_(DbPid::MAXCYCLE - 1), pidlist_(0) {}

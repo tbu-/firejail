@@ -1,6 +1,6 @@
 #include <QtGui>
 #include <QUrl>
-#include <assert.h>
+#include "firetools.h"
 #include <sys/utsname.h>
 #include "stats_dialog.h"
 #include "db.h"

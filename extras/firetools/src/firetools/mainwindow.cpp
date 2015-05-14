@@ -1,5 +1,5 @@
+#include "firetools.h"
 #include <QtGui>
-#include <unistd.h>
 #include "mainwindow.h"
 #include "../common/utils.h"
 #include "applications.h"

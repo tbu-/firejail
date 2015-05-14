@@ -3,7 +3,6 @@
 #include <dirent.h>
 #include "firetools.h"
 #include "applications.h"
-#include "../common/common.h"
 #include "../common/utils.h"
 #include <QDirIterator>
 #include <QPainter>
