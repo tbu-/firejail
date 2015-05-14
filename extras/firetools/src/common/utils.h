@@ -10,10 +10,10 @@ bool which(const char *prog);
 // check if a name.desktop file exists in config home directory
 bool have_config_file(const char *name);
 
-// get a coniguration file path based on the name; returns malloced memory
+// get a coniguration file path based on the name; returns allocated memory
 char *get_config_file_name(const char *name);
 
-// get the full path of the home directory; returns malloced memory
+// get the full path of the home directory; returns allocated memory
 char *get_home_directory();
 
 #endif
