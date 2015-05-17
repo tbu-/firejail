@@ -3926,7 +3926,7 @@ fi
 
 # testing xterm
 XTERM=`which xterm`
-if test -z "$XTERML"
+if test -z "$XTERM"
 then
 	{ $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: xterm is required for running firetools, please install it." >&5
 $as_echo "$as_me: WARNING: xterm is required for running firetools, please install it." >&2;}

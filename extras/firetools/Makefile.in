@@ -62,6 +62,6 @@ dist:
 	rm -fr $(NAME)-$(VERSION)
 
 
-#deb: dist
-#	./mkdeb.sh $(NAME) $(VERSION)
+deb: dist
+	./mkdeb.sh $(NAME) $(VERSION)
 

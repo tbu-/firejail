@@ -1,7 +1,7 @@
 /*
- * Copyright (C) 2014, 2015 netblue30 (netblue30@yahoo.com)
+ * Copyright (C) 2015 netblue30 (netblue30@yahoo.com)
  *
- * This file is part of firejail project
+ * This file is part of firetools project
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

@@ -1,3 +1,22 @@
+/*
+ * Copyright (C) 2015 netblue30 (netblue30@yahoo.com)
+ *
+ * This file is part of firetools project
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+*/
 #include "firetools.h"
 #include <QtGui>
 #include "mainwindow.h"
@@ -41,8 +60,7 @@ void MainWindow::cycleReady() {
 }
 
 void MainWindow::edit() {
-	// index 0 is the tools window
-	if (edit_index_ != -1 && edit_index_ != 0) {
+	if (edit_index_ != -1) {
 		EditDialog *edit;
 		
 		// new entry
@@ -96,18 +114,17 @@ void MainWindow::remove() {
 void MainWindow::run() {
 	int index = active_index_;
 	if (index != -1) {
-		if (index == 0) {
-			stats_->show();
-		}
-		else {
-			QString exec = applist[index].exec_ + " &";
-			int rv = system(exec.toStdString().c_str());
-			(void) rv;
-		}
+		QString exec = applist[index].exec_ + " &";
+		int rv = system(exec.toStdString().c_str());
+		(void) rv;
 	}
 		
 	animation_id_ = AFRAMES;
 	QTimer::singleShot(0, this, SLOT(update()));
+}
+
+void MainWindow::runTools() {
+	stats_->show();
 }
 
 
@@ -123,6 +140,9 @@ void MainWindow::mousePressEvent(QMouseEvent *event) {
 			hide();
 			stats_->hide();
 		}
+		else if (x >= 0 && x < 64 &&
+			   y >= 4 && y <= 15)
+			   runTools();
 		dragPosition_ = event->globalPos() - frameGeometry().topLeft();
 		event->accept();
 		active_index_ = -1;
@@ -142,18 +162,11 @@ void MainWindow::mousePressEvent(QMouseEvent *event) {
 		}
 		else {
 			qrun_->setDisabled(false);
-			if (active_index_ == 0) {
-				edit_index_ = -1;
-				qedit_->setDisabled(true);
+			qedit_->setDisabled(false);
+			if (applications_check_default(applist[active_index_].name_.toLocal8Bit().constData()))
 				qdelete_->setDisabled(true);
-			}
-			else {			
-				qedit_->setDisabled(false);
-				if (applications_check_default(applist[active_index_].name_.toLocal8Bit().constData()))
-					qdelete_->setDisabled(true);
-				else
-					qdelete_->setDisabled(false);
-			}
+			else
+				qdelete_->setDisabled(false);
 		}
 	}
 }
@@ -172,14 +185,9 @@ void MainWindow::mouseDoubleClickEvent(QMouseEvent *event) {
 		QPoint pos = event->pos();
 		int index = applications_get_index(pos);
 		if (index != -1) {
-			if (index == 0) {
-				stats_->show();
-			}
-			else {
-				QString exec = applist[index].exec_ + " &";
-				int rv = system(exec.toStdString().c_str());
-				(void) rv;
-			}
+			QString exec = applist[index].exec_ + " &";
+			int rv = system(exec.toStdString().c_str());
+			(void) rv;
 			event->accept();
 			animation_id_ = AFRAMES;
 			active_index_ = index;
@@ -235,7 +243,7 @@ void MainWindow::paintEvent(QPaintEvent *) {
 	painter.setFont(QFont("Sans", TOP, QFont::Normal));
 	QPen pen2(Qt::white);
 	painter.setPen(pen2);
-	painter.drawText(MARGIN * 2, TOP + MARGIN / 2, "Firejail");
+	painter.drawText(MARGIN * 2, TOP + MARGIN / 2, "Firetools");
 
 	if (animation_id_ > 0) {
 		animation_id_--;
@@ -279,12 +287,20 @@ bool MainWindow::event(QEvent *event) {
 		if (index == -1) {
 			int x = helpEvent->pos().x();
 			int y = helpEvent->pos().y();
+			int nelem = applist.count();
+			int cols = nelem / ROWS + 1;
 			
-			if (x >= MARGIN * 2 + 54 && x <= MARGIN * 2 + 68 &&
+			if (x >= MARGIN * 2 + cols * 64 - 8 && x <= MARGIN * 2 + cols * 64 + 4 &&
 			   y >= 4 && y <= 15) {
-			   	QToolTip::showText(helpEvent->globalPos(), QString("minimize"));
+			   	QToolTip::showText(helpEvent->globalPos(), QString("Minimize"));
 			   	return true;
 			}
+			else if (x >= 0 && x < 64 &&
+				   y >= 4 && y <= 15) {
+			   	QToolTip::showText(helpEvent->globalPos(), QString("Run tools"));
+			   	return true;
+			}
+			
 			else
 				QToolTip::hideText();
 		}
@@ -329,6 +345,10 @@ void MainWindow::createTrayActions() {
 }
 
 void MainWindow::createLocalActions() {
+	QAction *runtools = new QAction(tr("&Tools"), this);
+	connect(runtools, SIGNAL(triggered()), this, SLOT(runTools()));
+	addAction(runtools);
+
 	QAction *qminimize = new QAction(tr("&Minimize"), this);
 	connect(qminimize, SIGNAL(triggered()), this, SLOT(hide()));
 	connect(qminimize, SIGNAL(triggered()), stats_, SLOT(hide()));
@@ -368,6 +388,9 @@ void MainWindow::help() {
 	QMessageBox msgBox;
 	
 	QString txt;
+	txt += "<br/>";
+	txt += "Click on \"Firetools\" in the left top corner to open the tools window.<br/>\n";
+	txt += "Click on \"-\" in the right top corner to minimize the launcher in the system tray.<br/>\n";
 	txt += "<br/>";
 	txt += "Double click on an icon to open an application.<br/>\n";
 	txt += "Drag the launcher with the left mouse button.<br/>\n";

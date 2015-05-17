@@ -1,7 +1,6 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource prefix="/">
    <file>resources/firetools.png</file>
-   <file>resources/firestats.png</file>
    <file>resources/icedove.png</file>
    <file>resources/gnome-terminal.png</file>
 </qresource>

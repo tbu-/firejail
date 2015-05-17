@@ -66,7 +66,7 @@ fi
 
 # testing xterm
 XTERM=`which xterm`
-if test -z "$XTERML"
+if test -z "$XTERM"
 then
 	AC_MSG_WARN([xterm is required for running firetools, please install it.])
 else
