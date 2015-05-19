@@ -50,6 +50,9 @@ Application::Application(const char *name):
 	if (!fname)
 		return;
 	
+	if (arg_debug)
+		printf("loading %s\n", fname);
+
 	// open file
 	FILE *fp = fopen(fname, "r");
 	if (!fp) {
@@ -279,7 +282,7 @@ DefaultApp dapps[] = {
 	{ "audacious", "", "Audacious", "firejail audacious", "audacious" },
 	{ "gnome-mplayer", "", "GNOME MPlayer", "firejail gnome-mplayer", "gnome-mplayer" },
 	{ "clementine", "", "Clementine", "firejail clementine", "application-x-clementine" },
-	{ "xterm", "", "xterm", "firejail --profile=/etc/firejail/generic.profile xterm", ":resources/gnome-terminal" },
+	{ "xterm", "", "xterm", "firejail --profile=/etc/firejail/generic.profile --noroot xterm", ":resources/gnome-terminal" },
 	{ 0, 0, 0, 0, 0 }
 };
 
@@ -328,9 +331,10 @@ void applications_init() {
 		errExit("asprintf");
 	free(home);
 	DIR *dir = opendir(homecfg);
-	if (!dir)
+	if (!dir) {
+		free(homecfg);
 		return;
-	free(homecfg);
+	}
 	
 	// walk home config directory
 	struct dirent *entry;
@@ -354,14 +358,12 @@ void applications_init() {
 		}
 		
 		// check if the app is in default list
-		printf("%s ", entry->d_name);
 		fflush(0);
 		*ending = '\0';
 		DefaultApp *app = &dapps[0];
 		bool found = false;
 		while (app->name != 0) {
 			if (strcmp(fname, app->name) == 0) {
-				printf("- skipping...\n");
 				found = true;
 			}
 			
@@ -371,13 +373,13 @@ void applications_init() {
 			free(fname);
 			continue;
 		}
-		printf(" - loading...\n");
 		
 		// load file
 		applist.append(Application(fname));
 		free(fname);
 	}
-	
+
+	free(homecfg);
 	closedir(dir);
 }
 

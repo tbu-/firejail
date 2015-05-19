@@ -227,8 +227,8 @@ void net_dns_print_name(const char *name) {
 
 #define MAXBUF 4096
 void net_dns_print(pid_t pid) {
-	// drop privileges
-	drop_privs(1);
+	// drop privileges - will not be able to read /etc/resolv.conf for --noroot option
+//	drop_privs(1);
 
 	// if the pid is that of a firejail  process, use the pid of the first child process
 	char *comm = pid_proc_comm(pid);
@@ -249,7 +249,7 @@ void net_dns_print(pid_t pid) {
 	char *fname;
 	if (asprintf(&fname, "/proc/%d/root/etc/resolv.conf", pid) == -1)
 		errExit("asprintf");
-		
+
 	// access /etc/resolv.conf
 	FILE *fp = fopen(fname, "r");
 	if (!fp) {

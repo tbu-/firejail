@@ -509,7 +509,7 @@ void StatsDialog::anchorClicked(const QUrl & link) {
 			"Firejail  is  a  SUID sandbox program that reduces the risk of security "
 			"breaches by restricting the running environment of  untrusted  applications "
 			"using Linux namespaces, Linux capabilities and seccomp-bpf.<br/><br/>") + 
-			tr("Version:") + " " + PACKAGE_VERSION + "<br/>" +
+			tr("Firetools version:") + " " + PACKAGE_VERSION + "<br/>" +
 			tr("License:") + " GPL v2<br/>" +
 			tr("Homepage:") + " " + QString(PACKAGE_URL) + "</td></tr></table><br/><br/>";
 	

@@ -431,4 +431,17 @@ investigate lxc-device
 ***********************
 lxc-device add -n p1 /dev/ttyUSB0 /dev/ttyS0
 
-Which will add (mknod) /dev/ttyS0 in the container with the same type/major/minor as /dev/ttyUSB0 and then add the matching cgroup entry allowing access from the container.
+Which will add (mknod) /dev/ttyS0 in the container with the same type/major/minor as /dev/ttyUSB0
+ and then add the matching cgroup entry allowing access from the container.
+ 
+***********************
+github
+***********************
+
+    Fork it ( https://github.com/myproject/fork )
+    Create your feature branch (git checkout -b my-new-feature)
+    Commit your changes (git commit -am 'Add some feature')
+    Push to the branch (git push origin my-new-feature)
+    Create new Pull Request
+
+ 
