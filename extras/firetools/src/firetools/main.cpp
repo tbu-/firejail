@@ -24,6 +24,7 @@
 #include "firetools.h"
 #include "mainwindow.h"
 #include "../common/utils.h"
+#include "../../firetools_config.h"
 
 int arg_debug = 0;
 
@@ -40,7 +41,7 @@ static const char *deskfile_minimize =
 
 
 static void usage() {
-	printf("Firetools - graphic user interface for Firejail security platform\n\n");
+	printf("Firetools - graphical user interface for Firejail security sandbox\n\n");
 	printf("Usage: firetools [options]\n\n");
 	printf("Options:\n");
 	printf("\t--autostart - configure Firetools to run automatically in system tray\n");
@@ -48,6 +49,7 @@ static void usage() {
 	printf("\t--debug - debug mode\n\n");
 	printf("\t--help - this help screen\n\n");
 	printf("\t--minimize - start the program minimized in system tray\n\n");
+	printf("\t--version - print software version and exit\n\n");
 }
 
 int main(int argc, char *argv[]) {
@@ -59,6 +61,10 @@ int main(int argc, char *argv[]) {
 			arg_debug = 1;
 		else if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-?") == 0) {
 			usage();
+			return 0;
+		}
+		else if (strcmp(argv[i], "--version") == 0) {
+			printf("Firetools version " PACKAGE_VERSION "\n");
 			return 0;
 		}
 		else if (strcmp(argv[i], "--autostart") == 0) {

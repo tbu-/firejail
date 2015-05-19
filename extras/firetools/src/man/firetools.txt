@@ -19,6 +19,9 @@ Print options end exit.
 .TP
 \fB\-\-minimize\fR
 Start the program minimized in system tray.
+.TP
+\fB\-\-version\fR
+Print software version and exit.
 .SH ABOUT FIREJAIL
 Firejail is a SUID sandbox program that reduces the risk of security breaches by
 restricting the running environment of untrusted applications using Linux
