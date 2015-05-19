@@ -3,7 +3,7 @@ Version: FIRETOOLSVER-1
 Architecture: amd64
 Maintainer: netblue30 <netblue30@yahoo.com>
 Installed-Size: 284
-Depends: libqtgui4, qmake, xterm, libc6
+Depends: libqtgui4, xterm, libc6
 Section: admin
 Priority: extra
 Homepage: http://firejail.sourceforge.net
