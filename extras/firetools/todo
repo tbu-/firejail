@@ -1,0 +1,7 @@
+**********************
+autostart - create .config/autostart directory if it doesn't exist
+**********************
+
+$ firetools --autostart
+Error: cannot open /home/netblue/.config/autostart/firetools.desktop
+
