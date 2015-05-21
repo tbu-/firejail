@@ -77,6 +77,8 @@ struct seccomp_data {
 # define ARCH_NR	AUDIT_ARCH_I386
 #elif defined(__x86_64__)
 # define ARCH_NR	AUDIT_ARCH_X86_64
+#elif defined(__arm__)
+# define ARCH_NR	AUDIT_ARCH_ARM
 #else
 # warning "Platform does not support seccomp filter yet"
 # define ARCH_NR	0
@@ -394,33 +396,77 @@ int seccomp_filter_drop(void) {
 	
 	// default seccomp
 	if (arg_seccomp_list_drop == NULL) {
+#ifdef SYS_mount		
 		filter_add_blacklist(SYS_mount);
+#endif
+#ifdef SYS_umount2		
 		filter_add_blacklist(SYS_umount2);
+#endif
+#ifdef SYS_ptrace 		
 		filter_add_blacklist(SYS_ptrace);
+#endif
+#ifdef SYS_kexec_load		
 		filter_add_blacklist(SYS_kexec_load);
+#endif
+#ifdef SYS_open_by_handle_at		
 		filter_add_blacklist(SYS_open_by_handle_at);
+#endif
+#ifdef SYS_init_module		
 		filter_add_blacklist(SYS_init_module);
+#endif
 #ifdef SYS_finit_module // introduced in 2013
 		filter_add_blacklist(SYS_finit_module);
 #endif
+#ifdef SYS_delete_module		
 		filter_add_blacklist(SYS_delete_module);
+#endif
+#ifdef SYS_iopl		
 		filter_add_blacklist(SYS_iopl);
+#endif
+#ifdef 	SYS_ioperm	
 		filter_add_blacklist(SYS_ioperm);
+#endif
+#ifdef SYS_swapon		
 		filter_add_blacklist(SYS_swapon);
+#endif
+#ifdef SYS_swapoff		
 		filter_add_blacklist(SYS_swapoff);
+#endif
+#ifdef SYS_syslog		
 		filter_add_blacklist(SYS_syslog);
+#endif
+#ifdef SYS_process_vm_readv		
 		filter_add_blacklist(SYS_process_vm_readv);
+#endif
+#ifdef SYS_process_vm_writev		
 		filter_add_blacklist(SYS_process_vm_writev);
+#endif
+#ifdef SYS_mknod		
 		filter_add_blacklist(SYS_mknod);
+#endif
 		
 		// new syscalls in 0.9,23		
+#ifdef SYS_sysfs		
 		filter_add_blacklist(SYS_sysfs);
+#endif
+#ifdef SYS__sysctl	
 		filter_add_blacklist(SYS__sysctl);
+#endif
+#ifdef SYS_adjtimex		
 		filter_add_blacklist(SYS_adjtimex);
+#endif
+#ifdef 	SYS_clock_adjtime	
 		filter_add_blacklist(SYS_clock_adjtime);
+#endif
+#ifdef SYS_lookup_dcookie		
 		filter_add_blacklist(SYS_lookup_dcookie);
+#endif
+#ifdef 	SYS_perf_event_open	
 		filter_add_blacklist(SYS_perf_event_open);
+#endif
+#ifdef	SYS_fanotify_init 	
 		filter_add_blacklist(SYS_fanotify_init);
+#endif
 #ifdef SYS_kcmp
 		filter_add_blacklist(SYS_kcmp);
 #endif

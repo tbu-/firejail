@@ -1,4 +1,9 @@
 ***********************
+* scan
+***********************
+- doesn't list the local eth0 interface
+
+***********************
 *  tab completion doesn't work
 ***********************
 - caps.keep
@@ -443,5 +448,18 @@ github
     Commit your changes (git commit -am 'Add some feature')
     Push to the branch (git push origin my-new-feature)
     Create new Pull Request
+
+***********************
+ARM support
+***********************
+List all gcc macros:
+ echo | gcc -E -dM -
+
+***********************
+webpage header to be copied on all project pages
+***********************
+<div style="height:10px;">&nbsp;</div>
+<div align="left" style="border:3px solid;border-radius:10px;border-color:#0080ff;margin:20px;padding-top:5px;">&nbsp;&nbsp;<a href="http://l3net.wordpress.com/projects/firejail/">Firejail</a> &nbsp;&nbsp;<a href="http://l3net.wordpress.com/projects/firejail#firetools">Firetools</a> &nbsp;&nbsp;<a href="http://l3net.wordpress.com/projects/firejail#news">News</a> &nbsp;&nbsp;<a href="http://l3net.wordpress.com/projects/firejail#downloads">Downloads</a> &nbsp;&nbsp;<a href="https://l3net.wordpress.com/projects/firejail/firejail-download-and-install/">Install</a> &nbsp;&nbsp;<a href="http://l3net.wordpress.com/projects/firejail#howtos">HOWTOs</a></div>
+<div style="height:10px;">&nbsp;</div>
 
  

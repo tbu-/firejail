@@ -397,12 +397,13 @@ void MainWindow::help() {
 	txt += "Use the right mouse button to open a context menu.<br/>\n";
 	txt += "<br/>";
 	txt += "<b>Context Menu</b><br/><br/>\n";
-	txt += "<b>Minimize:</b> minimize the launcer<br/>\n";
+	txt += "<b>Tools:</b> open the tools window<br/>\n";
+	txt += "<b>Minimize:</b> minimize the launcher<br/>\n";
 	txt += "<b>Run:</b> start the program in a new sandbox.<br/>\n";
-	txt += "<b>Edit:</b> edit the sandbox.<br/>\n";
-	txt += "<b>Delete:</b> delete the sandbox.<br/>\n";
+	txt += "<b>Edit:</b> edit the sandbox launcher.<br/>\n";
+	txt += "<b>Delete:</b> delete the sandbox launcher.<br/>\n";
 	txt += "<b>Help:</b> this help window.<br/>\n";
-	txt += "<b>Quit:</b> shut down the launcer.<br/>\n";
+	txt += "<b>Quit:</b> shut down the lprogram.<br/>\n";
 	txt += "<br/><br/>";
 
 	QMessageBox::about(this, tr("Firejail Launcher"), txt);
