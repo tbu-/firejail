@@ -54,8 +54,6 @@ int arg_command = 0;				// -c
 int arg_overlay = 0;				// --overlay
 int arg_zsh = 0;				// use zsh as default shell
 int arg_csh = 0;				// use csh as default shell
-pid_t arg_sandbox_pid = 0;			// --sandbox=PID
-char *arg_sandbox_name = NULL;		// --sandbox=name
 
 int arg_seccomp = 0;				// enable default seccomp filter
 char *arg_seccomp_list = NULL;		// optional seccomp list on top of default filter
@@ -249,15 +247,62 @@ int main(int argc, char **argv) {
 		}
 		else if (strcmp(argv[i], "--debug") == 0)
 			arg_debug = 1;
-		else if (strncmp(argv[i], "--sandbox=", 10) == 0) {
+
+		else if (strncmp(argv[i], "--bandwidth=", 12) == 0) {
 			logargs(argc, argv);
 			
-			// shutdown sandbox by pid or by name
+			// extract the command
+			if ((i + 1) == argc) {
+				fprintf(stderr, "Error: command expected after --bandwidth option\n");
+				exit(1);
+			}
+			char *cmd = argv[i + 1];
+			if (strcmp(cmd, "status") && strcmp(cmd, "reset") && strcmp(cmd, "set")) {
+				fprintf(stderr, "Error: invalid --bandwidth command\n");
+				exit(1);
+			}
+
+			// extract network name
+			char *dev = NULL;
+			int down = 0;
+			int up = 0;
+			if (strcmp(cmd, "set") == 0 || strcmp(cmd, "reset") == 0) {
+				if ((i + 2) == argc) {
+					fprintf(stderr, "Error: network name expected after --bandwidth %s option\n", cmd);
+					exit(1);
+				}
+				dev = argv[i + 2];
+				// todo: check network name
+				
+				// extract bandwidth
+				if (strcmp(cmd, "set") == 0) {
+					if ((i + 4) >= argc) {
+						fprintf(stderr, "Error: download and upload speeds expected after --bandwidth %s %s option\n", cmd, dev);
+						exit(1);
+					}
+					
+					down = atoi(argv[i + 3]);
+					if (down < 0) {
+						fprintf(stderr, "Error: invlalid download speed\n");
+						exit(1);
+					}
+					up = atoi(argv[i + 4]);
+					if (up < 0) {
+						fprintf(stderr, "Error: invlalid upload speed\n");
+						exit(1);
+					}
+				}
+			}	
+			
+			// extract pid or sandbox name
 			pid_t pid;
-			if (read_pid(argv[i] + 10, &pid) == 0)
-				arg_sandbox_pid = pid;
+			if (read_pid(argv[i] + 12, &pid) == 0)
+				bandwidth_pid(pid, cmd, dev, down, up);
 			else
-				arg_sandbox_name = argv[i] + 10;
+ 				bandwidth_name(argv[i] + 12, cmd, dev, down, up);
+ 			
+ 			// it will never get here
+ 			exit(0);
 		}
 
 		//*************************************

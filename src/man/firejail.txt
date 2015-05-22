@@ -8,10 +8,10 @@ Start a sandbox:
 firejail [OPTIONS] [program and arguments]
 .RE
 .PP
-Modify an existing sandbox:
+Bandwidth shaping for an existing sandbox:
 .PP
 .RS
-firejail --sandbox={<name>|<PID>} {\-\-bandwidth}
+firejail --bandwidth={<name>|<PID>} bandwidth-command-arguments
 .RE
 .PP
 Miscellaneous:
@@ -28,7 +28,7 @@ globally shared kernel resources, such as the network stack, process table, moun
 Firejail can work in a SELinux or AppArmor environment,
 and it is integrated with Linux Control Groups.
 .PP
-Written in C with virtually no dependencies, the software should run on any Linux computer with a 3.x kernel version
+Written in C with virtually no dependencies, the software runs on any Linux computer with a 3.x kernel version
 or newer.
 It can sandbox any type of processes: servers, graphical applications, and even user login sessions. 
 The software includes sandbox profiles for a number of more common

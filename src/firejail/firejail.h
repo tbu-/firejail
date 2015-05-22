@@ -111,8 +111,6 @@ extern int arg_command;	// -c
 extern int arg_overlay;		// --overlay
 extern int arg_zsh;		// use zsh as default shell
 extern int arg_csh;		// use csh as default shell
-extern pid_t arg_sandbox_pid;	// --sandbox=PID
-extern char *arg_sandbox_name; // --sandbox=name
 
 extern int arg_seccomp;	// enable default seccomp filter
 extern char *arg_seccomp_list;//  optional seccomp list on top of default filter
@@ -338,5 +336,9 @@ void check_output(int argc, char **argv);
 // netfilter.c
 void check_netfilter_file(const char *fname);
 void netfilter(const char *fname);
+
+// bandwidth.c
+void bandwidth_name(const char *name, const char *command, const char *dev, int down, int up);
+void bandwidth_pid(pid_t pid, const char *command, const char *dev, int down, int up);
 
 #endif
