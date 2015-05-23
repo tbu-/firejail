@@ -272,12 +272,16 @@ int main(int argc, char **argv) {
 					exit(1);
 				}
 				dev = argv[i + 2];
-				// todo: check network name
+				// todo: check network name - net_get_if_addr
+				if (if_nametoindex(dev) == 0) {
+					fprintf(stderr, "Error: network device %s not found\n", dev);
+					exit(1);
+				}
 				
 				// extract bandwidth
 				if (strcmp(cmd, "set") == 0) {
 					if ((i + 4) >= argc) {
-						fprintf(stderr, "Error: download and upload speeds expected after --bandwidth %s %s option\n", cmd, dev);
+						fprintf(stderr, "Error: invalid --bandwidth set command\n");
 						exit(1);
 					}
 					
