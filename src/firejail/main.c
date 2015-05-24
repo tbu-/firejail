@@ -107,6 +107,7 @@ static void myexit(int rv) {
 		}
 	}
 	
+	bandwidth_shm_clear(sandbox_pid);
 	exit(rv); 
 }
 

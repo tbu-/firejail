@@ -338,6 +338,8 @@ void check_netfilter_file(const char *fname);
 void netfilter(const char *fname);
 
 // bandwidth.c
+void bandwidth_shm_clear(pid_t pid);
+void bandwidth_shm_set(pid_t pid, const char *dev, int down, int up);
 void bandwidth_name(const char *name, const char *command, const char *dev, int down, int up);
 void bandwidth_pid(pid_t pid, const char *command, const char *dev, int down, int up);
 

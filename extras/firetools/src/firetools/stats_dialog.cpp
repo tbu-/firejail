@@ -384,35 +384,35 @@ void StatsDialog::updatePid() {
 	DbStorage *st = &ptr->data_[cycle];
 
 	msg += header();
-	msg += "<table><tr><td width=\"5\"></td><td>Command: " + QString(cmd) + "</td></tr></table><br/>";
+	msg += "<table><tr><td width=\"5\"></td><td><b>Command:</b> " + QString(cmd) + "</td></tr></table><br/>";
 
 	msg += "<table>";
-	msg += QString("<tr><td width=\"5\"></td><td>PID: ") + QString::number(pid_) + "</td>";
+	msg += QString("<tr><td width=\"5\"></td><td><b>PID:</b> ") + QString::number(pid_) + "</td>";
 	if (st->network_disabled_)
-		msg += "<td>RX: unknown</td></tr>";
+		msg += "<td><b>RX:</b> unknown</td></tr>";
 	else
-		msg += QString("<td>RX: ") + QString::number(st->rx_) + " KB/sec</td></tr>";
+		msg += QString("<td><b>RX:</b> ") + QString::number(st->rx_) + " KB/sec</td></tr>";
 	
-	msg += QString("<tr><td></td><td>CPU: ") + QString::number(st->cpu_) + "%</td>";
+	msg += QString("<tr><td></td><td><b>CPU:</b> ") + QString::number(st->cpu_) + "%</td>";
 	if (st->network_disabled_)
-		msg += "<td>TX: unknown</td></tr>";
+		msg += "<td><b>TX:</b> unknown</td></tr>";
 	else
-		msg += QString("<td>TX: ") + QString::number(st->tx_) + " KB/sec</td></tr>";
+		msg += QString("<td><b>TX:</b> ") + QString::number(st->tx_) + " KB/sec</td></tr>";
 	
 	// init seccomp and caps
 	if (pid_seccomp_ == -1)
 		kernelSecuritySettings();
 
-	msg += QString("<tr><td></td><td>Memory: ") + QString::number((int) (st->rss_ + st->shared_)) + " KiB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>";
-	msg += QString("<td>Seccomp: ");
+	msg += QString("<tr><td></td><td><b>Memory:</b> ") + QString::number((int) (st->rss_ + st->shared_)) + " KiB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>";
+	msg += QString("<td><b>Seccomp:</b> ");
 	if (pid_seccomp_)
 		msg += "<a href=\"seccomp\">enabled</a>";
 	else
 		msg += "disabled";
 	msg += "</td></tr>";
 
-	msg += QString("<tr><td></td><td>RSS " + QString::number((int) st->rss_) + ", shared " + QString::number((int) st->shared_)) + "</td>";	
-	msg += QString("<td>Capabilities: <a href=\"caps\">") + pid_caps_ + "</a></td></tr>";	
+	msg += QString("<tr><td></td><td><b>RSS</b> " + QString::number((int) st->rss_) + ", <b>shared</b> " + QString::number((int) st->shared_)) + "</td>";	
+	msg += QString("<td><b>Capabilities:</b> <a href=\"caps\">") + pid_caps_ + "</a></td></tr>";	
 	
 	// graphs
 	msg += "<tr></tr>";
@@ -421,6 +421,26 @@ void StatsDialog::updatePid() {
 		msg += "<tr><td></td><td>"+ graph(2, ptr, cycle) + "</td><td>" + graph(3, ptr, cycle) + "</td></tr>";
 
 	msg += QString("</table><br/>");
+	
+	// bandwidth limits
+	if (st->network_disabled_ == false) {
+		char *fname;
+		if (asprintf(&fname, "/dev/shm/firejail/%d-bandwidth", pid_) == -1)
+			errExit("asprintf");
+		FILE *fp = fopen(fname, "r");
+		if (fp) {
+			msg += "<br/><table><tr><td width=\"5\"></td><td>";
+			msg += "<b>Bandwidth limits:</b><br/><br/>\n";
+			char buf[1024];
+			while (fgets(buf, 1024, fp)) {
+				msg += buf;
+				msg += "<br/>";
+			}
+			fclose(fp);
+			msg += "</td></tr></table>";
+		}
+	}
+
 	procView_->setHtml(msg);
 }
 
