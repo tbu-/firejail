@@ -10,7 +10,7 @@ Linux  namespace support. It supports sandboxing specific users upon login.
 Download: http://sourceforge.net/projects/firejail/files/
 Build and install: ./configure && make && sudo make install
 Documentation and support: http://firejail.sourceforge.net
-
+License: GPL v2
 
 Firejail Authors:
 
