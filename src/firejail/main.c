@@ -214,6 +214,9 @@ int main(int argc, char **argv) {
 	time_t t = time(NULL);
 	srand(t ^ sandbox_pid);
 
+	// clear shm
+	bandwidth_shm_clear(sandbox_pid);
+
 	// is this a login shell?
 	if (*argv[0] == '-') {
 		fullargc = restricted_shell(cfg.username);
