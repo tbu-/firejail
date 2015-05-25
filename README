@@ -22,5 +22,7 @@ sshirokov (http://sourceforge.net/u/yshirokov/profile/)
 	- Patch to output "Reading profile" to stderr instead of stdout (ticket 15)
 Alexey Kuznetsov, <kuznet@ms2.inr.ac.ru>
 	- src/lib/libnetlink.c extracted from iproute2 software package
+G4JC (http://sourceforge.net/u/gaming4jc/profile/)
+	- ARM support (ticket 17)
 
 Copyright (C) 2014, 2015 Firejail Authors

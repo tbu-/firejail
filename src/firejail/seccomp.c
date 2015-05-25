@@ -34,7 +34,15 @@
 #endif
 		BLACKLIST(SYS_delete_module),
 		BLACKLIST(SYS_iopl), // io permisions
+#ifdef SYS_ioperm
 		BLACKLIST(SYS_ioperm),
+#endif
+SYS_iopl
+		BLACKLIST(SYS_iopl), // io permisions
+#endif
+#ifdef SYS_ni_syscall), // new io permisions call on arm devices
+		BLACKLIST(SYS_ni_syscall),
+#endif
 		BLACKLIST(SYS_swapon), // swap on/off
 		BLACKLIST(SYS_swapoff),
 		BLACKLIST(SYS_syslog), // kernel printk control
@@ -425,6 +433,9 @@ int seccomp_filter_drop(void) {
 #endif
 #ifdef 	SYS_ioperm	
 		filter_add_blacklist(SYS_ioperm);
+#endif
+#ifdef SYS_ni_syscall, // new io permisions call on arm devices
+		BLACKLIST(SYS_ni_syscall),
 #endif
 #ifdef SYS_swapon		
 		filter_add_blacklist(SYS_swapon);
