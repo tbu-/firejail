@@ -1,7 +1,23 @@
 ***********************
+* bandwidth
+***********************
+- somehow on bridge network (br0/eth1) status is shown, even if no bandwidth was set - Linux kernel 3.18:
+$ firejail --bandwidth=5520 status
+qdisc pfifo_fast 0: dev eth1 root refcnt 2 bands 3 priomap  1 2 2 2 1 2 0 0 1 1 1 1 1 1 1 1
+ Sent 942 bytes 15 pkt (dropped 0, overlimits 0 requeues 0) 
+ backlog 0b 0p requeues 0 
+netblue@debian:~/work/firejail-sf$
+
+***********************
+* ?
+***********************
+- try two macvlans on the same interface
+
+***********************
 * scan
 ***********************
 - doesn't list the local eth0 interface
+- "firejail --scan" should scan???
 
 ***********************
 *  tab completion doesn't work

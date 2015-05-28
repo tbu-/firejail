@@ -33,7 +33,7 @@ void net_configure_bridge(Bridge *br, char *dev_name) {
 	br->dev = dev_name;
 
 	// check the bridge device exists
-	char sysbridge[24 + strlen(br->dev)];
+	char sysbridge[30 + strlen(br->dev)];
 	sprintf(sysbridge, "/sys/class/net/%s/bridge", br->dev);
 	struct stat s;
 	int rv = stat(sysbridge, &s);

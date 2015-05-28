@@ -106,8 +106,8 @@ static void myexit(int rv) {
 			fclose(fp);
 		}
 	}
-	
-	bandwidth_shm_clear(sandbox_pid);
+
+	bandwidth_shm_del_file(sandbox_pid);
 	exit(rv); 
 }
 
@@ -215,7 +215,7 @@ int main(int argc, char **argv) {
 	srand(t ^ sandbox_pid);
 
 	// clear shm
-	bandwidth_shm_clear(sandbox_pid);
+	bandwidth_shm_del_file(sandbox_pid);
 
 	// is this a login shell?
 	if (*argv[0] == '-') {
@@ -276,9 +276,20 @@ int main(int argc, char **argv) {
 					exit(1);
 				}
 				dev = argv[i + 2];
-				// todo: check network name - net_get_if_addr
+
+				// check device name
 				if (if_nametoindex(dev) == 0) {
 					fprintf(stderr, "Error: network device %s not found\n", dev);
+					exit(1);
+				}
+				// check the bridge device exists
+				// todo: support bridge devices
+				char sysbridge[30 + strlen(dev)];
+				sprintf(sysbridge, "/sys/class/net/%s/bridge", dev);
+				struct stat s;
+				int rv = stat(sysbridge, &s);
+				if (rv == 0) {
+					fprintf(stderr, "Error: bandwidth shaping for bridge networks not supported in this release\n");
 					exit(1);
 				}
 				

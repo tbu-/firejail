@@ -434,8 +434,8 @@ int seccomp_filter_drop(void) {
 #ifdef 	SYS_ioperm	
 		filter_add_blacklist(SYS_ioperm);
 #endif
-#ifdef SYS_ni_syscall, // new io permisions call on arm devices
-		BLACKLIST(SYS_ni_syscall),
+#ifdef SYS_ni_syscall // new io permisions call on arm devices
+		filter_add_blacklist(SYS_ni_syscall);
 #endif
 #ifdef SYS_swapon		
 		filter_add_blacklist(SYS_swapon);
