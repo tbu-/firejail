@@ -31,6 +31,17 @@ typedef struct ifbw_t {
 } IFBW;
 IFBW *ifbw = NULL;
 
+
+#if 0
+static void ifbw_print(void) {
+	IFBW *ptr = ifbw;
+	while (ptr) {
+		printf("#%s#\n", ptr->txt);
+		ptr = ptr->next;
+	}
+}
+#endif
+
 static void ifbw_add(IFBW *ptr) {
 	assert(ptr);
 
@@ -100,7 +111,7 @@ int fibw_count(viod) {
 //***********************************
 // shm file handling
 //***********************************
-static void shm_create_firejail_dir(void) {
+void shm_create_firejail_dir(void) {
 	struct stat s;
 	if (stat("/dev/shm/firejail", &s) == -1) {
 		if (mkdir("/dev/shm/firejail", 0777) == -1)
@@ -117,7 +128,7 @@ static void shm_create_bandwidth_file(pid_t pid) {
 	
 	// if the file already exists, do nothing
 	struct stat s;
-	if (stat(fname, &s) == -1) {
+	if (stat(fname, &s) == 0) {
 		free(fname);
 		return;
 	}
@@ -151,6 +162,49 @@ void bandwidth_shm_del_file(pid_t pid) {
 	free(fname);
 }
 
+void network_shm_del_file(pid_t pid) {
+	char *fname;
+	if (asprintf(&fname, "/dev/shm/firejail/%d-netmap", (int) pid) == -1)
+		errExit("asprintf");
+	
+	struct stat s;
+	if (stat(fname, &s) == 0)
+		unlink(fname);
+	free(fname);
+}
+
+void network_shm_set_file(pid_t pid) {
+	char *fname;
+	if (asprintf(&fname, "/dev/shm/firejail/%d-netmap", (int) pid) == -1)
+		errExit("asprintf");
+	
+	// create an empty file and set mod and ownership
+	FILE *fp = fopen(fname, "w");
+	if (fp) {
+		if (cfg.bridge0.configured)
+			fprintf(fp, "%s:%s\n", cfg.bridge0.dev, cfg.bridge0.devsandbox);
+		if (cfg.bridge1.configured)
+			fprintf(fp, "%s:%s\n", cfg.bridge1.dev, cfg.bridge1.devsandbox);
+		if (cfg.bridge2.configured)
+			fprintf(fp, "%s:%s\n", cfg.bridge2.dev, cfg.bridge2.devsandbox);
+		if (cfg.bridge3.configured)
+			fprintf(fp, "%s:%s\n", cfg.bridge3.dev, cfg.bridge3.devsandbox);
+		fclose(fp);
+
+		if (chmod(fname, 0644) == -1)
+			errExit("chmod");
+		if (chown(fname, 0, 0) == -1)
+			errExit("chown");
+	}
+	else {
+		fprintf(stderr, "Error: cannot create network map file in /dev/shm/firejail directory\n");
+		exit(1);
+	}
+	
+	free(fname);
+}
+
+
 void shm_read_bandwidth_file(pid_t pid) {
 	assert(ifbw == NULL);
 
@@ -167,7 +221,7 @@ void shm_read_bandwidth_file(pid_t pid) {
 			if (ptr)
 				*ptr = '\0';
 			if (strlen(buf) == 0)
-				break;
+				continue;
 			
 			// create a new IFBW entry
 			IFBW *ifbw_new = malloc(sizeof(IFBW));
@@ -238,12 +292,15 @@ void bandwidth_shm_remove(pid_t pid, const char *dev) {
 // add interface to shm file
 void bandwidth_shm_set(pid_t pid, const char *dev, int down, int up) {
 	// create bandwidth directory & file in case they are not in the filesystem yet
+printf("here %d\n", __LINE__);	
 	shm_create_firejail_dir();
+printf("here %d\n", __LINE__);	
 	shm_create_bandwidth_file(pid);
+printf("here %d\n", __LINE__);	
 
 	// create the new text entry
 	char *txt;
-	if (asprintf(&txt, "%s: RX %dKB/s, TX %dKB/s\n", dev, down, up) == -1)
+	if (asprintf(&txt, "%s: RX %dKB/s, TX %dKB/s", dev, down, up) == -1)
 		errExit("asprintf");
 	
 	// read bandwidth file
@@ -341,13 +398,39 @@ void bandwidth_pid(pid_t pid, const char *command, const char *dev, int down, in
 	//************************
 	char *devname = NULL;
 	if (dev) {
-		if (asprintf(&devname, "%s-%d", dev, pid) == -1)
+		// read shm network map file
+		char *fname;
+		if (asprintf(&fname, "/dev/shm/firejail/%d-netmap", (int) pid) == -1)
 			errExit("asprintf");
-		// check device in namespace
-		if (if_nametoindex(devname) == 0) {
-			fprintf(stderr, "Error: cannot find network device %s\n", devname);
+		FILE *fp = fopen(fname, "r");
+		if (!fp) {
+			fprintf(stderr, "Error: cannot read netowk map filel %s\n", fname);
 			exit(1);
 		}
+		
+		char buf[1024];
+		int len = strlen(dev);
+		while (fgets(buf, 1024, fp)) {
+			// remove '\n'
+			char *ptr = strchr(buf, '\n');
+			if (ptr)
+				*ptr = '\0';
+			if (*buf == '\0')
+				break;
+
+			if (strncmp(buf, dev, len) == 0  && buf[len] == ':') {
+				devname = strdup(buf + len + 1);
+				if (!devname)
+					errExit("strdup");
+				// check device in namespace
+				if (if_nametoindex(devname) == 0) {
+					fprintf(stderr, "Error: cannot find network device %s\n", devname);
+					exit(1);
+				}
+				break;
+			}
+		}
+		free(fname);
 	}
 	
 	if (devname) {

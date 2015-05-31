@@ -107,7 +107,10 @@ static void myexit(int rv) {
 		}
 	}
 
-	bandwidth_shm_del_file(sandbox_pid);
+	// delete sandbox files in shared memory
+	bandwidth_shm_del_file(sandbox_pid);		// bandwidht file
+	network_shm_del_file(sandbox_pid);		// network map file
+	
 	exit(rv); 
 }
 
@@ -271,6 +274,7 @@ int main(int argc, char **argv) {
 			int down = 0;
 			int up = 0;
 			if (strcmp(cmd, "set") == 0 || strcmp(cmd, "reset") == 0) {
+				// extract device name
 				if ((i + 2) == argc) {
 					fprintf(stderr, "Error: network name expected after --bandwidth %s option\n", cmd);
 					exit(1);
@@ -282,17 +286,7 @@ int main(int argc, char **argv) {
 					fprintf(stderr, "Error: network device %s not found\n", dev);
 					exit(1);
 				}
-				// check the bridge device exists
-				// todo: support bridge devices
-				char sysbridge[30 + strlen(dev)];
-				sprintf(sysbridge, "/sys/class/net/%s/bridge", dev);
-				struct stat s;
-				int rv = stat(sysbridge, &s);
-				if (rv == 0) {
-					fprintf(stderr, "Error: bandwidth shaping for bridge networks not supported in this release\n");
-					exit(1);
-				}
-				
+
 				// extract bandwidth
 				if (strcmp(cmd, "set") == 0) {
 					if ((i + 4) >= argc) {
@@ -302,12 +296,12 @@ int main(int argc, char **argv) {
 					
 					down = atoi(argv[i + 3]);
 					if (down < 0) {
-						fprintf(stderr, "Error: invlalid download speed\n");
+						fprintf(stderr, "Error: invalid download speed\n");
 						exit(1);
 					}
 					up = atoi(argv[i + 4]);
 					if (up < 0) {
-						fprintf(stderr, "Error: invlalid upload speed\n");
+						fprintf(stderr, "Error: invalid upload speed\n");
 						exit(1);
 					}
 				}
@@ -994,6 +988,10 @@ int main(int argc, char **argv) {
 			net_configure_sandbox_ip(&cfg.bridge2);
 		if (cfg.bridge3.macvlan == 0)
 			net_configure_sandbox_ip(&cfg.bridge3);
+
+		// save network mapping in shared memory
+		shm_create_firejail_dir();
+		network_shm_set_file(sandbox_pid);
 	}
 
  	// create the parent-child communication pipe
