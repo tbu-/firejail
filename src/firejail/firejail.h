@@ -231,6 +231,8 @@ uint32_t arp_random(const char *dev, uint32_t ifip, uint32_t ifmask);
 uint32_t arp_sequential(const char *dev, uint32_t ifip, uint32_t ifmask);
 // assign an IP address using the specified IP address or the ARP mechanism
 uint32_t arp_assign(const char *dev, uint32_t ifip, uint32_t ifmask);
+// scan interface
+void arp_scan(const char *dev, uint32_t srcaddr, uint32_t srcmask);
 
 // veth.c
 int net_create_veth(const char *dev, const char *nsdev, unsigned pid);

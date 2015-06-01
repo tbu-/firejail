@@ -17,9 +17,12 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
+#define _GNU_SOURCE
+#include <stdio.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <net/if.h>
 #include "firejail.h"
 
 //***********************************
@@ -451,8 +454,6 @@ void bandwidth_pid(pid_t pid, const char *command, const char *dev, int down, in
 	// build command
 	//************************
 	// elevate privileges
-	uid_t uid = getuid();
-	gid_t gid = getgid();
 	if (setreuid(0, 0))
 		errExit("setreuid");
 	if (setregid(0, 0))

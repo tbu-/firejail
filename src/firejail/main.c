@@ -34,6 +34,7 @@
 #include <sys/prctl.h>
 #include <signal.h>
 #include <time.h>
+#include <net/if.h>
 
 #if 0
 #include <sys/times.h>
