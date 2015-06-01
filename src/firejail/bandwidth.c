@@ -292,11 +292,8 @@ void bandwidth_shm_remove(pid_t pid, const char *dev) {
 // add interface to shm file
 void bandwidth_shm_set(pid_t pid, const char *dev, int down, int up) {
 	// create bandwidth directory & file in case they are not in the filesystem yet
-printf("here %d\n", __LINE__);	
 	shm_create_firejail_dir();
-printf("here %d\n", __LINE__);	
 	shm_create_bandwidth_file(pid);
-printf("here %d\n", __LINE__);	
 
 	// create the new text entry
 	char *txt;

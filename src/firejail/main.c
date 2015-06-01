@@ -195,6 +195,20 @@ static void init_cfg(void) {
 	extract_user_data();
 }
 
+static void check_network(Bridge *br) {
+	assert(br);
+	if (br->macvlan == 0) // for bridge devices check network range or arp-scan and assign address
+		net_configure_sandbox_ip(br);
+	else if (br->ipsandbox) { // for macvlan check network range
+		char *rv = in_netrange(br->ipsandbox, br->ip, br->mask);
+		if (rv) {
+			fprintf(stderr, "%s", rv);
+			exit(1);
+		}
+	}
+}
+
+
 //*******************************************
 // Main program
 //*******************************************
@@ -980,15 +994,11 @@ int main(int argc, char **argv) {
 		if (lockfd != -1)
 			flock(lockfd, LOCK_EX);
 
-		if (cfg.bridge0.macvlan == 0)
-			net_configure_sandbox_ip(&cfg.bridge0);
-		if (cfg.bridge1.macvlan == 0)
-			net_configure_sandbox_ip(&cfg.bridge1);
-		if (cfg.bridge2.macvlan == 0)
-			net_configure_sandbox_ip(&cfg.bridge2);
-		if (cfg.bridge3.macvlan == 0)
-			net_configure_sandbox_ip(&cfg.bridge3);
-
+		check_network(&cfg.bridge0);
+		check_network(&cfg.bridge1);
+		check_network(&cfg.bridge2);
+		check_network(&cfg.bridge3);
+			
 		// save network mapping in shared memory
 		shm_create_firejail_dir();
 		network_shm_set_file(sandbox_pid);

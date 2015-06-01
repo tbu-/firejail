@@ -2,7 +2,8 @@ firejail (0.9.27) baseline; urgency=low
   * work in progress
   * network scanning
   * interface MAC address support
-  * reworked network status printed when the sandbox starts
+  * reworked network status at startup
+  * initial ARM support
   * bugfixes
  -- netblue30 <netblue30@yahoo.com>  Sun, 9 May 2015 08:00:00 -0500
 

@@ -1,4 +1,30 @@
 ***********************
+* IP address outside of interface range for macvlan
+***********************
+# firejail --chroot=/systems/jessie --blacklist=/sbin --seccomp --caps --net=eth0 --scan --ip=192.168.2.200
+Parent pid 4410, child pid 4411
+The new log directory is /proc/4411/root/var/log
+Warning: failed to unmount /sys
+Warning: cannot configure default route
+
+Interface        MAC                IP               Mask             Status
+lo                                  127.0.0.1        255.0.0.0        UP    
+eth0-4410        a2:f2:26:6e:0f:67  192.168.2.200    255.255.255.0    UP    
+Default gateway 192.168.1.1
+Child process initialized
+
+For bridge is fine
+# firejail --chroot=/systems/jessie --blacklist=/sbin --seccomp --caps --net=br0 --scan --ip=192.168.2.200
+Error: the IP address is not in the interface range
+# 
+
+***********************
+* to test
+***********************
+try bridge and macvlan on unconfigured interfaces
+
+
+***********************
 * scan
 ***********************
 - doesn't list the local eth0 interface
@@ -463,4 +489,7 @@ webpage header to be copied on all project pages
 <div align="left" style="border:3px solid;border-radius:10px;border-color:#0080ff;margin:20px;padding-top:5px;">&nbsp;&nbsp;<a href="http://l3net.wordpress.com/projects/firejail/">Firejail</a> &nbsp;&nbsp;<a href="http://l3net.wordpress.com/projects/firejail#firetools">Firetools</a> &nbsp;&nbsp;<a href="http://l3net.wordpress.com/projects/firejail#news">News</a> &nbsp;&nbsp;<a href="http://l3net.wordpress.com/projects/firejail#downloads">Downloads</a> &nbsp;&nbsp;<a href="https://l3net.wordpress.com/projects/firejail/firejail-download-and-install/">Install</a> &nbsp;&nbsp;<a href="http://l3net.wordpress.com/projects/firejail#howtos">HOWTOs</a></div>
 <div style="height:10px;">&nbsp;</div>
 
+ 
+***********************
+that's all there is
  
