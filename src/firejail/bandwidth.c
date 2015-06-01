@@ -431,6 +431,7 @@ void bandwidth_pid(pid_t pid, const char *command, const char *dev, int down, in
 			}
 		}
 		free(fname);
+		fclose(fp);
 	}
 	
 	if (devname) {
