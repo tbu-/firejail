@@ -11,13 +11,21 @@ firejail [OPTIONS] [program and arguments]
 Bandwidth shaping for an existing sandbox:
 .PP
 .RS
-firejail --bandwidth={<name>|<PID>} bandwidth-command-arguments
+firejail \-\-bandwidth={<name>|<PID>} bandwidth-command-arguments
+.RE
+.PP
+Monitoring:
+.PP
+.RS
+firejail {\-\-list | \-\-netstats | \-\-top | \-\-tree}
 .RE
 .PP
 Miscellaneous:
 .PP
 .RS
-firejail {\-? | \-\-debug-caps | \-\-debug-syscalls | \-\-help | \-\-list | \-\-netstats | \-\-top | \-\-tree | \-\-version}
+firejail {\-? | \-\-debug-caps | \-\-debug-syscalls | \-\-help |
+.br
+\-\-version}
 .RE
 .SH DESCRIPTION
 Firejail is a SUID sandbox program that reduces the risk of security breaches by
@@ -59,12 +67,30 @@ Signal the end of options and disables further option processing.
 .TP
 \fB\-\-bind=dirname1,dirname2
 Mount-bind dirname1 on top of dirname2. This option is only available when running the sandbox as root.
+.br
+
+.br
+Example:
+.br
+# firejail \-\-bind=/config/www,/var/www
 .TP
 \fB\-\-bind=filename1,filename2
 Mount-bind filename1 on top of filename2. This option is only available when running as root.
+.br
+
+.br
+Example:
+.br
+# firejail \-\-bind=/config/etc/passwd,/etc/passwd
 .TP
 \fB\-\-blacklist=dirname_or_filename
 Blacklist directory or file.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-blacklist=/sbin \-\-blacklist=/usr/sbin
 .TP
 \fB\-c
 Execute command and exit.
@@ -180,15 +206,39 @@ $ firejail \-\-cpu=0,1 handbrake
 .TP
 \fB\-\-csh
 Use /bin/csh as default user shell.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-csh
 .TP
 \fB\-\-debug\fR
 Print debug messages.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-debug firefox
 .TP
 \fB\-\-debug-syscalls
 Print all recognized system calls in the current Firejail software build and exit.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-debug-syscalls
 .TP
 \fB\-\-debug-caps
 Print all recognized capabilities in the current Firejail software build and exit.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-debug-caps
 .TP
 \fB\-\-defaultgw=address
 Use this address as default gateway in the new network namespace.
@@ -266,9 +316,14 @@ $ firejail \-\-net=eth0 \-\-\ip=none
 
 .TP
 \fB\-\-ipc-namespace
-Enable  a new IPC namespace if the sandbox was started as a regular user. IPC namespace is enabled by default only if
-the sandbox is started as root.
+Enable  a new IPC namespace if the sandbox was started as a regular user. IPC namespace is enabled by default
+for sandboxes started as root.
+.br
 
+.br
+Example:
+.br
+$ firejail \-\-ipc-namespace firefox
 .TP
 \fB\-\-join=name
 Join the sandbox identified by name. By default a /bin/bash shell is started after joining the sandbox.
@@ -302,8 +357,21 @@ $ firejail \-\-join=3272
 
 .TP
 \fB\-\-list
-List all sandboxes.
+List all sandboxes, see MONITORING section for more details.
+.br
 
+.br
+Example:
+.br
+$ firejail \-\-list
+.br
+7015:netblue:firejail firefox 
+.br
+7056:netblue:firejail \-\-net=eth0 transmission-gtk 
+.br
+7064:netblue:firejail \-\-noroot xterm 
+.br
+$ 
 .TP
 \fB\-\-mac=address
 Assign MAC addresses to the last network interface defined by a \-\-net option.
@@ -323,7 +391,7 @@ this name to identify a sandbox.
 .br
 Example:
 .br
-$ firejail --name=mybrowser firefox
+$ firejail \-\-name=mybrowser firefox
 
 .TP
 \fB\-\-net=bridgename
@@ -345,7 +413,7 @@ $ sudo brctl addbr br1
 .br
 $ sudo ifconfig br1 10.10.30.1/24
 .br
-$ firejail \-\-net=br0 --net=br1
+$ firejail \-\-net=br0 \-\-net=br1
 
 .TP
 \fB\-\-net=ethernet_interface
@@ -425,7 +493,7 @@ Example:
 $ firejail \-\-net=eth0 \-\-netfilter=myfile firefox
 .TP
 \fB\-\-netstats
-Monitor network namespace statistics.
+Monitor network namespace statistics, see MONITORING section for more details.
 .br
 
 .br
@@ -444,17 +512,76 @@ PID  User    RX(KB/s) TX(KB/s) Command
 \fB\-\-nogroups
 Disable supplementary groups. Without this option, supplementary groups are enabled for the user starting the
 sandbox. For root user supplementary groups are always disabled.
+.br
+
+.br
+Example:
+.br
+$ id
+.br
+uid=1000(netblue) gid=1000(netblue) groups=1000(netblue),24(cdrom),25(floppy),27(sudo),29(audio)
+.br
+$ firejail \-\-nogroups
+.br
+Parent pid 8704, child pid 8705
+.br
+Child process initialized
+.br
+$ id
+.br
+uid=1000(netblue) gid=1000(netblue) groups=1000(netblue)
+.br
+$
 
 .TP
 \fB\-\-noroot
 Install a user namespace with a single user - the current user.
 root user does not exist in the new namespace. This option
-is not supported for \-\-chroot and \-\-overlay configurations.
+requires a Linux kernel version 3.8 or newer. The option
+is not supported for \-\-chroot and \-\-overlay configurations,
+or for sandboxes started as root.
+.br
 
+.br
+Example:
+.br
+$ firejail \-\-noroot
+.br
+Parent pid 8553, child pid 8554
+.br
+Child process initialized
+.br
+$ ping google.com
+.br
+ping: icmp open socket: Operation not permitted
+.br
+$
 .TP
 \fB\-\-output=logfile
 stdout logging and log rotation. Copy stdout to logfile, and keep the size of the file under 500KB using log
 rotation. Five files with prefixes .1 to .5 are used in rotation.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-output=sandboxlog /bin/bash
+.br
+[...]
+.br
+$ ls -l sandboxlog*
+.br
+-rw-r--r-- 1 netblue netblue 333890 Jun  2 07:48 sadnboxlog
+.br
+-rw-r--r-- 1 netblue netblue 511488 Jun  2 07:48 sandboxlog.1
+.br
+-rw-r--r-- 1 netblue netblue 511488 Jun  2 07:48 sandboxlog.2
+.br
+-rw-r--r-- 1 netblue netblue 511488 Jun  2 07:48 sandboxlog.3
+.br
+-rw-r--r-- 1 netblue netblue 511488 Jun  2 07:48 sandboxlog.4
+.br
+-rw-r--r-- 1 netblue netblue 511488 Jun  2 07:48 sandboxlog.5
 
 .TP
 \fB\-\-overlay
@@ -478,24 +605,71 @@ $ firejail \-\-overlay firefox
 Mount new /root and /home/user directories in temporary
 filesystems. All modifications are discarded when the sandbox is
 closed.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-private firefox
 .TP
 \fB\-\-private=directory
 Use directory as user home.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-private=/home/netblue/firefox-home firefox
+
 .TP
 \fB\-\-private.keep=file,directory
 Build a new user home in a temporary
 filesystem, and copy the files and directories in the list in the
 new home. All modifications are discarded when the sandbox is
 closed.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-private.keep=.mozilla firefox
 .TP
 \fB\-\-private-dev
 Create a new /dev directory. Only null, full, zero, tty, pts, ptmx, random, urandom and shm devices are available.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-private-dev
+.br
+Parent pid 9887, child pid 9888
+.br
+Child process initialized
+.br
+$ ls /dev
+.br
+full  null  ptmx  pts  random  shm  tty  urandom  zero
+.br
+$
 .TP
 \fB\-\-profile=filename
 Use a custom profile, see below.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-profile=myprofile
 .TP
 \fB\-\-read-only=dirname_or_filename
 Set directory or file read-only.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-read-only=~/.mozilla firefox
 .TP
 \fB\-\-rlimit-fsize=number
 Set the maximum file size that can be created by a process.
@@ -514,55 +688,306 @@ Enable seccomp filter and blacklist the syscalls in the default list. The defaul
 mount, umount2, ptrace, kexec_load, open_by_handle_at, init_module, finit_module, delete_module,
 iopl, ioperm, swapon, swapoff, mknode, syslog, process_vm_readv and process_vm_writev,
 sysfs,_sysctl, adjtimex, clock_adjtime, lookup_dcookie, perf_event_open, fanotify_init and kcmp.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-sccomp
 .TP
 \fB\-\-seccomp=syscall,syscall,syscall
 Enable seccomp filter, blacklist the default list and the syscalls specified by the command.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-seccomp=utime,utimensat,utimes firefox
 .TP
 \fB\-\-seccomp.drop=syscall,syscall,syscall
 Enable seccomp filter, and blacklist the syscalls specified by the command.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-seccomp.drop=utime,utimensat,utimes
 .TP
 \fB\-\-seccomp.keep=syscall,syscall,syscall
 Enable seccomp filter, and whitelist the syscalls specified by the command.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-shell=none \-\-seccomp.keep=poll,select,[...] transmission-gtk
 .TP
 \fB\-\-seccomp.print=name
 Print the seccomp filter for the sandbox started using \-\-name option.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-name=browser firefox &
+.br
+$ firejail \-\-seccomp.print=browser
+.br
+SECCOMP Filter:
+.br
+  VALIDATE_ARCHITECTURE
+.br
+  EXAMINE_SYSCAL
+.br
+  BLACKLIST 165 mount
+.br
+  BLACKLIST 166 umount2
+.br
+  BLACKLIST 101 ptrace
+.br
+  BLACKLIST 246 kexec_load
+.br
+  BLACKLIST 304 open_by_handle_at
+.br
+  BLACKLIST 175 init_module
+.br
+  BLACKLIST 176 delete_module
+.br
+  BLACKLIST 172 iopl
+.br
+  BLACKLIST 173 ioperm
+.br
+  BLACKLIST 167 swapon
+.br
+  BLACKLIST 168 swapoff
+.br
+  BLACKLIST 103 syslog
+.br
+  BLACKLIST 310 process_vm_readv
+.br
+  BLACKLIST 311 process_vm_writev
+.br
+  BLACKLIST 133 mknod
+.br
+  BLACKLIST 139 sysfs
+.br
+  BLACKLIST 156 _sysctl
+.br
+  BLACKLIST 159 adjtimex
+.br
+  BLACKLIST 305 clock_adjtime
+.br
+  BLACKLIST 212 lookup_dcookie
+.br
+  BLACKLIST 298 perf_event_open
+.br
+  BLACKLIST 300 fanotify_init
+.br
+  RETURN_ALLOW
+.br
+$ 
 .TP
 \fB\-\-seccomp.print=pid
 Print the seccomp filter for the sandbox specified by process ID. Use \-\-list option to get a list of all active sandboxes.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-list
+.br
+10786:netblue:firejail \-\-name=browser firefox 
+$ firejail \-\-seccomp.print=10786
+.br
+SECCOMP Filter:
+.br
+  VALIDATE_ARCHITECTURE
+.br
+  EXAMINE_SYSCAL
+.br
+  BLACKLIST 165 mount
+.br
+  BLACKLIST 166 umount2
+.br
+  BLACKLIST 101 ptrace
+.br
+  BLACKLIST 246 kexec_load
+.br
+  BLACKLIST 304 open_by_handle_at
+.br
+  BLACKLIST 175 init_module
+.br
+  BLACKLIST 176 delete_module
+.br
+  BLACKLIST 172 iopl
+.br
+  BLACKLIST 173 ioperm
+.br
+  BLACKLIST 167 swapon
+.br
+  BLACKLIST 168 swapoff
+.br
+  BLACKLIST 103 syslog
+.br
+  BLACKLIST 310 process_vm_readv
+.br
+  BLACKLIST 311 process_vm_writev
+.br
+  BLACKLIST 133 mknod
+.br
+  BLACKLIST 139 sysfs
+.br
+  BLACKLIST 156 _sysctl
+.br
+  BLACKLIST 159 adjtimex
+.br
+  BLACKLIST 305 clock_adjtime
+.br
+  BLACKLIST 212 lookup_dcookie
+.br
+  BLACKLIST 298 perf_event_open
+.br
+  BLACKLIST 300 fanotify_init
+.br
+  RETURN_ALLOW
+.br
+$ 
 .TP
 \fB\-\-shell=none
 Run the program directly, without a user shell.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-shell=none script.sh
 .TP
 \fB\-\-shell=program
 Set default user shell. Use this shell to run the application using \-c shell option.
 For example "firejail \-\-shell=/bin/dash firefox" will start Mozilla Firefox as "/bin/dash \-c firefox".
 By default Bash shell (/bin/bash) is used. Options such as \-\-zsh and \-\-csh can also set the default
 shell.
+.br
+
+.br
+Example:
+$firejail \-\-shell=/bin/dash script.sh
 .TP
 \fB\-\-shutdown=name
 Shutdown the sandbox started using \-\-name option.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-name=mygame \-\-caps.drop=all warzone2100 &
+.br
+[...]
+.br
+$ firejail \-\-shutdown=mygame
 .TP
 \fB\-\-shutdown=pid
 Shutdown the sandbox specified by process ID. Use \-\-list option to get a list of all active sandboxes.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-list
+.br
+3272:netblue:firejail \-\-private firefox
+.br
+$ firejail \-\-shutdown=3272
 .TP
 \fB\-\-tmpfs=dirname
 Mount a tmpfs filesystem on directory dirname.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-tmpfs=/var
 .TP
 \fB\-\-top
-Monitor the most CPU-intensive sandboxes.
+Monitor the most CPU-intensive sandboxes, see MONITORING section for more details.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-top
 .TP
 \fB\-\-trace
 Trace open, access and connect system calls.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-trace wget -q www.debian.org
+.br
+Parent pid 11793, child pid 11794
+.br
+Child process initialized
+.br
+1:bash:open /dev/tty
+.br
+1:wget:fopen64 /etc/wgetrc
+.br
+1:wget:fopen /etc/hosts
+.br
+1:wget:socket AF_INET SOCK_DGRAM IPPROTO_IP
+.br
+1:wget:connect 8.8.8.8:53
+.br
+1:wget:socket AF_INET SOCK_STREAM IPPROTO_IP
+.br
+1:wget:connect 140.211.15.34:80
+.br
+1:wget:fopen64 index.html.1
+.br
+
+.br
+parent is shutting down, bye...
 .TP
 \fB\-\-tree
-Print a tree of all sandboxed processes.
+Print a tree of all sandboxed processes, see MONITORING section for more details.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-tree
+.br
+11903:netblue:firejail iceweasel
+.br
+  11904:netblue:iceweasel 
+.br
+    11957:netblue:/usr/lib/iceweasel/plugin-container
+.br
+11969:netblue:firejail \-\-net=eth0 transmission-gtk 
+.br
+  11970:netblue:transmission-gtk 
 .TP
 \fB\-\-version
 Print program version and exit.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-version
+.br
+firejail version 0.9.27
 .TP
 \fB\-\-zsh
 Use /usr/bin/zsh as default user shell.
+.br
 
+.br
+Example:
+.br
+$ firejakil \-\-zsh
 .SH MONITORING
 Option \-\-list prints a list of all sandboxes. The format
 for each process entry is as follows:
@@ -575,8 +1000,13 @@ for each process entry is as follows:
 	PID:USER:Command
 
 Option \-\-top is similar to the UNIX top command, however it applies only to
-sandboxes. Listed below are the available fields (columns) in alphabetical
-order:
+sandboxes.
+
+Option \-\-netstats prints network statistics for active sandboxes installing new network namespaces.
+
+
+Listed below are the available fields (columns) in alphabetical
+order for \-\-top and \-\-netstat options:
 
 .TP
 Command
@@ -596,17 +1026,22 @@ RES
 Resident Memory Size (KiB), sandbox non-swapped physical memory.
 It is a sum of the RES values for all processes running in the sandbox.
 .TP
+RX(KB/s)
+Network receive speed.
+.TP
 SHR
 Shared Memory Size (KiB), it reflects memory shared with other
 processes. It is a sum of the SHR values for all processes running
 in the sandbox, including the controlling process.
+.TP
+TX(KB/s)
+Network transmit speed.
 .TP
 Uptime
 Sandbox running time in hours:minutes:seconds format.
 .TP
 User
 The owner of the sandbox.
-
 
 .SH PROFILES
 Several command line configuration options can be passed to the program using

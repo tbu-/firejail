@@ -1,22 +1,7 @@
 ***********************
-* IP address outside of interface range for macvlan
+* Coverity
 ***********************
-# firejail --chroot=/systems/jessie --blacklist=/sbin --seccomp --caps --net=eth0 --scan --ip=192.168.2.200
-Parent pid 4410, child pid 4411
-The new log directory is /proc/4411/root/var/log
-Warning: failed to unmount /sys
-Warning: cannot configure default route
-
-Interface        MAC                IP               Mask             Status
-lo                                  127.0.0.1        255.0.0.0        UP    
-eth0-4410        a2:f2:26:6e:0f:67  192.168.2.200    255.255.255.0    UP    
-Default gateway 192.168.1.1
-Child process initialized
-
-For bridge is fine
-# firejail --chroot=/systems/jessie --blacklist=/sbin --seccomp --caps --net=br0 --scan --ip=192.168.2.200
-Error: the IP address is not in the interface range
-# 
+fix coverity svn build 592
 
 ***********************
 * to test

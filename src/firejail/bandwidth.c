@@ -117,6 +117,7 @@ int fibw_count(viod) {
 void shm_create_firejail_dir(void) {
 	struct stat s;
 	if (stat("/dev/shm/firejail", &s) == -1) {
+		/* coverity[toctou] */
 		if (mkdir("/dev/shm/firejail", 0777) == -1)
 			errExit("mkdir");
 		if (chown("/dev/shm/firejail", 0, 0) == -1)
@@ -137,11 +138,15 @@ static void shm_create_bandwidth_file(pid_t pid) {
 	}
 
 	// create an empty file and set mod and ownership
+	/* coverity[toctou] */
 	FILE *fp = fopen(fname, "w");
 	if (fp) {
 		fclose(fp);
+	
+		/* coverity[toctou] */
 		if (chmod(fname, 0644) == -1)
 			errExit("chmod");
+		/* coverity[toctou] */
 		if (chown(fname, 0, 0) == -1)
 			errExit("chown");
 	}
@@ -158,10 +163,7 @@ void bandwidth_shm_del_file(pid_t pid) {
 	char *fname;
 	if (asprintf(&fname, "/dev/shm/firejail/%d-bandwidth", (int) pid) == -1)
 		errExit("asprintf");
-	
-	struct stat s;
-	if (stat(fname, &s) == 0)
-		unlink(fname);
+	unlink(fname);
 	free(fname);
 }
 
@@ -169,10 +171,7 @@ void network_shm_del_file(pid_t pid) {
 	char *fname;
 	if (asprintf(&fname, "/dev/shm/firejail/%d-netmap", (int) pid) == -1)
 		errExit("asprintf");
-	
-	struct stat s;
-	if (stat(fname, &s) == 0)
-		unlink(fname);
+	unlink(fname);
 	free(fname);
 }
 

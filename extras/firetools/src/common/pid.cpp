@@ -512,10 +512,12 @@ void pid_get_netstats_sandbox(int parent, unsigned long long *rx, unsigned long 
 		long long unsigned rxval;
 		long long unsigned txval;
 		unsigned a, b, c, d, e, f, g;
-		sscanf(ptr, "%llu %u %u %u %u %u %u %u %llu",
+		int rv = sscanf(ptr, "%llu %u %u %u %u %u %u %u %llu",
 			&rxval, &a, &b, &c, &d, &e, &f, &g, &txval);
-		*rx += rxval;
-		*tx += txval;
+		if (rv == 9) {
+			*rx += rxval;
+			*tx += txval;
+		}
 	}
 
 	free(fname);
