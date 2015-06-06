@@ -24,7 +24,7 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 
-static char *client_filter = 
+static char *client_filter =
 "*filter\n"
 ":INPUT DROP [0:0]\n"
 ":FORWARD DROP [0:0]\n"
@@ -38,19 +38,19 @@ static char *client_filter =
 "-A INPUT -p icmp --icmp-type echo-request -j ACCEPT \n"
 "COMMIT\n";
 
-
 void check_netfilter_file(const char *fname) {
 	if (is_dir(fname) || is_link(fname) || strstr(fname, "..")) {
 		fprintf(stderr, "Error: invalid network filter file\n");
 		exit(1);
 	}
-	
+
 	// access call checks as real UID/GID, not as effective UID/GID
 	if (access(fname, R_OK)) {
 		fprintf(stderr, "Error: cannot access network filter file\n");
 		exit(1);
 	}
 }
+
 
 void netfilter(const char *fname) {
 	// default filter
@@ -65,12 +65,12 @@ void netfilter(const char *fname) {
 			fprintf(stderr, "Error: cannot find network filter file\n");
 			exit(1);
 		}
-				
-		filter = malloc(s.st_size + 1);	// + '\0'
+
+		filter = malloc(s.st_size + 1);	  // + '\0'
 		memset(filter, 0, s.st_size + 1);
 		if (!filter)
 			errExit("malloc");
-		
+
 		/* coverity[toctou] */
 		FILE *fp = fopen(fname, "r");
 		if (!fp) {
@@ -86,7 +86,7 @@ void netfilter(const char *fname) {
 		fclose(fp);
 		allocated = 1;
 	}
-		
+
 	// mount a tempfs on top of /tmp directory
 	if (mount("tmpfs", "/tmp", "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=755,gid=0") < 0)
 		errExit("mounting /tmp");
@@ -116,7 +116,7 @@ void netfilter(const char *fname) {
 		fprintf(stderr, "Error: iptables command not found\n");
 		goto doexit;
 	}
-	
+
 	// push filter
 	pid_t child = fork();
 	if (child < 0)
@@ -124,7 +124,7 @@ void netfilter(const char *fname) {
 	if (child == 0) {
 		if (arg_debug)
 			printf("Installing network filter:\n%s\n", filter);
-		
+
 		int fd;
 		if((fd = open("/tmp/netfilter", O_RDONLY)) == -1) {
 			fprintf(stderr,"Error: cannot open /tmp/netfilter\n");
@@ -132,10 +132,9 @@ void netfilter(const char *fname) {
 		}
 		dup2(fd,STDIN_FILENO);
 		close(fd);
-		
+
 		// wipe out environment variables
 		environ = NULL;
-
 		execl(iptables_restore, iptables_restore, NULL);
 		// it will never get here!!!
 	}
@@ -144,23 +143,22 @@ void netfilter(const char *fname) {
 
 	// debug
 	if (arg_debug) {
-	        child = fork();
-	        if (child < 0)
-        	        errExit("fork");
-	        if (child == 0) {
+		child = fork();
+		if (child < 0)
+			errExit("fork");
+		if (child == 0) {
+			environ = NULL;
 			execl(iptables, iptables, "-vL", NULL);
-	                // it will never get here!!!
-        	}
-	        // wait for the child to finish
-        	waitpid(child, NULL, 0);
+			// it will never get here!!!
+		}
+		// wait for the child to finish
+		waitpid(child, NULL, 0);
 	}
-	
-doexit:	
+
+doexit:
 	// unmount /tmp
 	umount("/tmp");
 
 	if (allocated)
 		free(filter);
 }
-
-
