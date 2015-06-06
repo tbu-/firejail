@@ -132,6 +132,10 @@ void netfilter(const char *fname) {
 		}
 		dup2(fd,STDIN_FILENO);
 		close(fd);
+		
+		// wipe out environment variables
+		environ = NULL;
+
 		execl(iptables_restore, iptables_restore, NULL);
 		// it will never get here!!!
 	}

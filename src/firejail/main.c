@@ -279,7 +279,7 @@ int main(int argc, char **argv) {
 				exit(1);
 			}
 			char *cmd = argv[i + 1];
-			if (strcmp(cmd, "status") && strcmp(cmd, "reset") && strcmp(cmd, "set")) {
+			if (strcmp(cmd, "status") && strcmp(cmd, "clear") && strcmp(cmd, "set")) {
 				fprintf(stderr, "Error: invalid --bandwidth command\n");
 				exit(1);
 			}
@@ -288,7 +288,7 @@ int main(int argc, char **argv) {
 			char *dev = NULL;
 			int down = 0;
 			int up = 0;
-			if (strcmp(cmd, "set") == 0 || strcmp(cmd, "reset") == 0) {
+			if (strcmp(cmd, "set") == 0 || strcmp(cmd, "clear") == 0) {
 				// extract device name
 				if ((i + 2) == argc) {
 					fprintf(stderr, "Error: network name expected after --bandwidth %s option\n", cmd);

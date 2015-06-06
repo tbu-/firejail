@@ -3,7 +3,7 @@
 usage() {
 	echo "Usage:"
 	echo "     fshaper.sh --status"
-	echo "     fshaper.sh --reset device"
+	echo "     fshaper.sh --clear device"
 	echo "     fshaper.sh --set device download-speed upload-speed"
 }
 
@@ -13,7 +13,7 @@ if [ "$1" = "--status" ]; then
 	exit
 fi
 
-if [ "$1" = "--reset" ]; then
+if [ "$1" = "--clear" ]; then
 	if [ $# -ne 2 ]; then
 		echo "Error: invalid command"
 		usage

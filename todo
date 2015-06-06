@@ -1,4 +1,22 @@
 ***********************
+* running iptables
+***********************
+Before when calling /sbin/iptables (--netfilter options), clear all environment variables
+The simple way to erase the environment in C/C++ is by setting the global variable environ to NULL.
+The global variable environ is defined in <unistd.h>
+
+Do the same for /sbin/tc (--bandwidth option).
+
+see http://docstore.mik.ua/orelly/perl3/prog/ch23_01.htm
+delete @ENV{qw{IFS
+               CDPATH
+               ENV
+               BASH_ENV}};    # Makes %ENV safer.
+
+
+
+
+***********************
 * Coverity
 ***********************
 fix coverity svn build 592

@@ -389,7 +389,7 @@ void bandwidth_pid(pid_t pid, const char *command, const char *dev, int down, in
 	// set shm file
 	if (strcmp(command, "set") == 0)
 		bandwidth_shm_set(pid, dev, down, up);
-	else if (strcmp(command, "reset") == 0)
+	else if (strcmp(command, "clear") == 0)
 		bandwidth_shm_remove(pid, dev);
 
 	//************************
@@ -449,6 +449,9 @@ void bandwidth_pid(pid_t pid, const char *command, const char *dev, int down, in
 		if (asprintf(&cmd, "%s/lib/firejail/fshaper.sh --%s", PREFIX, command) == -1)
 			errExit("asprintf");
 	}
+
+	// wipe out environment variables
+	environ = NULL;
 
 	//************************
 	// build command
