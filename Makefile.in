@@ -1,4 +1,4 @@
-all: apps firejail.1 firemon.1 firejail-profile.5
+all: apps firejail.1 firemon.1 firejail-profile.5 firejail-login.5
 MYLIBS = src/lib
 APPS = src/firejail src/firemon src/libtrace src/ftee
 
@@ -27,6 +27,8 @@ firejail.1: src/man/firejail.txt
 	./mkman.sh $(VERSION) src/man/firejail.txt firejail.1
 firejail-profile.5: src/man/firejail-profile.txt
 	./mkman.sh $(VERSION) src/man/firejail-profile.txt firejail-profile.5
+firejail-login.5: src/man/firejail-login.txt
+	./mkman.sh $(VERSION) src/man/firejail-login.txt firejail-login.5
 
 clean:;
 	for dir in $(APPS); do \
@@ -35,7 +37,7 @@ clean:;
 	for dir in $(MYLIBS); do \
 		$(MAKE) -C $$dir clean; \
 	done
-	rm -f firejail.1 firejail.1.gz firemon.1 firemon.1.gz firejail-profile.5 firejail-profile.5.gz
+	rm -f firejail.1 firejail.1.gz firemon.1 firemon.1.gz firejail-profile.5 firejail-profile.5.gz firejail-login.5 firejail-login.5.gz
 
 distclean: clean
 	for dir in $(APPS); do \
@@ -100,12 +102,15 @@ install: all
 	gzip -9n firemon.1
 	rm -f firejail-profile.5.gz
 	gzip -9n firejail-profile.5
+	rm -f firejail-login.5.gz
+	gzip -9n firejail-login.5
 	mkdir -p $(DESTDIR)/$(PREFIX)/share/man/man1
 	install -c -m 0644 firejail.1.gz $(DESTDIR)/$(PREFIX)/share/man/man1/.	
 	install -c -m 0644 firemon.1.gz $(DESTDIR)/$(PREFIX)/share/man/man1/.	
 	mkdir -p $(DESTDIR)/$(PREFIX)/share/man/man5
 	install -c -m 0644 firejail-profile.5.gz $(DESTDIR)/$(PREFIX)/share/man/man5/.	
-	rm -f firejail.1.gz firemon.1.gz firejail-profile.5.gz
+	install -c -m 0644 firejail-login.5.gz $(DESTDIR)/$(PREFIX)/share/man/man5/.	
+	rm -f firejail.1.gz firemon.1.gz firejail-profile.5.gz firejail-login.5.gz
 	# bash completion
 	mkdir -p $(DESTDIR)/$(PREFIX)/share/bash-completion/completions
 	install -c -m 0644 etc/firejail.bash_completion $(DESTDIR)/$(PREFIX)/share/bash-completion/completions/firejail
@@ -119,6 +124,7 @@ uninstall:;
 	rm -f $(DESTDIR)/$(PREFIX)/share/man/man1/firejail.1*
 	rm -f $(DESTDIR)/$(PREFIX)/share/man/man1/firemon.1*
 	rm -f $(DESTDIR)/$(PREFIX)/share/man/man5/firejail-profile.5*
+	rm -f $(DESTDIR)/$(PREFIX)/share/man/man5/firejail-login.5*
 	rm -f $(DESTDIR)/$(PREFIX)/share/bash-completion/completions/firejail
 	rm -f $(DESTDIR)/$(PREFIX)/share/bash-completion/completions/firemon
 	

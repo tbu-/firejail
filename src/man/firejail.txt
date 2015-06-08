@@ -8,7 +8,7 @@ Start a sandbox:
 firejail [OPTIONS] [program and arguments]
 .RE
 .PP
-Bandwidth shaping for an existing sandbox:
+Traffic shaping for an existing sandbox:
 .PP
 .RS
 firejail \-\-bandwidth={<name>|<PID>} bandwidth-command-arguments
@@ -65,6 +65,12 @@ In the previous example, "sleep inf" command is required in order to keep the se
 \fB\-\-
 Signal the end of options and disables further option processing.
 .TP
+\fB\-\-bandwidth=name
+Set bandwidth limits for the sandbox identified by name, see TRAFFIC SHAPING section for more details.
+.TP
+\fB\-\-bandwidth=pid
+Set bandwidth limits for the sandbox identified by PID, see TRAFFIC SHAPING section for more details.
+.TP
 \fB\-\-bind=dirname1,dirname2
 Mount-bind dirname1 on top of dirname2. This option is only available when running the sandbox as root.
 .br
@@ -113,7 +119,7 @@ $ sudo firejail \-\-caps "/etc/init.d/nginx start && sleep inf"
 
 .TP
 \fB\-\-caps.drop=all
-Drop all capabilities for the processes running in the sandbox. This option is recomended for running GUI programs
+Drop all capabilities for the processes running in the sandbox. This option is recommended for running GUI programs
 or any other program that doesn't require root privileges. It is a must-have option for sandboxing untrusted programs
 installed from unofficial sources - such as games, Java programs, etc.
 .br
@@ -988,6 +994,48 @@ Use /usr/bin/zsh as default user shell.
 Example:
 .br
 $ firejakil \-\-zsh
+.SH TRAFFIC SHAPING
+Network bandwidth is an expensive resource shared among all sandboxes running on a system.
+Traffic shaping allows the user to increase network performance by controlling
+the amount of data that flows into and out of the sandboxes.
+
+Firejail implements a simple rate-limiting shaper based on Linux command tc.
+The shaper works at sandbox level, and can be used only for sandboxes configured with new network namespaces.
+
+Set rate-limits:
+
+	firejail --bandwidth={name|pid} set network-name down-speed up-speed
+
+Clear rate-limits:
+
+	firejail --bandwidth={name|pid} clear network-name
+
+Satus:
+
+	firejail --bandwidth={name|pid} status
+
+where:
+.br
+	name - sandbox name
+.br
+	pid - sandbox pid
+.br
+	network-name - network name as used by \-\-net option
+.br
+	down-speed - download speed in KB/s (decimal kilobyte per second)
+.br
+	up-speed - upload speed in KB/s (decimal kilobyte per second)
+
+Example:
+.br
+	$ firejail \-\-name=mybrowser \-\-net=eth0 firefox &
+.br
+	$ firejail \-\-bandwidth=mybrowser set eth0 80 20
+.br
+	$ firejail \-\-bandwidth=mybrowser status
+.br
+	$ firejail \-\-bandwidth=mybrowser clear eth0
+
 .SH MONITORING
 Option \-\-list prints a list of all sandboxes. The format
 for each process entry is as follows:
@@ -1096,7 +1144,8 @@ This program is free software; you can redistribute it and/or modify it under th
 Homepage: http://firejail.sourceforge.net
 .SH SEE ALSO
 \&\flfiremon\fR\|(1),
-\&\flfirejail-profile\fR\|(5)
+\&\flfirejail-profile\fR\|(5),
+\&\flfirejail-login\fR\|(5)
 
 
 

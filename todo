@@ -1,19 +1,12 @@
 ***********************
-* running iptables
+* Traffic shaping
 ***********************
-Before when calling /sbin/iptables (--netfilter options), clear all environment variables
-The simple way to erase the environment in C/C++ is by setting the global variable environ to NULL.
-The global variable environ is defined in <unistd.h>
+Network bandwidth is an expensive resource that is being shared among all sandboxes running on a system.
+Traffic shaping allows the user to increase network performance by controlling
+the amount of data that flows into and out of the sandboxes configured with new network namespaces.
 
-Do the same for /sbin/tc (--bandwidth option).
-
-see http://docstore.mik.ua/orelly/perl3/prog/ch23_01.htm
-delete @ENV{qw{IFS
-               CDPATH
-               ENV
-               BASH_ENV}};    # Makes %ENV safer.
-
-
+Firejail implements a simple rate-limiting shaper based on Linux command tc from iproute2 package.
+The shaper works at sandbox level.
 
 
 ***********************
