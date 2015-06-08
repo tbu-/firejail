@@ -29,7 +29,7 @@
 extern bool data_ready;
 
 
-StatsDialog::StatsDialog(): QDialog(), mode_(MODE_TOP), pid_(0), pid_seccomp_(-1), pid_caps_(QString("")),
+StatsDialog::StatsDialog(): QDialog(), mode_(MODE_TOP), pid_(0), uid_(0), pid_seccomp_(-1), pid_caps_(QString("")),
 	have_join_(true), caps_cnt_(64) {
 	procView_ = new QTextBrowser;
 	procView_->setOpenLinks(false);
@@ -78,23 +78,25 @@ QString StatsDialog::header() {
 		msg += "</td></tr></table>";
 	}
 	
-	if (mode_ == MODE_PID) {
+	else if (mode_ == MODE_PID) {
 		msg += "<table><tr><td width=\"5\"></td><td>";
 		msg += "<a href=\"top\">Home</a>";
-		msg += " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"shut\">Shutdown</a>";
-		if (have_join_)
+		if (uid_ == getuid())	
+			msg += " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"shut\">Shutdown</a>";
+		if (have_join_ && uid_ == getuid())
 			msg += " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"join\">Join</a>";
 		msg += " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"tree\">Process Tree</a>";
 		msg += " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"dns\">DNS</a>";
 		msg += "</td></tr></table>";
 	}
 	
-	if (mode_ == MODE_TREE || mode_ == MODE_SECCOMP || mode_ == MODE_DNS || mode_ == MODE_CAPS) {
+	else if (mode_ == MODE_TREE || mode_ == MODE_SECCOMP || mode_ == MODE_DNS || mode_ == MODE_CAPS) {
 		msg += "<table><tr><td width=\"5\"></td><td>";
 		msg += "<a href=\"top\">Home</a>";
 		msg += " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"back\">" + QString::number(pid_) + "</a>";
-		msg += " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"shut\">Shutdown</a>";
-		if (have_join_)
+		if (uid_ == getuid())	
+			msg += " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"shut\">Shutdown</a>";
+		if (have_join_ && uid_ == getuid())
 			msg += " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"join\">Join</a>";
 		msg += " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"tree\">Process Tree</a>";
 		msg += " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href=\"dns\">DNS</a>";
@@ -380,30 +382,39 @@ void StatsDialog::updatePid() {
 		QTimer::singleShot(2000, this, SLOT(cycleReady()));
 		return;
 	}
-	
+
+
+	// get user name
 	DbStorage *st = &ptr->data_[cycle];
+	struct passwd *pw = getpwuid(st->uid_);
+	if (!pw)
+		errExit("getpwuid");
+	uid_ = pw->pw_uid;
+
 
 	msg += header();
 	msg += "<table><tr><td width=\"5\"></td><td><b>Command:</b> " + QString(cmd) + "</td></tr></table><br/>";
 
 	msg += "<table>";
-	msg += QString("<tr><td width=\"5\"></td><td><b>PID:</b> ") + QString::number(pid_) + "</td>";
+	msg += QString("<tr><td width=\"5\"></td><td><b>PID:</b> ") +  QString::number(pid_) + "</td>";
 	if (st->network_disabled_)
 		msg += "<td><b>RX:</b> unknown</td></tr>";
 	else
 		msg += QString("<td><b>RX:</b> ") + QString::number(st->rx_) + " KB/sec</td></tr>";
 	
-	msg += QString("<tr><td></td><td><b>CPU:</b> ") + QString::number(st->cpu_) + "%</td>";
+	msg += QString("<tr><td></td><td><b>User:</b> ") + pw->pw_name  + "</td>";
 	if (st->network_disabled_)
 		msg += "<td><b>TX:</b> unknown</td></tr>";
 	else
 		msg += QString("<td><b>TX:</b> ") + QString::number(st->tx_) + " KB/sec</td></tr>";
 	
+
+
 	// init seccomp and caps
 	if (pid_seccomp_ == -1)
 		kernelSecuritySettings();
 
-	msg += QString("<tr><td></td><td><b>Memory:</b> ") + QString::number((int) (st->rss_ + st->shared_)) + " KiB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>";
+	msg += QString("<tr><td></td><td><b>CPU:</b> ") + QString::number(st->cpu_) + "%</td>";
 	msg += QString("<td><b>Seccomp:</b> ");
 	if (pid_seccomp_)
 		msg += "<a href=\"seccomp\">enabled</a>";
@@ -411,9 +422,12 @@ void StatsDialog::updatePid() {
 		msg += "disabled";
 	msg += "</td></tr>";
 
-	msg += QString("<tr><td></td><td><b>RSS</b> " + QString::number((int) st->rss_) + ", <b>shared</b> " + QString::number((int) st->shared_)) + "</td>";	
+	msg += QString("<tr><td></td><td><b>Memory:</b> ") + QString::number((int) (st->rss_ + st->shared_)) + " KiB&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>";
 	msg += QString("<td><b>Capabilities:</b> <a href=\"caps\">") + pid_caps_ + "</a></td></tr>";	
 	
+	msg += QString("<tr><td></td><td><b>RSS</b> " + QString::number((int) st->rss_) + ", <b>shared</b> " + QString::number((int) st->shared_)) + "</td>";	
+	msg += "<td></td></tr>";
+
 	// graphs
 	msg += "<tr></tr>";
 	msg += "<tr><td></td><td>"+ graph(0, ptr, cycle) + "</td><td>" + graph(1, ptr, cycle) + "</td></tr>";

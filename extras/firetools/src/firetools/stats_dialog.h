@@ -19,6 +19,8 @@
 */
 #ifndef STATS_DIALOG_H
 #define STATS_DIALOG_H
+#include <sys/types.h>
+#include <pwd.h>
 #include <QWidget>
 #include <QDialog>
 //class QTextEdit;
@@ -56,6 +58,7 @@ private:
 #define MODE_CAPS 5
 	int mode_;
 	int pid_;	// pid value for mode 1
+	uid_t uid_;
 	int pid_seccomp_;
 	QString pid_caps_;
 	bool have_join_;

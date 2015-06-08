@@ -63,6 +63,8 @@ static void store(int pid, int interval, int clocktick) {
 	st->shared_ =  pids[pid].shared;
 	st->rx_ = ((float) pids[pid].rx) /( interval * 1000);
 	st->tx_ = ((float) pids[pid].tx) /( interval * 1000);
+	st->uid_ = pids[pid].uid;
+	
 	if (strstr(pids[pid].cmd, "--net"))
 		st->network_disabled_ = false;
 	else
