@@ -68,18 +68,24 @@ int main(int argc, char *argv[]) {
 			return 0;
 		}
 		else if (strcmp(argv[i], "--autostart") == 0) {
-			// build directory name
+			// find jome directory
 			char *home = get_home_directory();
 			if (!home) {
 				fprintf(stderr, "Error: cannot find user home directory");
 				return 1;
 			}
 			
+			// create a .config/autostart directory if it doesn't exist
+			char *autodir;
+			if (asprintf(&autodir, "%s/.config/autostart", home) == -1)
+				errExit("asprintf");
+			int rv = mkdir(autodir, 0755);
+			(void) rv;
+			
+			// create desktop file
 			char *autofile;
 			if (asprintf(&autofile, "%s/.config/autostart/firetools.desktop", home) == -1)
 				errExit("asprintf");
-				
-			// write the file
 			FILE *fp = fopen(autofile, "w");
 			if (!fp) {
 				fprintf(stderr, "Error: cannot open %s\n", autofile);

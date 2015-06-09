@@ -433,6 +433,8 @@ void bandwidth_pid(pid_t pid, const char *command, const char *dev, int down, in
 		fclose(fp);
 	}
 	
+	// build fshaper.sh command
+	cmd = NULL;
 	if (devname) {
 		if (strcmp(command, "set") == 0) {
 			if (asprintf(&cmd, "%s/lib/firejail/fshaper.sh --%s %s %d %d",
@@ -449,6 +451,7 @@ void bandwidth_pid(pid_t pid, const char *command, const char *dev, int down, in
 		if (asprintf(&cmd, "%s/lib/firejail/fshaper.sh --%s", PREFIX, command) == -1)
 			errExit("asprintf");
 	}
+	assert(cmd);
 
 	// wipe out environment variables
 	environ = NULL;
