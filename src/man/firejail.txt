@@ -1010,7 +1010,7 @@ Clear rate-limits:
 
 	firejail --bandwidth={name|pid} clear network-name
 
-Satus:
+Status:
 
 	firejail --bandwidth={name|pid} status
 

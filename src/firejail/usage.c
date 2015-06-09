@@ -24,13 +24,20 @@ void usage(void) {
 	printf("Firejail is a SUID sandbox program that reduces the risk of security breaches by\n");
 	printf("restricting the running environment of untrusted applications using Linux\n");
 	printf("namespaces. It includes a sandbox profile for Mozilla Firefox.\n\n");
+	printf("\n");
 	printf("Usage: firejail [options] [program and arguments]\n\n");
+	printf("\n");
 	printf("Without any options, the sandbox consists of a filesystem chroot build from the\n");
 	printf("current system directories  mounted  read-only,  and  new PID and IPC\n");
 	printf("namespaces. If no program is specified as an argument, /bin/bash is started by\n");
 	printf("default in the sandbox.\n\n");
-	printf("Options:\n");
+	printf("\n");
+	printf("Options:\n\n");
 	printf("\t-- - signal the end of options and disables further option processing.\n\n");
+	printf("\t--bandwidth=name - set  bandwidth  limits  for  the sandbox identified\n");
+	printf("\t\tby name, see Traffic Shaping section for more details.\n\n");
+	printf("\t--bandwidth=pid - set  bandwidth  limits  for  the sandbox identified\n");
+	printf("\t\tby PID, see Traffic Shaping section for more details.\n\n");
 #ifdef HAVE_BIND		
 	printf("\t--bind=dirname1,dirname2 - mount-bind dirname1 on top of dirname2.\n\n");
 	printf("\t--bind=filename1,dirname2 - mount-bind filename1 on top of filename2.\n\n");
@@ -45,9 +52,10 @@ void usage(void) {
 	printf("\t\tcapabilities filter.\n\n");
 	printf("\t--caps.keep=capability,capability,capability - whitelist Linux\n");
 	printf("\t\tcapabilities filter.\n\n");
-	printf("\t--caps.print=name - print the caps filter for the sandbox started\n");
-	printf("\t\tusing --name option.\n\n");
-	printf("\t--caps.print=pid - print the caps filter for the specified sandbox.\n\n");
+	printf("\t--caps.print=name - print the caps filter for the sandbox identified\n");
+	printf("\t\tby name.\n\n");
+	printf("\t--caps.print=pid - print the caps filter for the sandbox identified\n");
+	printf("\t\tby PID.\n\n");
 	printf("\t--cgroup=tasks-file - place the sandbox in the specified control group.\n");
 	printf("\t\ttasks-file is the full path of cgroup tasks file.\n");
 	printf("\t\tExample: --cgroup=/sys/fs/cgroup/g1/tasks\n\n");
@@ -66,9 +74,10 @@ void usage(void) {
 	printf("\t\tnetwork namespace.\n\n");
 	printf("\t--dns=address - set a DNS server for the sandbox. Up to three DNS\n");
 	printf("\t\tservers can be defined.\n\n");
-	printf("\t--dns.print=name - print DNS configuration for the sandbox started\n");
-	printf("\t\tusing --name option.\n\n");
-	printf("\t--dns.print=pid - print DNS configuration of the specified process.\n\n");
+	printf("\t--dns.print=name - print DNS configuration for the sandbox identified\n");
+	printf("\t\tby name.\n\n");
+	printf("\t--dns.print=pid - print DNS configuration of the sandbox identified.\n");
+	printf("\t\tby PID.\n\n");
 	printf("\t--help, -? - this help screen.\n\n");
 	printf("\t--ip=address - set interface IP address.\n\n");
 	printf("\t--ip=none - no IP address and no default gateway address are configured\n");
@@ -77,8 +86,8 @@ void usage(void) {
 	printf("\t--ipc-namespace - enable a new IPC namespace if the sandbox was started\n");
 	printf("\t\tas a regular user. IPC namespace is enabled by default only if\n");
 	printf("\t\tthe sandbox is started as root.\n\n");
-	printf("\t--join=name - join the sandbox started using --name option.\n\n");
-	printf("\t--join=pid - join the sandbox of the specified process.\n\n");
+	printf("\t--join=name - join the sandbox identified by name.\n\n");
+	printf("\t--join=pid - join the sandbox identified by PID.\n\n");
 	printf("\t--list - list all sandboxes.\n\n");
 	printf("\t--mac=xx:xx:xx:xx:xx:xx - set interface MAC address.\n\n");
 	printf("\t--name=name - set sandbox hostname.\n\n");
@@ -139,9 +148,9 @@ void usage(void) {
 	printf("\t\tclosed.\n\n");
 	printf("\t--private=directory - use directory as user home.\n\n");
 	printf("\t--private.keep=file,directory - build a new user home in a temporary\n");
-	printf("\t\tfilesystem, and copy the files and directories in the list in the\n");
-	printf("\t\tnew home. All modifications are discarded when the sandbox is\n");
-	printf("\t\tclosed.\n\n");
+	printf("\t\tfilesystem, and copy the files and directories in the list in\n");
+	printf("\t\tthe new home. All modifications are discarded when the sandbox\n");
+	printf("\t\tis closed.\n\n");
 	printf("\t--private-dev - create a new /dev directory. Only null, full, zero, tty,\n");
 	printf("\t\tpst, ptms, random, urandom and shm devices are available.\n\n");
 	
@@ -174,16 +183,16 @@ void usage(void) {
 	printf("\t--seccomp.keep=syscall,syscall,syscall - enable seccomp filter, and\n");
 	printf("\t\twhitelist the syscalls specified by the command.\n\n");
 	
-	printf("\t--seccomp.print=name - print the seccomp filter for the sandbox started\n");
-	printf("\t\tusing --name option.\n\n");
-	printf("\t--seccomp.print=pid - print the seccomp filter for the sandbox specified\n");
-	printf("\t\tby process ID.\n\n");
+	printf("\t--seccomp.print=name - print the seccomp filter for the sandbox\n");
+	printf("\t\tidentified by name.\n\n");
+	printf("\t--seccomp.print=pid - print the seccomp filter for the sandbox\n");
+	printf("\t\tidentified by PID.\n\n");
 #endif
 
 	printf("\t--shell=none - run the program directly without a user shell.\n\n");
 	printf("\t--shell=program - set default user shell.\n\n");
-	printf("\t--shutdown=name - shutdown the sandbox started using --name option.\n\n");
-	printf("\t--shutdown=pid - shutdown the sandbox specified by process ID.\n\n");
+	printf("\t--shutdown=name - shutdown the sandbox identified by name.\n\n");
+	printf("\t--shutdown=pid - shutdown the sandbox identified by PID.\n\n");
 	printf("\t--tmpfs=dirname - mount a tmpfs filesystem on directory dirname.\n\n");
 	printf("\t--top - monitor the most CPU-intensive sandboxes.\n\n");
 	printf("\t--trace - trace open, access and connect system calls.\n\n");
@@ -191,6 +200,40 @@ void usage(void) {
 	printf("\t--version - print program version and exit.\n\n");
 	printf("\t--zsh - use /usr/bin/zsh as default shell.\n\n");
 	printf("\n");
+	printf("\n");
+
+
+	printf("Traffic Shaping\n\n");
+	
+	printf("Network bandwidth is an expensive resource shared among  all  sandboxes\n");
+	printf("running  on a system.  Traffic shaping allows the user to increase network\n");
+	printf("performance by controlling the amount of data that flows into and out of the\n");
+	printf("sandboxes. Firejail  implements  a simple rate-limiting shaper based on Linux\n");
+	printf("command tc. The shaper works at sandbox level, and can be used  only  for\n");
+	printf("sandboxes configured with new network namespaces.\n\n");
+
+	printf("Set rate-limits:\n");
+	printf("\tfirejail  --bandwidth={name|pid} set network-name down-speed up-speed\n\n");
+	printf("Clear rate-limits:\n");
+	printf("\tfirejail --bandwidth={name|pid} clear network-name\n\n");
+	printf("Status:\n");
+	printf("\tfirejail --bandwidth={name|pid} status\n\n");
+	printf("where:\n");
+            printf("\tname - sandbox name\n");
+            printf("\tpid - sandbox pid\n");
+            printf("\tnetwork-name - network name as used by --net option\n");
+            printf("\tdown-speed - download speed in KB/s (decimal kilobyte per second)\n");
+            printf("\tup-speed - upload speed in KB/s (decimal kilobyte per second)\n");
+	printf("\n");
+	printf("Example:\n");
+            printf("\t$ firejail --name=mybrowser --net=eth0 firefox &\n");
+            printf("\t$ firejail --bandwidth=mybrowser set eth0 80 20\n");
+            printf("\t$ firejail --bandwidth=mybrowser status\n");
+            printf("\t$ firejail --bandwidth=mybrowser clear eth0\n");
+	printf("\n");
+	printf("\n");
+
+
 
 	printf("Monitoring\n\n");
 
@@ -220,11 +263,13 @@ void usage(void) {
 	printf("\tUptime - sandbox running time in hours:minutes:seconds format.\n");
 	printf("\tUser - The owner of the sandbox.\n");
 	printf("\n");
+	printf("\n");
 	printf("Profile files\n\n");
 	printf("Several command line configuration options can be passed to the program using\n");
 	printf("profile files. Default Firejail profile files are stored in /etc/firejail\n");
 	printf("directory, user profile files are stored in ~/.config/firejail directory. See\n");
 	printf("man 5 firejail-profile for more information.\n\n");
+	printf("\n");
 	printf("Restricted shell\n\n");
 	printf("To  configure a restricted shell, replace /bin/bash with /usr/bin/firejail i\n");
 	printf("/etc/password file for each user that needs to  be  restricted.\n");
@@ -232,6 +277,7 @@ void usage(void) {
 	printf("   adduser --shell /usr/bin/firejail username\n\n");
 	printf("Arguments to be passed to firejail executable upon login are  declared  in\n");
 	printf("/etc/firejail/login.users file.\n\n");
+	printf("\n");
 	printf("Examples:\n\n");
 	printf("   $ firejail\n");
 	printf("          start a regular /bin/bash session in sandbox\n");
