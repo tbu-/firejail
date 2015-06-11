@@ -1,6 +1,6 @@
 Package: firetools
 Version: FIRETOOLSVER-1
-Architecture: i386
+Architecture: amd64
 Maintainer: netblue30 <netblue30@yahoo.com>
 Installed-Size: 284
 Depends: libqtgui4, xterm, libc6
