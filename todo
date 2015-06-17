@@ -1,4 +1,10 @@
 ***********************
+Investigatehttps://readthedocs.org/ for hosting documentation
+***********************
+
+
+
+***********************
 * to test
 ***********************
 try bridge and macvlan on unconfigured interfaces
@@ -464,4 +470,13 @@ webpage header to be copied on all project pages
 <div align="left" style="border:3px solid;border-radius:10px;border-color:#0080ff;margin:20px;padding-top:5px;">&nbsp;&nbsp;<a href="http://l3net.wordpress.com/projects/firejail/">Firejail</a> &nbsp;&nbsp;<a href="http://l3net.wordpress.com/projects/firejail#firetools">Firetools</a> &nbsp;&nbsp;<a href="http://l3net.wordpress.com/projects/firejail#news">News</a> &nbsp;&nbsp;<a href="http://l3net.wordpress.com/projects/firejail#downloads">Downloads</a> &nbsp;&nbsp;<a href="https://l3net.wordpress.com/projects/firejail/firejail-download-and-install/">Install</a> &nbsp;&nbsp;<a href="http://l3net.wordpress.com/projects/firejail#howtos">HOWTOs</a></div>
 <div style="height:10px;">&nbsp;</div>
 
- 
+***********************
+Notes
+***********************
+OpenDNS has gotten quite a bad rep in the last years for various things like aggressive advertising and hijacking google-searches on different setups
+
+http://dnscrypt.org/
+Most dnscrypt-enabled providers say they don’t log, others are companies openly monetizing the data they collect. 
+
+Parties doing surveillance on your network (whether that be corporate IT, the NSA or someone else) will be able to see that you use Syncthing
+
