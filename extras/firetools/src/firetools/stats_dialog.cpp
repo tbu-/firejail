@@ -426,7 +426,14 @@ void StatsDialog::updatePid() {
 	msg += QString("<td><b>Capabilities:</b> <a href=\"caps\">") + pid_caps_ + "</a></td></tr>";	
 	
 	msg += QString("<tr><td></td><td><b>RSS</b> " + QString::number((int) st->rss_) + ", <b>shared</b> " + QString::number((int) st->shared_)) + "</td>";	
-	msg += "<td></td></tr>";
+	
+	// user namespace
+	msg += "<td><b>User Namespace:</b> ";
+	if (cmd && strstr(cmd, "--noroot")) 
+		msg += "enabled";
+	else
+		msg += "disabled";
+	msg += "</td></tr>";
 
 	// graphs
 	msg += "<tr></tr>";

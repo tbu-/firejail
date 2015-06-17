@@ -43,3 +43,12 @@ firejail --net=eth0 --name=d transmission-gtk
 * CPU/MEM/RX/TX graph problem
 **********************
 At 4 minutes mark in the circular array, bad graphic line at -4 minutes
+
+**********************
+* detecting from command line
+**********************
+--net detected in pid_thread.cpp (strstr(pids[pid].cmd, "--net")), it might pick it up from the
+params of the sandboxed program
+--noroot detected in stats_dialog.cpp (strstr(cmd, "--noroot")), it might pick it up from the
+params of the sandboxed program
+
