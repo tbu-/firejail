@@ -6,40 +6,6 @@ Create a new sandboxs named xterm, and restart firetools - the new sandbox repla
 Funny, the oringinal icon field (Icon=:resources/gnome-terminal) is replaced by (Icon=xterm)
 
 **********************
-* old sandbox stil reported
-**********************
-Sandbox 1168 is long gone, but it is still reported
-
-About
-
-
-
-Sandbox List
-
-
-
-PID
-CPU(%)
-Memory(KiB)  
-RX(KB/sec)  
-TX(KB/sec)  
-Command
-
-1168
-0.00
-0
-0.00
-0.00
-firejail --net=br0 sleep 20 
-
-7970
-1.40
-76104
-86.38
-9.68
-firejail --net=eth0 --name=d transmission-gtk 
-
-**********************
 * CPU/MEM/RX/TX graph problem
 **********************
 At 4 minutes mark in the circular array, bad graphic line at -4 minutes

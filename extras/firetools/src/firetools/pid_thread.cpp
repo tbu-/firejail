@@ -37,6 +37,7 @@ PidThread::~PidThread() {
 	ending_ = true;
 }
 
+// store process data in database
 static void store(int pid, int interval, int clocktick) {
 	assert(pid < max_pids);
 	if (pids[pid].cmd == 0)	{ // process shutting down
@@ -73,6 +74,24 @@ static void store(int pid, int interval, int clocktick) {
 	dbpid->setCmd(pids[pid].cmd);
 }
 
+// remove closed processes from database
+static void clear() {
+	DbPid *dbpid = Db::instance().firstPid();
+	
+	while (dbpid) {
+		DbPid *next = dbpid->getNext();
+		pid_t pid = dbpid->getPid();
+		if (pids[pid].level != 1) {
+			// remove database entry
+			DbPid *dbentry = Db::instance().removePid(pid);
+			if (dbentry)
+				delete dbentry;
+		}
+		dbpid = next;
+	}
+
+}
+
 void PidThread::run() {
 	// memory page size clicks per second
 	int pgsz = getpagesize();
@@ -84,7 +103,7 @@ void PidThread::run() {
 		if (ending_)
 			break;
 
-		// initialize process table
+		// initialize process table - start with an empty proc table
 		pid_read(0);
 		
 		// start cpu and network measurements
@@ -163,6 +182,8 @@ void PidThread::run() {
 					free(pids[i].cmd);
 			}
 		}
+		// remove closed process entries from database
+		clear();
 		
 //		Db::instance().dbgprint();
 		emit cycleReady();
