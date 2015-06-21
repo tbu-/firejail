@@ -48,11 +48,25 @@ public:
 	pid_t getPid() {
 		return pid_;
 	}
+	bool networkDisabled() {
+		return network_disabled_;
+	}
+	void setNetworkDisabled(bool val) {
+		network_disabled_ = val;
+	}
+	uid_t getUid() {
+		return uid_;
+	}
+	void setUid(uid_t val) {
+		uid_ = val;
+	}
 
 private:	
 	DbPid *next_;
 	pid_t pid_;
 	char *cmd_;
+	bool network_disabled_;
+	uid_t uid_;
 };
 
 #endif

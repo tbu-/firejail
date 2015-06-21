@@ -28,10 +28,8 @@ struct DbStorage {
 	float shared_;
 	float rx_;
 	float tx_;
-	bool network_disabled_;
-	uid_t uid_;
 	
-	DbStorage(): cpu_(0), rss_(0), shared_(0), rx_(0), tx_(0), network_disabled_(true), uid_(0) {}
+	DbStorage(): cpu_(0), rss_(0), shared_(0), rx_(0), tx_(0) {}
 	
 	void dbgprint(int cycle) {
 		printf("%d: %.2f, %.2f, %.2f, %.2f, %.2f\n",

@@ -386,7 +386,7 @@ void StatsDialog::updatePid() {
 
 	// get user name
 	DbStorage *st = &ptr->data_[cycle];
-	struct passwd *pw = getpwuid(st->uid_);
+	struct passwd *pw = getpwuid(ptr->getUid());
 	if (!pw)
 		errExit("getpwuid");
 	uid_ = pw->pw_uid;
@@ -397,13 +397,13 @@ void StatsDialog::updatePid() {
 
 	msg += "<table>";
 	msg += QString("<tr><td width=\"5\"></td><td><b>PID:</b> ") +  QString::number(pid_) + "</td>";
-	if (st->network_disabled_)
+	if (ptr->networkDisabled())
 		msg += "<td><b>RX:</b> unknown</td></tr>";
 	else
 		msg += QString("<td><b>RX:</b> ") + QString::number(st->rx_) + " KB/sec</td></tr>";
 	
 	msg += QString("<tr><td></td><td><b>User:</b> ") + pw->pw_name  + "</td>";
-	if (st->network_disabled_)
+	if (ptr->networkDisabled())
 		msg += "<td><b>TX:</b> unknown</td></tr>";
 	else
 		msg += QString("<td><b>TX:</b> ") + QString::number(st->tx_) + " KB/sec</td></tr>";
@@ -438,13 +438,13 @@ void StatsDialog::updatePid() {
 	// graphs
 	msg += "<tr></tr>";
 	msg += "<tr><td></td><td>"+ graph(0, ptr, cycle) + "</td><td>" + graph(1, ptr, cycle) + "</td></tr>";
-	if (st->network_disabled_ == false)
+	if (ptr->networkDisabled() == false)
 		msg += "<tr><td></td><td>"+ graph(2, ptr, cycle) + "</td><td>" + graph(3, ptr, cycle) + "</td></tr>";
 
 	msg += QString("</table><br/>");
 	
 	// bandwidth limits
-	if (st->network_disabled_ == false) {
+	if (ptr->networkDisabled() == false) {
 		char *fname;
 		if (asprintf(&fname, "/dev/shm/firejail/%d-bandwidth", pid_) == -1)
 			errExit("asprintf");

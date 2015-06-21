@@ -20,7 +20,7 @@
 #include "dbpid.h"
 #include "firetools.h"
 
-DbPid::DbPid(pid_t pid): next_(0), pid_(pid), cmd_(0) {
+DbPid::DbPid(pid_t pid): next_(0), pid_(pid), cmd_(0), network_disabled_(true), uid_(0) {
 	memset(data_, 0, sizeof(data_));
 }
 

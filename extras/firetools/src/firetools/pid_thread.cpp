@@ -64,13 +64,19 @@ static void store(int pid, int interval, int clocktick) {
 	st->shared_ =  pids[pid].shared;
 	st->rx_ = ((float) pids[pid].rx) /( interval * 1000);
 	st->tx_ = ((float) pids[pid].tx) /( interval * 1000);
-	st->uid_ = pids[pid].uid;
-	
-	if (strstr(pids[pid].cmd, "--net"))
-		st->network_disabled_ = false;
-	else
-		st->network_disabled_ = true;
-	
+
+
+//todo: do it only once, when dbpid is created	
+	dbpid->setUid(pids[pid].uid);
+
+//todo: do it only once, when dbpid is created	
+	if (strstr(pids[pid].cmd, "--net")) {
+		dbpid->setNetworkDisabled(false);
+	}		
+	else {
+		dbpid->setNetworkDisabled(true);
+	}	
+
 	dbpid->setCmd(pids[pid].cmd);
 }
 
@@ -89,15 +95,12 @@ static void clear() {
 		}
 		dbpid = next;
 	}
-
 }
 
 void PidThread::run() {
 	// memory page size clicks per second
 	int pgsz = getpagesize();
 	int clocktick = sysconf(_SC_CLK_TCK);
-
-	
 	
 	while (1) {
 		if (ending_)
