@@ -31,6 +31,36 @@ struct DbStorage {
 	
 	DbStorage(): cpu_(0), rss_(0), shared_(0), rx_(0), tx_(0) {}
 	
+	DbStorage& operator=(const DbStorage& val) {
+		cpu_ = val.cpu_;
+		rss_ = val.rss_;
+		shared_ = val.shared_;
+		rx_ = val.rx_;
+		tx_ = val.tx_;
+		
+		return *this;
+	}
+	
+	DbStorage& operator+=(const DbStorage& val) {
+		cpu_ += val.cpu_;
+		rss_ += val.rss_;
+		shared_ += val.shared_;
+		rx_ += val.rx_;
+		tx_ += val.tx_;
+		
+		return *this;
+	}
+
+	DbStorage& operator/=(int val) {
+		cpu_ /= val;
+		rss_ /= val;
+		shared_ /= val;
+		rx_ /= val;
+		tx_ /= val;
+		
+		return *this;
+	}
+
 	void dbgprint(int cycle) {
 		printf("%d: %.2f, %.2f, %.2f, %.2f, %.2f\n",
 			cycle, cpu_, rss_, shared_, rx_, tx_);

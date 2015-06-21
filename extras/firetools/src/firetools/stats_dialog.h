@@ -23,7 +23,8 @@
 #include <pwd.h>
 #include <QWidget>
 #include <QDialog>
-//class QTextEdit;
+
+#include "firetools.h"
 class QTextBrowser;
 class QUrl;
 
@@ -63,6 +64,7 @@ private:
 	QString pid_caps_;
 	bool have_join_;
 	int caps_cnt_;
+	GraphType graph_type_;
 };
 
 

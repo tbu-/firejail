@@ -22,6 +22,7 @@
 #include <QUrl>
 #include "graph.h"
 #include "dbpid.h"
+#include "db.h"
 
 static QByteArray byteArray[4];
 static const char *id_label[4] = {
@@ -31,9 +32,14 @@ static const char *id_label[4] = {
 	"TX (KB/sec)"
 };
 
-QString graph(int id, DbPid *dbpid, int cycle) {
+QString graph(int id, DbPid *dbpid, int cycle, GraphType gt) {
 	assert(id < 4);
 	assert(dbpid);
+
+	// adjust cycle for 1H
+	if (gt == GRAPH_1H)
+		cycle =  Db::instance().getG1HCycle();
+
 	assert(cycle < DbPid::MAXCYCLE);
 	int maxcycle = DbPid::MAXCYCLE;
 	int i;	
@@ -57,7 +63,14 @@ QString graph(int id, DbPid *dbpid, int cycle) {
 	// extract maximum value
 	float maxval = 0;
 	for (i = 0; i < maxcycle; i++) {
-		float val = dbpid->data_[i].get(id);
+		float val;
+		if (gt == GRAPH_4MIN)
+			val  = dbpid->data_4min_[i].get(id);
+		else if (gt == GRAPH_1H)
+			val  = dbpid->data_1h_[i].get(id);
+		else
+			assert(0);
+			
 		if (val > maxval)
 			maxval = val;
 	}
@@ -105,13 +118,28 @@ QString graph(int id, DbPid *dbpid, int cycle) {
 
 	paint->setPen(Qt::red);
 	for (i = 0, j = cycle + 1; i < maxcycle - 1; i++) {
-		float y1 = dbpid->data_[j].get(id);
+		float y1;
+		if (gt == GRAPH_4MIN)
+			y1 = dbpid->data_4min_[j].get(id);
+		else if (gt == GRAPH_1H)
+			y1 = dbpid->data_1h_[j].get(id);
+		else
+			assert(0);
+			
 		y1 = (y1 / maxval) * 100;
 		y1 = 100 - y1 + TOPMARGIN;
 		j++;
 		if (j >= maxcycle)
 			j = 0;
-		float y2 = dbpid->data_[j].get(id);
+
+		float y2;
+		if (gt == GRAPH_4MIN)
+			y2 = dbpid->data_4min_[j].get(id);
+		else if (gt == GRAPH_1H)
+			y2 = dbpid->data_1h_[j].get(id);
+		else
+			assert(0);
+			
 		y2 = (y2 / maxval) * 100;
 		y2 = 100 - y2 + TOPMARGIN;
 		paint->drawLine(i * 4, (int) y1, (i + 1) * 4, (int) y2);
@@ -127,8 +155,15 @@ QString graph(int id, DbPid *dbpid, int cycle) {
 		paint->drawText((maxcycle - 1) * 4 + 3, TOPMARGIN + 50 + 3, QString::number(maxval / 2, 'f', 1));
 	paint->drawText((maxcycle - 1) * 4 + 3, TOPMARGIN + 100 + 3, QString("0"));
 	paint->drawText(0 + 2, TOPMARGIN + 100 + 15, QString("(minutes)"));
-	paint->drawText((maxcycle - 1) * 2, TOPMARGIN + 100 + 15, QString("-2"));
-	paint->drawText((maxcycle - 1) * 3, TOPMARGIN + 100 + 15, QString("-1"));
+	if (gt == GRAPH_4MIN) {
+		paint->drawText((maxcycle - 1) * 2, TOPMARGIN + 100 + 15, QString("-2"));
+		paint->drawText((maxcycle - 1) * 3, TOPMARGIN + 100 + 15, QString("-1"));
+	}
+	else if (gt == GRAPH_1H) {
+		paint->drawText((maxcycle - 1) * 2, TOPMARGIN + 100 + 15, QString("-30"));
+		paint->drawText((maxcycle - 1) * 3, TOPMARGIN + 100 + 15, QString("-15"));
+	}
+	
 	
 	// title
 	paint->setPen(Qt::black);

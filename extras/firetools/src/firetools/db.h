@@ -34,14 +34,22 @@ public:
 	int getCycle() {
 		return cycle_;
 	}
+	int getG1HCycle() {
+		return g1h_cycle_;
+	}
+	int getG1HCycleDelta() {
+		return g1h_cycle_delta_;
+	}
 	DbPid *firstPid() {
 		return pidlist_;
 	}
 	DbPid *newPid(pid_t pid);
 	DbPid *findPid(pid_t pid);
 	DbPid *removePid(pid_t pid);
+
 	void dbgprint();
-	
+	void dbgprintcycle();
+		
 private:
 	Db();
 	Db(Db const&);
@@ -49,7 +57,10 @@ private:
 
 private:
 	int cycle_;
+	int g1h_cycle_;
+	int g1h_cycle_delta_;
 	DbPid *pidlist_;
 };
+
 
 #endif

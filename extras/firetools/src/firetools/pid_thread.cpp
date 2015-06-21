@@ -58,7 +58,7 @@ static void store(int pid, int interval, int clocktick) {
 	int cycle = Db::instance().getCycle();
 	
 	// store the data in database
-	DbStorage *st = &dbpid->data_[cycle];
+	DbStorage *st = &dbpid->data_4min_[cycle];
 	st->cpu_ = (float) ((pids[pid].utime + pids[pid].stime) * 100) / (interval * clocktick);
 	st->rss_ = pids[pid].rss;
 	st->shared_ =  pids[pid].shared;
@@ -187,6 +187,33 @@ void PidThread::run() {
 		}
 		// remove closed process entries from database
 		clear();
+
+		// 4min to 1h transfer
+//Db::instance().dbgprintcycle();			
+		if (Db::instance().getG1HCycleDelta() == 0) {
+//printf("transfer 75 sec data\n");
+			
+			// for each pid
+			DbPid *dbpid = Db::instance().firstPid();
+			while (dbpid) {
+//printf("processing pid %d\n", dbpid->getPid());
+				int cycle = Db::instance().getCycle();
+				int g1hcycle = Db::instance().getG1HCycle();
+			
+				DbStorage result;
+				for (int i = 0; i < DbPid::G1HCYCLE_DELTA; i++) {
+					result += dbpid->data_4min_[cycle];
+					if (--cycle < 0)
+						cycle = DbPid::MAXCYCLE - 1;
+				}
+				result /= DbPid::G1HCYCLE_DELTA;
+				dbpid->data_1h_[g1hcycle] = result;
+
+				dbpid = dbpid->getNext();
+			}
+		}
+
+
 		
 //		Db::instance().dbgprint();
 		emit cycleReady();

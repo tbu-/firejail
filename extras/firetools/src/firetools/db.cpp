@@ -20,11 +20,16 @@
 #include "firetools.h"
 #include "db.h"
 
-Db::Db(): cycle_(DbPid::MAXCYCLE - 1), pidlist_(0) {}
+Db::Db(): cycle_(DbPid::MAXCYCLE - 1), g1h_cycle_(DbPid::MAXCYCLE - 1), g1h_cycle_delta_(DbPid::G1HCYCLE_DELTA - 1), pidlist_(0) {}
 
 void Db::newCycle() {
 	if (++cycle_ >= DbPid::MAXCYCLE)
 		cycle_ = 0;
+	if (++g1h_cycle_delta_ >= DbPid::G1HCYCLE_DELTA) {
+		g1h_cycle_delta_ = 0;
+		if (++g1h_cycle_ >= DbPid::MAXCYCLE)
+			g1h_cycle_ = 0;
+	}
 }
 
 
@@ -70,3 +75,9 @@ void Db::dbgprint() {
 	if (pidlist_)
 		pidlist_->dbgprint();
 }
+
+void Db::dbgprintcycle() {
+	printf("4min cycle %d, 1h delta %d, 1h cycle %d\n",
+		cycle_, g1h_cycle_delta_, g1h_cycle_);
+}
+

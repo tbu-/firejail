@@ -30,7 +30,7 @@ extern bool data_ready;
 
 
 StatsDialog::StatsDialog(): QDialog(), mode_(MODE_TOP), pid_(0), uid_(0), pid_seccomp_(-1), pid_caps_(QString("")),
-	have_join_(true), caps_cnt_(64) {
+	have_join_(true), caps_cnt_(64), graph_type_(GRAPH_4MIN) {
 	procView_ = new QTextBrowser;
 	procView_->setOpenLinks(false);
 	procView_->setOpenExternalLinks(false);
@@ -122,7 +122,7 @@ void StatsDialog::updateTop() {
 		const char *cmd = ptr->getCmd();
 		if (cmd) {
 			char *str;
-			DbStorage *st = &ptr->data_[cycle];
+			DbStorage *st = &ptr->data_4min_[cycle];
 			if (asprintf(&str, "<tr><td></td><td><a href=\"%d\">%d</a></td><td>%.02f</td><td>%d</td><td>%.02f</td><td>%.02f</td><td>%s</td></tr>",
 				pid, pid, st->cpu_, (int) (st->rss_ + st->shared_),
 				st->rx_, st->tx_, cmd) != -1) {
@@ -385,7 +385,7 @@ void StatsDialog::updatePid() {
 
 
 	// get user name
-	DbStorage *st = &ptr->data_[cycle];
+	DbStorage *st = &ptr->data_4min_[cycle];
 	struct passwd *pw = getpwuid(ptr->getUid());
 	if (!pw)
 		errExit("getpwuid");
@@ -435,11 +435,23 @@ void StatsDialog::updatePid() {
 		msg += "disabled";
 	msg += "</td></tr>";
 
+	// graph type
+	msg += "<tr></tr>";
+	msg += "<tr><td></td>";
+	if (graph_type_ == GRAPH_4MIN) {
+		msg += "<td>4min <a href=\"1h\">1h</a></td></tr>\n";
+	}
+	else if (graph_type_ == GRAPH_1H) {
+		msg += "<td><a href=\"4min\">4min</a> 1h</td></tr>\n";
+	}
+	else
+		assert(0);
+
 	// graphs
 	msg += "<tr></tr>";
-	msg += "<tr><td></td><td>"+ graph(0, ptr, cycle) + "</td><td>" + graph(1, ptr, cycle) + "</td></tr>";
+	msg += "<tr><td></td><td>"+ graph(0, ptr, cycle, graph_type_) + "</td><td>" + graph(1, ptr, cycle, graph_type_) + "</td></tr>";
 	if (ptr->networkDisabled() == false)
-		msg += "<tr><td></td><td>"+ graph(2, ptr, cycle) + "</td><td>" + graph(3, ptr, cycle) + "</td></tr>";
+		msg += "<tr><td></td><td>"+ graph(2, ptr, cycle, graph_type_) + "</td><td>" + graph(3, ptr, cycle, graph_type_) + "</td></tr>";
 
 	msg += QString("</table><br/>");
 	
@@ -511,6 +523,12 @@ void StatsDialog::anchorClicked(const QUrl & link) {
 	}
 	else if (linkstr == "caps") {
 		mode_ = MODE_CAPS;
+	}
+	else if (linkstr == "1h") {
+		graph_type_ = GRAPH_1H;
+	}
+	else if (linkstr == "4min") {
+		graph_type_ = GRAPH_4MIN;
 	}
 	else if (linkstr == "dns") {
 		mode_ = MODE_DNS;

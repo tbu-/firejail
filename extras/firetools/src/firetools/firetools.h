@@ -21,6 +21,12 @@
 #define FIRETOOLS_H
 #include "../common/common.h"
 
+typedef enum {
+	GRAPH_4MIN = 0,
+	GRAPH_1H
+} GraphType;
+	
+
 extern int arg_debug;
 
 #endif

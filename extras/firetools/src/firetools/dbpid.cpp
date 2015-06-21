@@ -21,7 +21,8 @@
 #include "firetools.h"
 
 DbPid::DbPid(pid_t pid): next_(0), pid_(pid), cmd_(0), network_disabled_(true), uid_(0) {
-	memset(data_, 0, sizeof(data_));
+	memset(data_4min_, 0, sizeof(data_4min_));
+	memset(data_1h_, 0, sizeof(data_1h_));
 }
 
 DbPid::~DbPid() {
@@ -92,7 +93,7 @@ void DbPid::dbgprint() {
 	printf("***\n");
 	
 	for (int i = 0; i < MAXCYCLE; i++)
-		data_[i].dbgprint(i);
+		data_4min_[i].dbgprint(i);
 	
 	if (next_)
 		next_->dbgprint();
