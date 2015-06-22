@@ -20,7 +20,8 @@
 #include "firetools.h"
 #include "db.h"
 
-Db::Db(): cycle_(DbPid::MAXCYCLE - 1), g1h_cycle_(DbPid::MAXCYCLE - 1), g1h_cycle_delta_(DbPid::G1HCYCLE_DELTA - 1), pidlist_(0) {}
+Db::Db(): cycle_(DbPid::MAXCYCLE - 1), g1h_cycle_(DbPid::MAXCYCLE - 1), g1h_cycle_delta_(DbPid::G1HCYCLE_DELTA - 1), 
+	g12h_cycle_(DbPid::MAXCYCLE - 1), g12h_cycle_delta_(DbPid::G12HCYCLE_DELTA - 1), pidlist_(0) {}
 
 void Db::newCycle() {
 	if (++cycle_ >= DbPid::MAXCYCLE)
@@ -29,17 +30,20 @@ void Db::newCycle() {
 		g1h_cycle_delta_ = 0;
 		if (++g1h_cycle_ >= DbPid::MAXCYCLE)
 			g1h_cycle_ = 0;
+		if (++g12h_cycle_delta_ >= DbPid::G12HCYCLE_DELTA) {
+			g12h_cycle_delta_ = 0;
+			if (++g12h_cycle_ >= DbPid::MAXCYCLE)
+				g12h_cycle_ = 0;
+		}
 	}
 }
 
 
 DbPid *Db::findPid(pid_t pid) {
 	if (!pidlist_) {
-//printf("find in db.cpp, return null\n");	
 		return 0;
 	}
 	
-//printf("find in db.cpp, walk the list\n");	
 	return pidlist_->find(pid);
 }
 
@@ -77,7 +81,7 @@ void Db::dbgprint() {
 }
 
 void Db::dbgprintcycle() {
-	printf("4min cycle %d, 1h delta %d, 1h cycle %d\n",
-		cycle_, g1h_cycle_delta_, g1h_cycle_);
+	printf("4min cycle %d, 1h delta %d, 1h cycle %d, 12h delta %d, 12h cycle %d\n",
+		cycle_, g1h_cycle_delta_, g1h_cycle_, g12h_cycle_delta_, g12h_cycle_);
 }
 

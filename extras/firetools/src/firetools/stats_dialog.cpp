@@ -438,10 +438,13 @@ void StatsDialog::updatePid() {
 	msg += "<tr></tr>";
 	msg += "<tr><td></td>";
 	if (graph_type_ == GRAPH_4MIN) {
-		msg += "<td><b>Stats: </b>4min <a href=\"1h\">1h</a></td></tr>\n";
+		msg += "<td><b>Stats: </b>4min <a href=\"1h\">1h</a> <a href=\"12h\">12h</a></td></tr>\n";
 	}
 	else if (graph_type_ == GRAPH_1H) {
-		msg += "<td><b>Stats: </b><a href=\"4min\">4min</a> 1h</td></tr>\n";
+		msg += "<td><b>Stats: </b><a href=\"4min\">4min</a> 1h <a href=\"12h\">12h</a></td></tr>\n";
+	}
+	else if (graph_type_ == GRAPH_12H) {
+		msg += "<td><b>Stats: </b><a href=\"4min\">4min</a> <a href=\"1h\">1h</a> 12h</td></tr>\n";
 	}
 	else
 		assert(0);
@@ -525,6 +528,9 @@ void StatsDialog::anchorClicked(const QUrl & link) {
 	}
 	else if (linkstr == "1h") {
 		graph_type_ = GRAPH_1H;
+	}
+	else if (linkstr == "12h") {
+		graph_type_ = GRAPH_12H;
 	}
 	else if (linkstr == "4min") {
 		graph_type_ = GRAPH_4MIN;

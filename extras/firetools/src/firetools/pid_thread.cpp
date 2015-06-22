@@ -189,14 +189,14 @@ void PidThread::run() {
 		clear();
 
 		// 4min to 1h transfer
-//Db::instance().dbgprintcycle();			
 		if (Db::instance().getG1HCycleDelta() == 0) {
-//printf("transfer 75 sec data\n");
+printf("transfer 75 sec data\n");
+Db::instance().dbgprintcycle();			
 			
 			// for each pid
 			DbPid *dbpid = Db::instance().firstPid();
 			while (dbpid) {
-//printf("processing pid %d\n", dbpid->getPid());
+printf("processing pid %d, 1h cycle\n", dbpid->getPid());
 				int cycle = Db::instance().getCycle();
 				int g1hcycle = Db::instance().getG1HCycle();
 			
@@ -208,6 +208,23 @@ void PidThread::run() {
 				}
 				result /= DbPid::G1HCYCLE_DELTA;
 				dbpid->data_1h_[g1hcycle] = result;
+
+
+				if (Db::instance().getG12HCycleDelta() == 0) {
+printf("processing pid %d, 12h cycle\n", dbpid->getPid());
+					int g12hcycle = Db::instance().getG12HCycle();
+					g1hcycle = Db::instance().getG1HCycle();
+				
+					DbStorage result2;
+					for (int i = 0; i < DbPid::G12HCYCLE_DELTA; i++) {
+						result2 += dbpid->data_1h_[g1hcycle];
+						if (--g1hcycle < 0)
+							g1hcycle = DbPid::MAXCYCLE - 1;
+					}
+					result2 /= DbPid::G12HCYCLE_DELTA;
+					dbpid->data_12h_[g12hcycle] = result2;
+				}
+
 
 				dbpid = dbpid->getNext();
 			}

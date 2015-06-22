@@ -23,7 +23,8 @@
 
 typedef enum {
 	GRAPH_4MIN = 0,
-	GRAPH_1H
+	GRAPH_1H,
+	GRAPH_12H
 } GraphType;
 	
 

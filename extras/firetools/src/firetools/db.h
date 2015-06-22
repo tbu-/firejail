@@ -40,6 +40,12 @@ public:
 	int getG1HCycleDelta() {
 		return g1h_cycle_delta_;
 	}
+	int getG12HCycle() {
+		return g12h_cycle_;
+	}
+	int getG12HCycleDelta() {
+		return g12h_cycle_delta_;
+	}
 	DbPid *firstPid() {
 		return pidlist_;
 	}
@@ -59,6 +65,8 @@ private:
 	int cycle_;
 	int g1h_cycle_;
 	int g1h_cycle_delta_;
+	int g12h_cycle_;
+	int g12h_cycle_delta_;
 	DbPid *pidlist_;
 };
 

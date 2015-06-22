@@ -28,8 +28,8 @@ static QByteArray byteArray[4];
 static const char *id_label[4] = {
 	"CPU (%)",
 	"Memory (KiB)",
-	"RX (KB/sec)",
-	"TX (KB/sec)"
+	"RX (KB/s)",
+	"TX (KB/s)"
 };
 
 QString graph(int id, DbPid *dbpid, int cycle, GraphType gt) {
@@ -39,6 +39,8 @@ QString graph(int id, DbPid *dbpid, int cycle, GraphType gt) {
 	// adjust cycle for 1H
 	if (gt == GRAPH_1H)
 		cycle =  Db::instance().getG1HCycle();
+	else if (gt == GRAPH_12H)
+		cycle =  Db::instance().getG12HCycle();
 
 	assert(cycle < DbPid::MAXCYCLE);
 	int maxcycle = DbPid::MAXCYCLE;
@@ -68,6 +70,8 @@ QString graph(int id, DbPid *dbpid, int cycle, GraphType gt) {
 			val  = dbpid->data_4min_[i].get(id);
 		else if (gt == GRAPH_1H)
 			val  = dbpid->data_1h_[i].get(id);
+		else if (gt == GRAPH_12H)
+			val  = dbpid->data_12h_[i].get(id);
 		else
 			assert(0);
 			
@@ -123,6 +127,8 @@ QString graph(int id, DbPid *dbpid, int cycle, GraphType gt) {
 			y1 = dbpid->data_4min_[j].get(id);
 		else if (gt == GRAPH_1H)
 			y1 = dbpid->data_1h_[j].get(id);
+		else if (gt == GRAPH_12H)
+			y1 = dbpid->data_12h_[j].get(id);
 		else
 			assert(0);
 			
@@ -137,6 +143,8 @@ QString graph(int id, DbPid *dbpid, int cycle, GraphType gt) {
 			y2 = dbpid->data_4min_[j].get(id);
 		else if (gt == GRAPH_1H)
 			y2 = dbpid->data_1h_[j].get(id);
+		else if (gt == GRAPH_12H)
+			y2 = dbpid->data_12h_[j].get(id);
 		else
 			assert(0);
 			
@@ -154,7 +162,10 @@ QString graph(int id, DbPid *dbpid, int cycle, GraphType gt) {
 	else
 		paint->drawText((maxcycle - 1) * 4 + 3, TOPMARGIN + 50 + 3, QString::number(maxval / 2, 'f', 1));
 	paint->drawText((maxcycle - 1) * 4 + 3, TOPMARGIN + 100 + 3, QString("0"));
-	paint->drawText(0 + 2, TOPMARGIN + 100 + 15, QString("(minutes)"));
+	if (gt == GRAPH_12H)
+		paint->drawText(0 + 2, TOPMARGIN + 100 + 15, QString("(hours)"));
+	else
+		paint->drawText(0 + 2, TOPMARGIN + 100 + 15, QString("(minutes)"));
 	if (gt == GRAPH_4MIN) {
 		paint->drawText((maxcycle - 1) * 2 - 5, TOPMARGIN + 100 + 15, QString("-2"));
 		paint->drawText((maxcycle - 1) * 3 - 5, TOPMARGIN + 100 + 15, QString("-1"));
@@ -163,6 +174,12 @@ QString graph(int id, DbPid *dbpid, int cycle, GraphType gt) {
 		paint->drawText((maxcycle - 1) * 2 - 5, TOPMARGIN + 100 + 15, QString("-30"));
 		paint->drawText((maxcycle - 1) * 3 - 5, TOPMARGIN + 100 + 15, QString("-15"));
 	}
+	else if (gt == GRAPH_12H) {
+		paint->drawText((maxcycle - 1) * 2 - 5, TOPMARGIN + 100 + 15, QString("-3"));
+		paint->drawText((maxcycle - 1) * 3 - 5, TOPMARGIN + 100 + 15, QString("-6"));
+	}
+	else
+		assert(0);
 	
 	
 	// title
