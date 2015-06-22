@@ -41,7 +41,7 @@ StatsDialog::StatsDialog(): QDialog(), mode_(MODE_TOP), pid_(0), uid_(0), pid_se
 	QGridLayout *layout = new QGridLayout;
 	layout->addWidget(procView_, 0, 0);
 	setLayout(layout);
-	resize(600, 500);
+	resize(600, 600);
 	setWindowTitle(tr("Firejail Tools and Stats"));
 	
 	// detect if joining a sandbox is possible on this system
@@ -391,8 +391,7 @@ void StatsDialog::updatePid() {
 		errExit("getpwuid");
 	uid_ = pw->pw_uid;
 
-
-	msg += header();
+	msg += header() + "<hr>";
 	msg += "<table><tr><td width=\"5\"></td><td><b>Command:</b> " + QString(cmd) + "</td></tr></table><br/>";
 
 	msg += "<table>";
@@ -439,10 +438,10 @@ void StatsDialog::updatePid() {
 	msg += "<tr></tr>";
 	msg += "<tr><td></td>";
 	if (graph_type_ == GRAPH_4MIN) {
-		msg += "<td>4min <a href=\"1h\">1h</a></td></tr>\n";
+		msg += "<td><b>Stats: </b>4min <a href=\"1h\">1h</a></td></tr>\n";
 	}
 	else if (graph_type_ == GRAPH_1H) {
-		msg += "<td><a href=\"4min\">4min</a> 1h</td></tr>\n";
+		msg += "<td><b>Stats: </b><a href=\"4min\">4min</a> 1h</td></tr>\n";
 	}
 	else
 		assert(0);

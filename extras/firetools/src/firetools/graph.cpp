@@ -156,12 +156,12 @@ QString graph(int id, DbPid *dbpid, int cycle, GraphType gt) {
 	paint->drawText((maxcycle - 1) * 4 + 3, TOPMARGIN + 100 + 3, QString("0"));
 	paint->drawText(0 + 2, TOPMARGIN + 100 + 15, QString("(minutes)"));
 	if (gt == GRAPH_4MIN) {
-		paint->drawText((maxcycle - 1) * 2, TOPMARGIN + 100 + 15, QString("-2"));
-		paint->drawText((maxcycle - 1) * 3, TOPMARGIN + 100 + 15, QString("-1"));
+		paint->drawText((maxcycle - 1) * 2 - 5, TOPMARGIN + 100 + 15, QString("-2"));
+		paint->drawText((maxcycle - 1) * 3 - 5, TOPMARGIN + 100 + 15, QString("-1"));
 	}
 	else if (gt == GRAPH_1H) {
-		paint->drawText((maxcycle - 1) * 2, TOPMARGIN + 100 + 15, QString("-30"));
-		paint->drawText((maxcycle - 1) * 3, TOPMARGIN + 100 + 15, QString("-15"));
+		paint->drawText((maxcycle - 1) * 2 - 5, TOPMARGIN + 100 + 15, QString("-30"));
+		paint->drawText((maxcycle - 1) * 3 - 5, TOPMARGIN + 100 + 15, QString("-15"));
 	}
 	
 	
