@@ -175,8 +175,8 @@ QString graph(int id, DbPid *dbpid, int cycle, GraphType gt) {
 		paint->drawText((maxcycle - 1) * 3 - 5, TOPMARGIN + 100 + 15, QString("-15"));
 	}
 	else if (gt == GRAPH_12H) {
-		paint->drawText((maxcycle - 1) * 2 - 5, TOPMARGIN + 100 + 15, QString("-3"));
-		paint->drawText((maxcycle - 1) * 3 - 5, TOPMARGIN + 100 + 15, QString("-6"));
+		paint->drawText((maxcycle - 1) * 2 - 5, TOPMARGIN + 100 + 15, QString("-6"));
+		paint->drawText((maxcycle - 1) * 3 - 5, TOPMARGIN + 100 + 15, QString("-3"));
 	}
 	else
 		assert(0);

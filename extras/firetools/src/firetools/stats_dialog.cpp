@@ -110,7 +110,7 @@ QString StatsDialog::header() {
 void StatsDialog::updateTop() {
 	QString msg = header() + "<hr>";
 	msg += "<table><tr><td width=\"5\"></td><td><b>Sandbox List</b></td></tr></table><br/>\n";
-	msg += "<table><tr><td width=\"5\"></td><td width=\"60\">PID</td/><td width=\"60\">CPU(%)</td><td>Memory(KiB)&nbsp;&nbsp;</td><td>RX(KB/sec)&nbsp;&nbsp;</td><td>TX(KB/sec)&nbsp;&nbsp;</td><td>Command</td>\n";
+	msg += "<table><tr><td width=\"5\"></td><td width=\"60\">PID</td/><td width=\"60\">CPU(%)</td><td>Memory(KiB)&nbsp;&nbsp;</td><td>RX(KB/s)&nbsp;&nbsp;</td><td>TX(KB/s)&nbsp;&nbsp;</td><td>Command</td>\n";
 	
 	int cycle = Db::instance().getCycle();
 	assert(cycle < DbPid::MAXCYCLE);
@@ -399,13 +399,13 @@ void StatsDialog::updatePid() {
 	if (ptr->networkDisabled())
 		msg += "<td><b>RX:</b> unknown</td></tr>";
 	else
-		msg += QString("<td><b>RX:</b> ") + QString::number(st->rx_) + " KB/sec</td></tr>";
+		msg += QString("<td><b>RX:</b> ") + QString::number(st->rx_) + " KB/s</td></tr>";
 	
 	msg += QString("<tr><td></td><td><b>User:</b> ") + pw->pw_name  + "</td>";
 	if (ptr->networkDisabled())
 		msg += "<td><b>TX:</b> unknown</td></tr>";
 	else
-		msg += QString("<td><b>TX:</b> ") + QString::number(st->tx_) + " KB/sec</td></tr>";
+		msg += QString("<td><b>TX:</b> ") + QString::number(st->tx_) + " KB/s</td></tr>";
 	
 
 

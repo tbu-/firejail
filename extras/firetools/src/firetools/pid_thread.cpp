@@ -190,13 +190,13 @@ void PidThread::run() {
 
 		// 4min to 1h transfer
 		if (Db::instance().getG1HCycleDelta() == 0) {
-printf("transfer 75 sec data\n");
-Db::instance().dbgprintcycle();			
+//printf("transfer 75 sec data\n");
+//Db::instance().dbgprintcycle();			
 			
 			// for each pid
 			DbPid *dbpid = Db::instance().firstPid();
 			while (dbpid) {
-printf("processing pid %d, 1h cycle\n", dbpid->getPid());
+//printf("processing pid %d, 1h cycle\n", dbpid->getPid());
 				int cycle = Db::instance().getCycle();
 				int g1hcycle = Db::instance().getG1HCycle();
 			
@@ -211,7 +211,7 @@ printf("processing pid %d, 1h cycle\n", dbpid->getPid());
 
 
 				if (Db::instance().getG12HCycleDelta() == 0) {
-printf("processing pid %d, 12h cycle\n", dbpid->getPid());
+//printf("processing pid %d, 12h cycle\n", dbpid->getPid());
 					int g12hcycle = Db::instance().getG12HCycle();
 					g1hcycle = Db::instance().getG1HCycle();
 				
