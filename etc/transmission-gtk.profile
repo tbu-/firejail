@@ -5,4 +5,5 @@ include /etc/firejail/disable-common.inc
 caps.drop all
 seccomp
 netfilter
+noroot
 

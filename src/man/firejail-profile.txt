@@ -100,6 +100,15 @@ Enable seccomp filter and blacklist  the system calls in the list.
 Enable seccomp filter and whitelist the system calls in the list.
 
 
+.SH User Namespace
+Use \fBnoroot\fR to enable an user namespace. The namespace has only one user, the current user.
+There is no root account defined in the namespace.
+
+.TP
+noroot
+Enable an user namespace without root user defined.
+
+
 .SH Resource limits
 These profile entries define the limits on system resources (rlimits) for the processes inside the sandbox.
 The limits can be modified inside the sandbox using the regular \fBulimt\fR command. Examples:

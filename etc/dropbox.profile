@@ -4,3 +4,4 @@ include /etc/firejail/disable-secret.inc
 include /etc/firejail/disable-common.inc
 caps
 seccomp
+noroot

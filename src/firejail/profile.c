@@ -83,8 +83,12 @@ static void check_file_name(char *ptr, int lineno) {
 // return 1 if the command is to be added to the linked list of profile commands
 // return 0 if the command was already executed inside the function
 int profile_check_line(char *ptr, int lineno) {
-	// seccomp, caps, private
-	if (strcmp(ptr, "seccomp") == 0) {
+	// seccomp, caps, private, user namespace
+	if (strcmp(ptr, "noroot") == 0) {
+		check_user_namespace();
+		return 0;
+	}
+	else if (strcmp(ptr, "seccomp") == 0) {
 		arg_seccomp = 1;
 		return 0;
 	}

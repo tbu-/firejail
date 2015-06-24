@@ -18,3 +18,7 @@ params of the sandboxed program
 --noroot detected in stats_dialog.cpp (strstr(cmd, "--noroot")), it might pick it up from the
 params of the sandboxed program
 
+**********************
+* user namespace detection
+**********************
+Start "firejail firefox". The profile contains a noroot entry. Firetools reports user namespace disabled.

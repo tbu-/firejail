@@ -149,6 +149,9 @@ extern pid_t sandbox_pid;
 extern char *fullargv[MAX_ARGS];
 extern int fullargc;
 
+// main.c
+void check_user_namespace(void);
+
 // sandbox.c
 int sandbox(void* sandbox_arg);
 

@@ -409,8 +409,11 @@ int sandbox(void* sandbox_arg) {
 
 	// somehow, the new user namespace resets capabilities;
 	// we need to do them again
-	if (arg_noroot)
+	if (arg_noroot) {
 		set_caps();
+		if (arg_debug)
+			printf("User namespace (noroot) installed\n");
+	}
 
 
 	//****************************************

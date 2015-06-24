@@ -7,4 +7,5 @@ blacklist ${HOME}/.mozilla
 caps.drop all
 seccomp
 netfilter
+noroot
 

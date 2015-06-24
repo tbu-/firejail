@@ -210,6 +210,26 @@ static void check_network(Bridge *br) {
 }
 
 
+void check_user_namespace(void) {
+	if (getuid() == 0) {
+		fprintf(stderr, "Error: --noroot option cannot be used when starting the sandbox as root.\n");
+		exit(1);
+	}
+	
+	// test user namespaces available in the kernel
+	struct stat s1;
+	struct stat s2;
+	struct stat s3;
+	if (stat("/proc/self/ns/user", &s1) == 0 &&
+	    stat("/proc/self/uid_map", &s2) == 0 &&
+	    stat("/proc/self/gid_map", &s3) == 0)
+		arg_noroot = 1;
+	else {
+		fprintf(stderr, "Warning: user namespaces not available in the current kernel.\n");
+		arg_noroot = 0;
+	}
+}
+
 //*******************************************
 // Main program
 //*******************************************
@@ -693,24 +713,7 @@ int main(int argc, char **argv) {
 		else if (strcmp(argv[i], "--nogroups") == 0)
 			arg_nogroups = 1;
 		else if (strcmp(argv[i], "--noroot") == 0) {
-			// do not allow root to install a new user namespace
-			if (getuid() == 0) {
-				fprintf(stderr, "Error: --noroot option cannot be used when starting the sandbox as root.\n");
-				exit(1);
-			}
-			
-			// test user namespaces available in the kernel
-			struct stat s1;
-			struct stat s2;
-			struct stat s3;
-			if (stat("/proc/self/ns/user", &s1) == 0 &&
-			    stat("/proc/self/uid_map", &s2) == 0 &&
-			    stat("/proc/self/gid_map", &s3) == 0)
-				arg_noroot = 1;
-			else {
-				fprintf(stderr, "Warning: user namespaces not available in the current kernel.\n");
-				arg_noroot = 0;
-			}
+			check_user_namespace();
 		}
 		
 		//*************************************

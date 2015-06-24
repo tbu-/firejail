@@ -2,9 +2,13 @@ firejail (0.9.27) baseline; urgency=low
   * work in progress
   * network scanning, --scan option
   * interface MAC address support, --mac= option
-  * reworked network status at startup
+  * reworked printing of network status at startup
   * traffic shaping, --bandwidth option
   * man pages rework
+  * added firejail-login man page
+  * added an /etc/firejail/disable-common.inc file to hold common directory blacklists
+  * support noroot option for profile files
+  * enabled noroot in most default profile files
   * initial ARM support
   * bugfixes
  -- netblue30 <netblue30@yahoo.com>  Sun, 9 May 2015 08:00:00 -0500
