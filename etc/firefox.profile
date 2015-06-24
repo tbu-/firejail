@@ -5,6 +5,7 @@ blacklist ${HOME}/.adobe
 blacklist ${HOME}/.macromedia
 blacklist ${HOME}/.icedove
 blacklist ${HOME}/.thunderbird
+blacklist ${HOME}/.gnupg
 caps.drop all
 seccomp
 netfilter
