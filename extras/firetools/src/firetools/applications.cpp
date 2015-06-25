@@ -282,7 +282,7 @@ DefaultApp dapps[] = {
 	{ "audacious", "", "Audacious", "firejail audacious", "audacious" },
 	{ "gnome-mplayer", "", "GNOME MPlayer", "firejail gnome-mplayer", "gnome-mplayer" },
 	{ "clementine", "", "Clementine", "firejail clementine", "application-x-clementine" },
-	{ "xterm", "", "xterm", "firejail --profile=/etc/firejail/generic.profile --noroot xterm", ":resources/gnome-terminal" },
+	{ "xterm", "", "xterm", "firejail --profile=/etc/firejail/generic.profile xterm", ":resources/gnome-terminal" },
 	{ 0, 0, 0, 0, 0 }
 };
 

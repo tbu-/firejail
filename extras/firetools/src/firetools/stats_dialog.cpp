@@ -25,12 +25,15 @@
 #include "db.h"
 #include "graph.h"
 #include "../common/utils.h"
+#include "../common/pid.h"
 #include "../../firetools_config.h"
 extern bool data_ready;
 
 
-StatsDialog::StatsDialog(): QDialog(), mode_(MODE_TOP), pid_(0), uid_(0), pid_seccomp_(-1), pid_caps_(QString("")),
+StatsDialog::StatsDialog(): QDialog(), mode_(MODE_TOP), pid_(0), uid_(0), 
+	pid_initialized_(false), pid_seccomp_(false), pid_caps_(QString("")), pid_noroot_(false),
 	have_join_(true), caps_cnt_(64), graph_type_(GRAPH_4MIN) {
+	
 	procView_ = new QTextBrowser;
 	procView_->setOpenLinks(false);
 	procView_->setOpenExternalLinks(false);
@@ -324,7 +327,10 @@ void StatsDialog::updateDns() {
 }
 
 void StatsDialog::kernelSecuritySettings() {
-	pid_seccomp_ = 0;
+	if (arg_debug)
+		printf("Checking security settings for pid %d\n", pid_);
+		
+	pid_seccomp_ = false;
 	pid_caps_ = QString("");
 
 	char *cmd;
@@ -348,14 +354,67 @@ void StatsDialog::kernelSecuritySettings() {
 		char *ptr = strstr(str, "Seccomp");
 		if (ptr) {
 			if (strstr(ptr, "2"))
-				pid_seccomp_ = 1;
-			else
-				pid_seccomp_ = 0;
+				pid_seccomp_ = true;
 		}
-		else
-			pid_seccomp_ = 0;
 	}
+
 	free(cmd);
+}
+
+
+// find the first child process for the specified pid
+// return -1 if not found
+static int find_child(int id) {
+	int i;
+	for (i = 0; i < max_pids; i++) {
+		if (pids[i].level == 2 && pids[i].parent == id)
+			return i;
+	}
+	
+	return -1;
+}
+
+
+
+bool userNamespace(pid_t pid) {
+	if (arg_debug)
+		printf("Checking user namespace for pid %d\n", pid);
+		
+	// test user namespaces available in the kernel
+	struct stat s1;
+	struct stat s2;
+	struct stat s3;
+	if (stat("/proc/self/ns/user", &s1) == 0 &&
+	    stat("/proc/self/uid_map", &s2) == 0 &&
+	    stat("/proc/self/gid_map", &s3) == 0);
+	else
+		return false;
+
+	pid = find_child(pid);
+	if (pid == -1)
+		return false;
+		
+	// read uid map
+	char *uidmap;
+	if (asprintf(&uidmap, "/proc/%u/uid_map", pid) == -1)
+		errExit("asprintf");
+	FILE *fp = fopen(uidmap, "r");
+	if (!fp) {
+		free(uidmap);
+		return false;
+	}
+
+	// check uid map
+	int u1;
+	int u2;
+	bool found = false;
+	if (fscanf(fp, "%d %d", &u1, &u2) == 2) {
+		if (u1 != 0 || u2 != 0)
+			found = true;
+	}
+	fclose(fp);
+	free(uidmap);
+	return found;	
 }
 	
 void StatsDialog::updatePid() {
@@ -406,12 +465,13 @@ void StatsDialog::updatePid() {
 		msg += "<td><b>TX:</b> unknown</td></tr>";
 	else
 		msg += QString("<td><b>TX:</b> ") + QString::number(st->tx_) + " KB/s</td></tr>";
-	
-
 
 	// init seccomp and caps
-	if (pid_seccomp_ == -1)
+	if (pid_initialized_ == false) {
 		kernelSecuritySettings();
+		pid_initialized_ = true;
+		pid_noroot_ = userNamespace(pid_);	
+	}
 
 	msg += QString("<tr><td></td><td><b>CPU:</b> ") + QString::number(st->cpu_) + "%</td>";
 	msg += QString("<td><b>Seccomp:</b> ");
@@ -428,7 +488,8 @@ void StatsDialog::updatePid() {
 	
 	// user namespace
 	msg += "<td><b>User Namespace:</b> ";
-	if (cmd && strstr(cmd, "--noroot")) 
+	
+	if (pid_noroot_)
 		msg += "enabled";
 	else
 		msg += "disabled";
@@ -582,8 +643,8 @@ void StatsDialog::anchorClicked(const QUrl & link) {
 	}
 	else {
 		pid_ = linkstr.toInt();
-		pid_seccomp_ = -1;
-		pid_caps_ = -1;
+		pid_initialized_ = false;
+		pid_caps_ = QString("");
 		mode_ = MODE_PID;
 	}
 	

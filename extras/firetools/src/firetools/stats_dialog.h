@@ -60,8 +60,13 @@ private:
 	int mode_;
 	int pid_;	// pid value for mode 1
 	uid_t uid_;
-	int pid_seccomp_;
+
+	// security settings
+	bool pid_initialized_;
+	bool pid_seccomp_;
 	QString pid_caps_;
+	bool pid_noroot_;
+	
 	bool have_join_;
 	int caps_cnt_;
 	GraphType graph_type_;
