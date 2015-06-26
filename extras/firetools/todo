@@ -1,4 +1,9 @@
 **********************
+* debian i386
+**********************
+Open new xterm sandbox, join it, shut down the join process - it does not shut down!
+
+**********************
 * sandbox name collisions
 **********************
 Create a new sandboxs named xterm, and restart firetools - the new sandbox replaces the existing xterm sandbox.
