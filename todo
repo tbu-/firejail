@@ -1,4 +1,13 @@
 ***********************
+Empathy
+***********************
+running empathy does not accept noroot option
+firejail --noroot empathy - will not work
+
+It can be fixed by adding setsid
+
+
+***********************
 Investigatehttps://readthedocs.org/ for hosting documentation
 ***********************
 

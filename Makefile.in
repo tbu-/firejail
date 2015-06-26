@@ -95,6 +95,9 @@ install: all
 	install -c -m 0644 etc/deluge.profile $(DESTDIR)/etc/firejail/.
 	install -c -m 0644 etc/qbittorrent.profile $(DESTDIR)/etc/firejail/.
 	install -c -m 0644 etc/generic.profile $(DESTDIR)/etc/firejail/.
+	install -c -m 0644 etc/pidgin.profile $(DESTDIR)/etc/firejail/.
+	install -c -m 0644 etc/xchat.profile $(DESTDIR)/etc/firejail/.
+	install -c -m 0644 etc/empathy.profile $(DESTDIR)/etc/firejail/.
 	bash -c "if [ ! -f /etc/firejail/login.users ]; then install -c -m 0644 etc/login.users $(DESTDIR)/etc/firejail/.; fi;"
 	# man pages
 	rm -f firejail.1.gz
