@@ -6,7 +6,7 @@ firejail (0.9.27) baseline; urgency=low
   * traffic shaping, --bandwidth option
   * man pages rework
   * added firejail-login man page
-  * added Pidgin, XChat, Empathy profiles
+  * added GNU Icecat, Pidgin, XChat, Empathy profiles
   * added an /etc/firejail/disable-common.inc file to hold common directory blacklists
   * blacklist Opera and Chrome/Chromium config directories in profile files
   * support noroot option for profile files

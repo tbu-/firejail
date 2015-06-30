@@ -660,7 +660,8 @@ full  null  ptmx  pts  random  shm  tty  urandom  zero
 $
 .TP
 \fB\-\-profile=filename
-Use a custom profile, see below.
+Load a custom profile from filename. For filename use an absolute path or a path relative to the current path.
+For more information, see PROFILES section below.
 .br
 
 .br
@@ -1093,10 +1094,33 @@ The owner of the sandbox.
 
 .SH PROFILES
 Several command line configuration options can be passed to the program using
-profile files. Default Firejail profile files are stored in /etc/firejail
-directory, user profile files are stored in ~/.config/firejail directory. See
-man 5 firejail-profile for more information.
-	
+profile files. Firejail supports user specified profile files and automatic profile files,
+as follows:
+
+1. Load a specific profile file from a full path, or a path relative to the current directory.
+Example:
+.PP
+.RS
+$ firejail --profile=/home/netblue/icecat.profile icecat
+.RE
+
+2. Load a default profile file automatically from ~/.config/firejail or from /etc/firejail, based 
+on the name of the executable started in the sandbox. Example:
+.PP
+.RS
+$ firejail icecat
+.br
+Command name #icecat#
+.br
+.br
+Found icecat profile in /home/netblue/.config/firejail directory
+.br
+Reading profile /home/netblue/.config/firejail/icecat.profile
+.br
+[...]
+.RE
+
+See man 5 firejail-profile for profile file syntax information.
 	
 .SH RESTRICTED SHELL
 To configure a restricted shell, replace /bin/bash with /usr/bin/firejail in
