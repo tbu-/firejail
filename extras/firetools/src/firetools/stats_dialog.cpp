@@ -630,7 +630,7 @@ void StatsDialog::anchorClicked(const QUrl & link) {
 	else if (linkstr == "about") {
 		QString msg = "<table cellpadding=\"10\"><tr><td><img src=\":/resources/firetools.png\"></td>";
 		msg += "<td>" + tr(
-			"Firetools is the graphical user interface component of Firejal.<br/><br/>"
+			"Firetools is the graphical user interface component of Firejail.<br/><br/>"
 			"Firejail  is  a  SUID sandbox program that reduces the risk of security "
 			"breaches by restricting the running environment of  untrusted  applications "
 			"using Linux namespaces, Linux capabilities and seccomp-bpf.<br/><br/>") + 

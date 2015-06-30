@@ -129,6 +129,8 @@ mplementations are required to look in the "hicolor" theme if an icon was not fo
 in the current theme. 
 */
 QIcon Application::loadIcon(QString name) {
+	if (arg_debug)
+		printf("searching icon %s\n", name.toLocal8Bit().data());
 	if (name.startsWith('/') || name.startsWith(":resources")) {
 		if (arg_debug)
 			printf("icon %s: full path\n", name.toLocal8Bit().data());
@@ -282,8 +284,10 @@ DefaultApp dapps[] = {
 	{ "audacious", "", "Audacious", "firejail audacious", "audacious" },
 	{ "gnome-mplayer", "", "GNOME MPlayer", "firejail gnome-mplayer", "gnome-mplayer" },
 	{ "clementine", "", "Clementine", "firejail clementine", "application-x-clementine" },
+	{ "deadbeef", "", "DeaDBeeF", "firejail deadbeef", "deadbeef" },
 	{ "pidgin", "", "Pidgin", "firejail pidgin", "pidgin" },
 	{ "xchat", "", "XChat", "firejail xchat", "xchat" },
+	{ "quassel", "", "Quassel IRC", "firejail quassel", "quassel" },
 	{ "empathy", "", "Empathy", "firejail empathy", "empathy" },
 	{ "xterm", "", "xterm", "firejail --profile=/etc/firejail/generic.profile xterm", ":resources/gnome-terminal" },
 	{ 0, 0, 0, 0, 0 }

@@ -1,7 +1,12 @@
 ***********************
 to add
 ***********************
-smuxi, konversation, quassel
+smuxi run as: mono --debug /usr/lib/smuxi/smuxi-frontend-gnome.exe
+konversation: cannot run
+mpd - music player daemon
+irssi - chat client, console
+ownCloud - server
+ftp clients: FileZilla, gFTP, LFTP, NcFTP
 
 
 ***********************
