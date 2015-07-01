@@ -289,6 +289,7 @@ DefaultApp dapps[] = {
 	{ "xchat", "", "XChat", "firejail xchat", "xchat" },
 	{ "quassel", "", "Quassel IRC", "firejail quassel", "quassel" },
 	{ "empathy", "", "Empathy", "firejail empathy", "empathy" },
+	{ "filezilla", "", "FileZilla", "firejail filezilla", "filezilla" },
 	{ "xterm", "", "xterm", "firejail --profile=/etc/firejail/generic.profile xterm", ":resources/gnome-terminal" },
 	{ 0, 0, 0, 0, 0 }
 };
