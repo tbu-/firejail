@@ -100,7 +100,8 @@ void net_configure_sandbox_ip(Bridge *br) {
 		}
 	}
 	else
-		br->ipsandbox = arp_assign(br->dev, br->ip, br->mask);
+		// ip address assigned by arp-scan for a bridge device
+		br->ipsandbox = arp_assign(br->dev, br); //br->ip, br->mask);
 }
 
 

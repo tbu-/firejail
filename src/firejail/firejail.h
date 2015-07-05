@@ -41,6 +41,8 @@ typedef struct bridge_t {
 	char *devsandbox;	// name of the device inside the sandbox
 	uint32_t ipsandbox;	// ip address inside the sandbox
 	uint8_t mac[6];		// mac address inside the sandbox
+	uint32_t iprange_start;// iprange arp scan start range
+	uint32_t iprange_end;	// iprange arp scan end range
 	
 	// flags
 	uint8_t arg_ip_none;	// --ip=none
@@ -198,7 +200,7 @@ int fs_check_chroot_dir(const char *rootdir);
 // find and read the profile specified by name from dir directory
 int profile_find(const char *name, const char *dir);
 // read a profile file
-void profile_read(const char *fname);
+void profile_read(const char *fname, const char *skip1, const char *skip2);
 // check profile line; if line == 0, this was generated from a command line option
 // return 1 if the command is to be added to the linked list of profile commands
 // return 0 if the command was already executed inside the function
@@ -228,13 +230,9 @@ int restricted_shell(const char *user);
 // arp.c
 // returns 0 if the address is not in use, -1 otherwise
 int arp_check(const char *dev, uint32_t destaddr, uint32_t srcaddr);
-// assign a random IP address and check it
-uint32_t arp_random(const char *dev, uint32_t ifip, uint32_t ifmask);
-// go sequentially trough all IP addresses and assign the first one not in use
-uint32_t arp_sequential(const char *dev, uint32_t ifip, uint32_t ifmask);
-// assign an IP address using the specified IP address or the ARP mechanism
-uint32_t arp_assign(const char *dev, uint32_t ifip, uint32_t ifmask);
-// scan interface
+// assign an IP address using arp scanning
+uint32_t arp_assign(const char *dev, Bridge *br);
+// scan interface (--scan option)
 void arp_scan(const char *dev, uint32_t srcaddr, uint32_t srcmask);
 
 // veth.c

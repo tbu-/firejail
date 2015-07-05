@@ -159,28 +159,52 @@ int arp_check(const char *dev, uint32_t destaddr, uint32_t srcaddr) {
 }
 
 // assign a random IP address and check it
-uint32_t arp_random(const char *dev, uint32_t ifip, uint32_t ifmask) {
+// the address needs to be in the range if it --iprange was specified
+static uint32_t arp_random(const char *dev, Bridge *br) {
+	assert(dev);
+	assert(br);
+	uint32_t ifip = br->ip;
+	uint32_t ifmask = br->mask;
 	assert(ifip);
 	assert(ifmask);
-	assert(dev);
 
 	if (arg_debug)
 		printf("ARP-scan %s, %d.%d.%d.%d/%d\n",
 			dev, PRINT_IP(ifip), mask2bits(ifmask));
 
+	// determine the range based on network address
 	uint32_t range = ~ifmask + 1; // the number of potential addresses
 	// this software is not supported for /31 networks
 	if (range < 4)
 		return 0; // the user will have to set the IP address manually
 	range -= 2; // subtract the network address and the broadcast address
+	uint32_t start = (ifip & ifmask) + 1;
+	
+	// adjust range based on --iprange params
+	if (br->iprange_start && br->iprange_end) {
+		start = br->iprange_start;
+		range = br->iprange_end - br->iprange_start;
+	}
+		
 	if (arg_debug)
 		printf("IP address range from %d.%d.%d.%d to %d.%d.%d.%d\n",
-			PRINT_IP((ifip & ifmask) + 1), PRINT_IP((ifip & ifmask) + range));
+			PRINT_IP(start), PRINT_IP(start + range));
 
-	// try a random address
-	uint32_t dest = (ifip & ifmask) + 1 + ((uint32_t) rand()) % range;
-	while (dest == ifip)
-		dest = (ifip & ifmask) + 1 + ((uint32_t) rand()) % range;
+	// generate a random address - 10 tries
+	uint32_t dest = 0;
+	int i = 0;
+	for (i = 0; i < 10; i++) {
+		dest = start + ((uint32_t) rand()) % range;
+		if (dest == ifip)	// do not allow the interface address
+			continue;		// try again
+		
+		// if we've made it up to here, we have a valid address
+		break;
+	}
+	if (i == 10)	// we failed 10 times
+		return 0;
+	
+	// check address
 	uint32_t rv = arp_check(dev, dest, ifip);
 	if (!rv)
 		return dest;
@@ -188,11 +212,15 @@ uint32_t arp_random(const char *dev, uint32_t ifip, uint32_t ifmask) {
 }
 
 // go sequentially trough all IP addresses and assign the first one not in use
-uint32_t arp_sequential(const char *dev, uint32_t ifip, uint32_t ifmask) {
+static uint32_t arp_sequential(const char *dev, Bridge *br) {
+	assert(dev);
+	assert(br);
+	uint32_t ifip = br->ip;
+	uint32_t ifmask = br->mask;
 	assert(ifip);
 	assert(ifmask);
-	assert(dev);
 
+	// range based on network address
 	uint32_t range = ~ifmask + 1; // the number of potential addresses
 	// this software is not supported for /31 networks
 	if (range < 4)
@@ -200,11 +228,20 @@ uint32_t arp_sequential(const char *dev, uint32_t ifip, uint32_t ifmask) {
 	range -= 2; // subtract the network address and the broadcast address
 
 	// try all possible ip addresses in ascending order
+	// start address
 	uint32_t dest = (ifip & ifmask) + 1;
+	if (br->iprange_start)
+		dest = br->iprange_start;
+	// end address
 	uint32_t last = dest + range - 1;
+	if (br->iprange_end)
+		last = br->iprange_end;
+	
 	if (arg_debug)
 		printf("Trying IP address range from %d.%d.%d.%d to %d.%d.%d.%d\n",
 			PRINT_IP(dest), PRINT_IP(last));
+
+	// loop through addresses and stop as soon as you find an unused one
 	while (dest <= last) {
 		if (dest == ifip) {
 			dest++;
@@ -219,18 +256,25 @@ uint32_t arp_sequential(const char *dev, uint32_t ifip, uint32_t ifmask) {
 	return 0;
 }
 
-// assign an IP address using the specified IP address or the ARP mechanism
-uint32_t arp_assign(const char *dev, uint32_t ifip, uint32_t ifmask) {
+// assign an IP address first trying some random addresses, and if this fails
+//    by doing an arp scan.
+//
+// dev is the name of the device to use in scanning,
+// br is bridge structure holding the ip address and mask to use in
+//    arp packets. It also holds values for for the range of addresses
+//    if --iprange was set by the user
+uint32_t arp_assign(const char *dev, Bridge *br) {
+	assert(br);
 	uint32_t ip = 0;
 
 	// try two random IP addresses
-	ip = arp_random(dev, ifip, ifmask);
+	ip = arp_random(dev, br);
 	if (!ip)
-		ip = arp_random(dev, ifip, ifmask);
+		ip = arp_random(dev, br);
 		
 	// try all possible IP addresses one by one
 	if (!ip)
-		ip = arp_sequential(dev, ifip, ifmask);
+		ip = arp_sequential(dev, br);
 	
 	// print result
 	if (!ip) {
@@ -242,13 +286,13 @@ uint32_t arp_assign(const char *dev, uint32_t ifip, uint32_t ifmask) {
 	return ip;
 }
 
-
-void arp_scan(const char *dev, uint32_t srcaddr, uint32_t srcmask) {
+// scan interface (--scan option)
+void arp_scan(const char *dev, uint32_t ifip, uint32_t ifmask) {
 	assert(dev);
-	assert(srcaddr);
+	assert(ifip);
 	
 //	printf("Scanning interface %s (%d.%d.%d.%d/%d)\n",
-//		dev, PRINT_IP(srcaddr & srcmask), mask2bits(srcmask));
+//		dev, PRINT_IP(ifip & ifmask), mask2bits(ifmask));
 			
 	if (strlen(dev) > IFNAMSIZ) {
 		fprintf(stderr, "Error: invalid network device name %s\n", dev);
@@ -273,7 +317,7 @@ void arp_scan(const char *dev, uint32_t srcaddr, uint32_t srcmask) {
 		errExit("socket");
 	
 	// try all possible ip addresses in ascending order
-	uint32_t range = ~srcmask + 1; // the number of potential addresses
+	uint32_t range = ~ifmask + 1; // the number of potential addresses
 	// this software is not supported for /31 networks
 	if (range < 4) {
 		fprintf(stderr, "Warning: this option is not supported for /31 networks\n");
@@ -281,9 +325,9 @@ void arp_scan(const char *dev, uint32_t srcaddr, uint32_t srcmask) {
 		return;
 	}
 
-	uint32_t dest = (srcaddr & srcmask) + 1;
+	uint32_t dest = (ifip & ifmask) + 1;
 	uint32_t last = dest + range - 1;
-	uint32_t src = htonl(srcaddr);
+	uint32_t src = htonl(ifip);
 
 	// wait not more than one second for an answer
 	int header_printed = 0;

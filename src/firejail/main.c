@@ -637,7 +637,7 @@ int main(int argc, char **argv) {
 				return 1;
 			}
 
-			profile_read(argv[i] + 10);
+			profile_read(argv[i] + 10, NULL, NULL);
 			custom_profile = 1;
 		}
 #ifdef HAVE_CHROOT		
@@ -750,6 +750,43 @@ int main(int argc, char **argv) {
 		}
 		else if (strcmp(argv[i], "--scan") == 0) {
 			arg_scan = 1;
+		}
+		else if (strncmp(argv[i], "--iprange=", 10) == 0) {
+			Bridge *br = last_bridge_configured();
+			if (br == NULL) {
+				fprintf(stderr, "Error: no network device configured\n");
+				return 1;
+			}
+			if (br->iprange_start || br->iprange_end) {
+				fprintf(stderr, "Error: cannot configure the IP range twice for the same interface\n");
+				return 1;
+			}
+			
+			// parse option arguments
+			char *firstip = argv[i] + 10;
+			char *secondip = firstip;
+			while (*secondip != '\0') {
+				if (*secondip == ',')
+					break;
+				secondip++;
+			}
+			if (*secondip == '\0') {
+				fprintf(stderr, "Error: invalid IP range\n");
+				return 1;
+			}
+			*secondip = '\0';
+			secondip++;
+			
+			// check addresses
+			if (atoip(firstip, &br->iprange_start) || atoip(secondip, &br->iprange_end) ||
+			    br->iprange_start >= br->iprange_end) {
+				fprintf(stderr, "Error: invalid IP range\n");
+				return 1;
+			}
+			if (in_netrange(br->iprange_start, br->ip, br->mask) || in_netrange(br->iprange_end, br->ip, br->mask)) {
+				fprintf(stderr, "Error: IP range addresses not in network range\n");
+				return 1;
+			}
 		}
 		else if (strncmp(argv[i], "--mac=", 6) == 0) {
 			Bridge *br = last_bridge_configured();

@@ -44,7 +44,7 @@ int profile_find(const char *name, const char *dir) {
 				char *etcpname;
 				if (asprintf(&etcpname, "%s/%s", dir, pname) == -1)
 					errExit("asprintf");
-				profile_read(etcpname);
+				profile_read(etcpname, NULL, NULL);
 				free(etcpname);
 				rv = 1;
 				break;
@@ -357,7 +357,8 @@ void profile_add(char *str) {
 
 // read a profile file
 static int include_level = 0;
-void profile_read(const char *fname) {
+// skip1, skip2 - if the string is found in the line, the line is not interpreted
+void profile_read(const char *fname, const char *skip1, const char *skip2) {
 	// exit program if maximum include level was reached
 	if (include_level > MAX_INCLUDE_LEVEL) {
 		fprintf(stderr, "Error: maximum profile include level was reached\n");
@@ -397,11 +398,42 @@ void profile_read(const char *fname) {
 		// process include
 		if (strncmp(ptr, "include ", 8) == 0) {
 			include_level++;
+			
+			// extract profile filename and new skip params
+			char *newprofile = ptr + 8; // profile name
+			char *newskip1 = NULL; // new skip1
+			char *newskip2 = NULL; // new skip2
+			char *p = newprofile;
+			while (*p != '\0') {
+				if (*p == ' ') {
+					*p = '\0';
+					if (newskip1 == NULL)
+						newskip1 = p + 1;
+					else if (newskip2 == NULL)
+						newskip2 = p + 1;
+				}
+				p++;
+			}
+			
 			// recursivity
-			profile_read(ptr + 8);
+			profile_read(newprofile, newskip1, newskip2);
 			include_level--;
 			free(ptr);
 			continue;
+		}
+		
+		// skip
+		if (skip1) {
+			if (strstr(ptr, skip1)) {
+				free(ptr);
+				continue;
+			}
+		}
+		if (skip2) {
+			if (strstr(ptr, skip2)) {
+				free(ptr);
+				continue;
+			}
 		}
 		
 		// verify syntax, exit in case of error

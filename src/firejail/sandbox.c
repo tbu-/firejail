@@ -90,7 +90,8 @@ static void sandbox_if_up(Bridge *br) {
 	else if (br->arg_ip_none == 0 && br->macvlan == 1) {
 		// reassign the macvlan address
 		if (br->ipsandbox == 0)
-			br->ipsandbox = arp_assign(dev, br->ip, br->mask);
+			// ip address assigned by arp-scan for a macvlan device
+			br->ipsandbox = arp_assign(dev, br); //br->ip, br->mask);
 		else {
 			if (br->ipsandbox == br->ip) {
 				fprintf(stderr, "Error: %d.%d.%d.%d is interface %s address.\n", PRINT_IP(br->ipsandbox), br->dev);
