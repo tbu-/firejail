@@ -8,10 +8,10 @@ Start a sandbox:
 firejail [OPTIONS] [program and arguments]
 .RE
 .PP
-Traffic shaping for an existing sandbox:
+Network traffic shaping for an existing sandbox:
 .PP
 .RS
-firejail \-\-bandwidth={<name>|<PID>} bandwidth-command-arguments
+firejail \-\-bandwidth={<name>|<PID>} bandwidth-command
 .RE
 .PP
 Monitoring:
@@ -321,6 +321,17 @@ Example:
 $ firejail \-\-net=eth0 \-\-\ip=none
 
 .TP
+\fB\-\-iprange=address,address
+Assign an IP address in the provided range to the last network interface defined by a \-\-net option. A
+default gateway is assigned by default.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-net=eth0 \-\-\iprange=192.168.1.100,192.168.1.150
+
+.TP
 \fB\-\-ipc-namespace
 Enable  a new IPC namespace if the sandbox was started as a regular user. IPC namespace is enabled by default
 for sandboxes started as root.
@@ -400,11 +411,11 @@ Example:
 $ firejail \-\-name=mybrowser firefox
 
 .TP
-\fB\-\-net=bridgename
-Enable a new network namespace and connect it to this bridge device.
+\fB\-\-net=bridge_interface
+Enable a new network namespace and connect it to this bridge interface.
 Unless specified with option \-\-ip and \-\-defaultgw, an IP address and a default gateway will be assigned
-automatically to the sandbox. The IP address is checked using ARP before assignment. The IP address
-assigned as default gateway is the bridge device IP address. Up to four \-\-net
+automatically to the sandbox. The IP address is verified using ARP before assignment. The address
+configured as default gateway is the bridge device IP address. Up to four \-\-net
 bridge devices can be defined. Mixing bridge and macvlan devices is allowed.
 .br
 
@@ -424,11 +435,11 @@ $ firejail \-\-net=br0 \-\-net=br1
 .TP
 \fB\-\-net=ethernet_interface
 Enable a new network namespace and connect it
-to this ethernet_interface using the standard Linux macvlan
+to this ethernet interface using the standard Linux macvlan
 driver. Unless specified with option \-\-ip and \-\-defaultgw, an
 IP address and a default gateway will be assigned automatically
-to the sandbox. The IP address is checked using ARP before
-assignment. The IP address assigned as default gateway is the
+to the sandbox. The IP address is verified using ARP before
+assignment. The address configured as default gateway is the
 default gateway of the host. Up to four \-\-net devices can
 be defined. Mixing bridge and macvlan devices is allowed.
 .br
@@ -1005,11 +1016,11 @@ The shaper works at sandbox level, and can be used only for sandboxes configured
 
 Set rate-limits:
 
-	firejail --bandwidth={name|pid} set network-name down-speed up-speed
+	firejail --bandwidth={name|pid} set network download upload
 
 Clear rate-limits:
 
-	firejail --bandwidth={name|pid} clear network-name
+	firejail --bandwidth={name|pid} clear network
 
 Status:
 
@@ -1021,11 +1032,11 @@ where:
 .br
 	pid - sandbox pid
 .br
-	network-name - network name as used by \-\-net option
+	network - network interface as used by \-\-net option
 .br
-	down-speed - download speed in KB/s (decimal kilobyte per second)
+	download - download speed in KB/s (kilobyte per second)
 .br
-	up-speed - upload speed in KB/s (decimal kilobyte per second)
+	upload - upload speed in KB/s (kilobyte per second)
 
 Example:
 .br

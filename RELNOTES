@@ -1,19 +1,18 @@
-firejail (0.9.27) baseline; urgency=low
-  * work in progress
+firejail (0.9.28-rc1) baseline; urgency=low
   * network scanning, --scan option
-  * interface MAC address support, --mac= option
-  * reworked printing of network status at startup
+  * interface MAC address support, --mac option
+  * IP address range, --iprange option
   * traffic shaping, --bandwidth option
+  * reworked printing of network status at startup
   * man pages rework
   * added firejail-login man page
-  * added GNU Icecat, FileZilla, Pidgin, XChat, Empathy, DeaDBeeF profiles
+  * added GNU Icecat, FileZilla, Pidgin, XChat, Empathy, DeaDBeeF default profiles
   * added an /etc/firejail/disable-common.inc file to hold common directory blacklists
   * blacklist Opera and Chrome/Chromium config directories in profile files
   * support noroot option for profile files
   * enabled noroot in default profile files
-  * initial ARM support
   * bugfixes
- -- netblue30 <netblue30@yahoo.com>  Sun, 9 May 2015 08:00:00 -0500
+ -- netblue30 <netblue30@yahoo.com>  Fri, 10 Jul 2015 08:00:00 -0500
 
 firejail (0.9.26) baseline; urgency=low
   * private dev directory
