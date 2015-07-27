@@ -166,6 +166,10 @@ void usage(void) {
 	printf("\t--rlimit-sigpending=number - set the maximum number of pending signals\n");
 	printf("\t\tfor a process.\n\n");
 
+	printf("\t--scan - ARP-scan all the networks from inside a network namespace.\n");
+	printf("\t\tThis makes it possible to detect macvlan kernel device drivers\n");
+	printf("\t\trunning on the current host.\n\n");
+	
 #ifdef HAVE_SECCOMP
 	printf("\t--seccomp - enable seccomp filter and blacklist the syscalls in the\n");
 	printf("\t\tlist. The default list is as follows: mount, umount2,\n");

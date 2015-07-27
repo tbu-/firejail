@@ -95,7 +95,7 @@ void net_ifprint(void) {
 
 
 // return -1 if the interface was not found; if the interface was found retrn 0 and fill in IP address and mask
-int net_get_if_addr(const char *bridge, uint32_t *ip, uint32_t *mask) {
+int net_get_if_addr(const char *bridge, uint32_t *ip, uint32_t *mask, uint8_t mac[6]) {
 	assert(bridge);
 	assert(ip);
 	assert(mask);
@@ -117,6 +117,9 @@ int net_get_if_addr(const char *bridge, uint32_t *ip, uint32_t *mask) {
 			*mask = ntohl(si->sin_addr.s_addr);
 			si = (struct sockaddr_in *) ifa->ifa_addr;
 			*ip = ntohl(si->sin_addr.s_addr);
+			if (strcmp(ifa->ifa_name, "lo") != 0)
+				net_get_mac(ifa->ifa_name, mac);
+			
 			rv = 0;
 			break;
 		}

@@ -252,7 +252,9 @@ int main(int argc, char **argv) {
 	time_t t = time(NULL);
 	srand(t ^ sandbox_pid);
 
-	// clear shm
+	// check firejail directories
+	fs_build_firejail_dir();
+	shm_create_firejail_dir();	
 	bandwidth_shm_del_file(sandbox_pid);
 
 	// is this a login shell?
@@ -794,13 +796,13 @@ int main(int argc, char **argv) {
 				fprintf(stderr, "Error: no network device configured\n");
 				return 1;
 			}
-			if (mac_not_zero(br->mac)) {
+			if (mac_not_zero(br->macsandbox)) {
 				fprintf(stderr, "Error: cannot configure the MAC address twice for the same interface\n");
 				return 1;
 			}
 
 			// read the address
-			if (atomac(argv[i] + 6, br->mac)) {
+			if (atomac(argv[i] + 6, br->macsandbox)) {
 				fprintf(stderr, "Error: invalid MAC address\n");
 				return 1;
 			}
@@ -1031,17 +1033,19 @@ int main(int argc, char **argv) {
 
 	// check and assign an IP address - for macvlan it will be done again in the sandbox!
 	if (any_bridge_configured()) {
-		lockfd = open("/var/lock/firejail.lock", O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
-		if (lockfd != -1)
+		lockfd = open("/tmp/firejail/firejail.lock", O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR);
+		if (lockfd != -1) {
+			int rv = fchown(lockfd, 0, 0);
+			(void) rv;
 			flock(lockfd, LOCK_EX);
-
+		}
+		
 		check_network(&cfg.bridge0);
 		check_network(&cfg.bridge1);
 		check_network(&cfg.bridge2);
 		check_network(&cfg.bridge3);
 			
 		// save network mapping in shared memory
-		shm_create_firejail_dir();
 		network_shm_set_file(sandbox_pid);
 	}
 

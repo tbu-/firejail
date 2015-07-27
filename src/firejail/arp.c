@@ -290,7 +290,7 @@ uint32_t arp_assign(const char *dev, Bridge *br) {
 void arp_scan(const char *dev, uint32_t ifip, uint32_t ifmask) {
 	assert(dev);
 	assert(ifip);
-	
+
 //	printf("Scanning interface %s (%d.%d.%d.%d/%d)\n",
 //		dev, PRINT_IP(ifip & ifmask), mask2bits(ifmask));
 			
@@ -438,6 +438,28 @@ void arp_scan(const char *dev, uint32_t ifip, uint32_t ifmask) {
 				// printing
 				if (header_printed == 0) {
 					printf("   Network scan:\n");
+					
+					// print parent interface
+					if (cfg.bridge0.configured && cfg.bridge0.ip && cfg.bridge0.macvlan &&
+					    (cfg.bridge0.ip & cfg.bridge0.mask) == (ifip & cfg.bridge0.mask))
+						printf("   %02x:%02x:%02x:%02x:%02x:%02x\t%d.%d.%d.%d\n",
+							PRINT_MAC(cfg.bridge0.mac), PRINT_IP(cfg.bridge0.ip));
+					
+					if (cfg.bridge1.configured && cfg.bridge1.ip &&  cfg.bridge1.macvlan &&
+					    (cfg.bridge1.ip & cfg.bridge1.mask) == (ifip & cfg.bridge1.mask))
+						printf("   %02x:%02x:%02x:%02x:%02x:%02x\t%d.%d.%d.%d\n",
+							PRINT_MAC(cfg.bridge1.mac), PRINT_IP(cfg.bridge1.ip));
+					
+					if (cfg.bridge2.configured && cfg.bridge2.ip &&  cfg.bridge2.macvlan &&
+					    (cfg.bridge2.ip & cfg.bridge2.mask) == (ifip & cfg.bridge2.mask))
+						printf("   %02x:%02x:%02x:%02x:%02x:%02x\t%d.%d.%d.%d\n",
+							PRINT_MAC(cfg.bridge2.mac), PRINT_IP(cfg.bridge2.ip));
+					
+					if (cfg.bridge3.configured && cfg.bridge3.ip &&  cfg.bridge3.macvlan &&
+					    (cfg.bridge3.ip & cfg.bridge3.mask) == (ifip & cfg.bridge3.mask))
+						printf("   %02x:%02x:%02x:%02x:%02x:%02x\t%d.%d.%d.%d\n",
+							PRINT_MAC(cfg.bridge3.mac), PRINT_IP(cfg.bridge3.ip));
+					
 					header_printed = 1;
 				}
 				printf("   %02x:%02x:%02x:%02x:%02x:%02x\t%d.%d.%d.%d\n",

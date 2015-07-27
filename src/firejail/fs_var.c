@@ -151,6 +151,8 @@ void fs_var_log(void) {
 
 void fs_var_lib(void) {
 	struct stat s;
+	
+	// ISC DHCP multiserver
 	if (stat("/var/lib/dhcp", &s) == 0) {
 		if (arg_debug)
 			printf("Mounting tmpfs on /var/lib/dhcp\n");
@@ -170,6 +172,7 @@ void fs_var_lib(void) {
 		}
 	}
 
+	// nginx multiserver
 	if (stat("/var/lib/nginx", &s) == 0) {
 		if (arg_debug)
 			printf("Mounting tmpfs on /var/lib/nginx\n");
@@ -177,6 +180,7 @@ void fs_var_lib(void) {
 			errExit("mounting /var/lib/nginx");
 	}			
 
+	// net-snmp multiserver
 	if (stat("/var/lib/snmp", &s) == 0) {
 		if (arg_debug)
 			printf("Mounting tmpfs on /var/lib/snmp\n");
@@ -184,13 +188,13 @@ void fs_var_lib(void) {
 			errExit("mounting /var/lib/snmp");
 	}			
 
+	// this is where sudo remembers its state
 	if (stat("/var/lib/sudo", &s) == 0) {
 		if (arg_debug)
 			printf("Mounting tmpfs on /var/lib/sudo\n");
 		if (mount("tmpfs", "/var/lib/sudo", "tmpfs", MS_NOSUID | MS_STRICTATIME | MS_REC,  "mode=755,gid=0") < 0)
 			errExit("mounting /var/lib/sudo");
 	}			
-
 }
 
 void fs_var_cache(void) {
@@ -283,7 +287,7 @@ void fs_var_lock(void) {
 			free(lnk);
 		}
 		else {
-			fprintf(stderr, "Warning: /dev/lock not mounted\n");
+			fprintf(stderr, "Warning: /var/lock not mounted\n");
 			dbg_test_dir("/var/lock");
 		}
 	}

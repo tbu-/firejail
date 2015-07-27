@@ -350,7 +350,7 @@ void fs_check_private_dir(void) {
 		fprintf(stderr, "Error: cannot find %s directory, full path name required\n", cfg.homedir);
 		exit(1);
 	}
-	if (s1.st_uid != s2.st_uid || s1.st_gid != s2.st_gid) {
+	if (s1.st_uid != s2.st_uid) {
 		printf("Error: the two home directories must have the same owner\n");
 		exit(1);
 	}

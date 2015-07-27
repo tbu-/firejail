@@ -123,6 +123,12 @@ void shm_create_firejail_dir(void) {
 		if (chown("/dev/shm/firejail", 0, 0) == -1)
 			errExit("chown");
 	}
+	else { // check /dev/shm/firejail directory belongs to root end exit if doesn't!
+		if (s.st_uid != 0 || s.st_gid != 0) {
+			fprintf(stderr, "Error: non-root %s directory, exiting...\n", "/dev/shm/firejail");
+			exit(1);
+		}
+	}
 }
 
 static void shm_create_bandwidth_file(pid_t pid) {

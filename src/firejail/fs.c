@@ -42,6 +42,12 @@ void fs_build_firejail_dir(void) {
 		if (chmod(FIREJAIL_DIR, S_IRWXU  | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) < 0)
 			errExit("chmod");
 	}
+	else { // check /tmp/firejail directory belongs to root end exit if doesn't!
+		if (s.st_uid != 0 || s.st_gid != 0) {
+			fprintf(stderr, "Error: non-root %s directory, exiting...\n", FIREJAIL_DIR);
+			exit(1);
+		}
+	}
 }
 
 

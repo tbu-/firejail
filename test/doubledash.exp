@@ -47,7 +47,7 @@ expect {
 }
 send --  "firejail --list;pwd\r"
 expect {
-	timeout {puts "TESTING ERROR 8\n";exit}
+	timeout {puts "TESTING ERROR 8 (join)\n";exit}
 	"join=testing"
 }
 expect {

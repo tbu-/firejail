@@ -18,7 +18,7 @@ expect {
 	"Switching to pid"
 }
 expect {
-	timeout {puts "TESTING ERROR 2\n";exit}
+	timeout {puts "TESTING ERROR 2 (join) \n";exit}
 	"@svntesting"
 }
 sleep 1

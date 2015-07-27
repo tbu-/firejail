@@ -37,7 +37,7 @@ expect {
 	":firejail transmission-gtk"
 }
 expect {
-	timeout {puts "TESTING ERROR 5.1\n";exit}
+	timeout {puts "TESTING ERROR 5.1 (seccomp)\n";exit}
 	"Seccomp:	2"
 }
 expect {
