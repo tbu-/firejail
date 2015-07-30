@@ -1,4 +1,4 @@
-firejail (0.9.28-rc1) baseline; urgency=low
+firejail (0.9.28) baseline; urgency=low
   * network scanning, --scan option
   * interface MAC address support, --mac option
   * IP address range, --iprange option
@@ -12,7 +12,7 @@ firejail (0.9.28-rc1) baseline; urgency=low
   * support noroot option for profile files
   * enabled noroot in default profile files
   * bugfixes
- -- netblue30 <netblue30@yahoo.com>  Fri, 10 Jul 2015 08:00:00 -0500
+ -- netblue30 <netblue30@yahoo.com>  Sat, 1 Aug 2015 08:00:00 -0500
 
 firejail (0.9.26) baseline; urgency=low
   * private dev directory
