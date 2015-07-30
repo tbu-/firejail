@@ -704,6 +704,12 @@ Set the maximum number of pending signals for a process.
 \fB\-\-scan
 ARP-scan all the networks from inside a network namespace.
 This makes it possible to detect macvlan kernel device drivers running on the current host.
+.br
+
+.br
+Example:
+.br
+$ firejail \-\-net=eth0 \-\-scan
 .TP
 \fB\-\-seccomp
 Enable seccomp filter and blacklist the syscalls in the default list. The default list is as follows:

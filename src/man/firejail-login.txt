@@ -1,6 +1,6 @@
 .TH man 5 "MONTH YEAR" "VERSION" "firejail login.users man page"
 .SH NAME
-login.users file syntax for Firejail
+login.users \- Login file syntax for Firejail
 
 .SH DESCRIPTION
 /etc/firejail/login.users file describes additional arguments passed to firejail executable

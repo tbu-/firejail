@@ -70,6 +70,15 @@ cp etc/totem.profile debian/etc/firejail/.
 cp etc/deluge.profile debian/etc/firejail/.
 cp etc/qbittorrent.profile debian/etc/firejail/.
 cp etc/generic.profile debian/etc/firejail/.
+cp etc/xchat.profile debian/etc/firejail/.
+cp etc/server.profile debian/etc/firejail/.
+cp etc/quassel.profile debian/etc/firejail/.
+cp etc/pidgin.profile debian/etc/firejail/.
+cp etc/filezilla.profile debian/etc/firejail/.
+cp etc/empathy.profile debian/etc/firejail/.
+cp etc/disable-common.inc debian/etc/firejail/.
+cp etc/deadbeef.profile debian/etc/firejail/.
+cp etc/icecat.profile debian/etc/firejail/.
 cp platform/debian/conffiles $DEBIAN_CTRL_DIR/.
 find ./debian -type d | xargs chmod 755
 dpkg-deb --build debian

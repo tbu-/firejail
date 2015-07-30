@@ -6,8 +6,10 @@ firejail (0.9.28) baseline; urgency=low
   * reworked printing of network status at startup
   * man pages rework
   * added firejail-login man page
-  * added GNU Icecat, FileZilla, Pidgin, XChat, Empathy, DeaDBeeF default profiles
-  * added an /etc/firejail/disable-common.inc file to hold common directory blacklists
+  * added GNU Icecat, FileZilla, Pidgin, XChat, Empathy, DeaDBeeF default
+    profiles
+  * added an /etc/firejail/disable-common.inc file to hold common directory
+    blacklists
   * blacklist Opera and Chrome/Chromium config directories in profile files
   * support noroot option for profile files
   * enabled noroot in default profile files

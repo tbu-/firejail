@@ -22,3 +22,12 @@
 /etc/firejail/deluge.profile
 /etc/firejail/qbittorrent.profile
 /etc/firejail/generic.profile
+/etc/firejail/xchat.profile
+/etc/firejail/server.profile
+/etc/firejail/quassel.profile
+/etc/firejail/pidgin.profile
+/etc/firejail/filezilla.profile
+/etc/firejail/empathy.profile
+/etc/firejail/disable-common.inc
+/etc/firejail/deadbeef.profile
+/etc/firejail/icecat.profile
